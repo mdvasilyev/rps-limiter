@@ -1,0 +1,451 @@
+components:
+  schemas:
+    AllocatedGPUSchema:
+      properties:
+        gpuIndex:
+          title: Gpuindex
+          type: integer
+        gpuType:
+          title: Gputype
+          type: string
+        nodeName:
+          title: Nodename
+          type: string
+        partsCount:
+          title: Partscount
+          type: integer
+      required:
+      - nodeName
+      - gpuIndex
+      - gpuType
+      - partsCount
+      title: AllocatedGPUSchema
+      type: object
+    CardSplitConfigSchema:
+      properties:
+        parts:
+          title: Parts
+          type: integer
+        size:
+          title: Size
+          type: number
+        type:
+          title: Type
+          type: string
+      required:
+      - type
+      - parts
+      - size
+      title: CardSplitConfigSchema
+      type: object
+    ClusterStateResponseSchema:
+      properties:
+        nodes:
+          items:
+            $ref: '#/components/schemas/NodeStateSchema'
+          title: Nodes
+          type: array
+      required:
+      - nodes
+      title: ClusterStateResponseSchema
+      type: object
+    GPUConfigurationSchema:
+      properties:
+        gpuIndex:
+          title: Gpuindex
+          type: integer
+        migProfiles:
+          items:
+            $ref: '#/components/schemas/MIGProfileConfigSchema'
+          title: Migprofiles
+          type: array
+      required:
+      - gpuIndex
+      - migProfiles
+      title: GPUConfigurationSchema
+      type: object
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          title: Detail
+          type: array
+      title: HTTPValidationError
+      type: object
+    MIGProfileConfigSchema:
+      properties:
+        profileName:
+          title: Profilename
+          type: string
+      required:
+      - profileName
+      title: MIGProfileConfigSchema
+      type: object
+    NodeReconfigurationPlanSchema:
+      properties:
+        gpuConfigurations:
+          items:
+            $ref: '#/components/schemas/GPUConfigurationSchema'
+          title: Gpuconfigurations
+          type: array
+        nodeName:
+          title: Nodename
+          type: string
+        reconfigurationCost:
+          title: Reconfigurationcost
+          type: integer
+      required:
+      - nodeName
+      - gpuConfigurations
+      - reconfigurationCost
+      title: NodeReconfigurationPlanSchema
+      type: object
+    NodeStateSchema:
+      properties:
+        availableProfiles:
+          items:
+            $ref: '#/components/schemas/CardSplitConfigSchema'
+          title: Availableprofiles
+          type: array
+        currentGpus:
+          items:
+            $ref: '#/components/schemas/GPUConfigurationSchema'
+          title: Currentgpus
+          type: array
+        gpuCount:
+          title: Gpucount
+          type: integer
+        gpuModel:
+          title: Gpumodel
+          type: string
+        isLocked:
+          title: Islocked
+          type: boolean
+        name:
+          title: Name
+          type: string
+        placements:
+          items:
+            $ref: '#/components/schemas/PlacementInfoSchema'
+          title: Placements
+          type: array
+      required:
+      - name
+      - gpuModel
+      - gpuCount
+      - availableProfiles
+      - isLocked
+      - currentGpus
+      - placements
+      title: NodeStateSchema
+      type: object
+    PlacementInfoSchema:
+      properties:
+        allocations:
+          items:
+            $ref: '#/components/schemas/AllocatedGPUSchema'
+          title: Allocations
+          type: array
+        groupId:
+          title: Groupid
+          type: string
+        requestId:
+          title: Requestid
+          type: string
+      required:
+      - requestId
+      - groupId
+      - allocations
+      title: PlacementInfoSchema
+      type: object
+    PlanScenarioRequestSchema:
+      properties:
+        requests:
+          items:
+            $ref: '#/components/schemas/ResourceRequestSchema'
+          title: Requests
+          type: array
+      required:
+      - requests
+      title: PlanScenarioRequestSchema
+      type: object
+    PlanScenarioResponseSchema:
+      properties:
+        placementPlan:
+          items:
+            $ref: '#/components/schemas/PlacementInfoSchema'
+          title: Placementplan
+          type: array
+        possible:
+          title: Possible
+          type: boolean
+        reason:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Reason
+        reconfigurationPlan:
+          items:
+            $ref: '#/components/schemas/NodeReconfigurationPlanSchema'
+          title: Reconfigurationplan
+          type: array
+        status:
+          title: Status
+          type: string
+        totalReconfigurationCost:
+          title: Totalreconfigurationcost
+          type: integer
+      required:
+      - possible
+      - status
+      - totalReconfigurationCost
+      - reconfigurationPlan
+      - placementPlan
+      title: PlanScenarioResponseSchema
+      type: object
+    PreviewScaleDownSchema:
+      properties:
+        desiredReplicas:
+          title: Desiredreplicas
+          type: integer
+        ownerId:
+          format: uuid4
+          title: Ownerid
+          type: string
+      required:
+      - ownerId
+      - desiredReplicas
+      title: PreviewScaleDownSchema
+      type: object
+    ResourceRequestSchema:
+      properties:
+        groupId:
+          title: Groupid
+          type: string
+        requestId:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Optional request ID, will be generated if not provided
+          title: Requestid
+        sizeGb:
+          title: Sizegb
+          type: number
+      required:
+      - groupId
+      - sizeGb
+      title: ResourceRequestSchema
+      type: object
+    TopologyNodeResponseSchema:
+      properties:
+        availableProfiles:
+          items:
+            $ref: '#/components/schemas/CardSplitConfigSchema'
+          title: Availableprofiles
+          type: array
+        gpuCount:
+          title: Gpucount
+          type: integer
+        gpuModel:
+          title: Gpumodel
+          type: string
+        name:
+          title: Name
+          type: string
+      required:
+      - name
+      - gpuModel
+      - gpuCount
+      - availableProfiles
+      title: TopologyNodeResponseSchema
+      type: object
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          title: Location
+          type: array
+        msg:
+          title: Message
+          type: string
+        type:
+          title: Error Type
+          type: string
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+      type: object
+info:
+  title: Resource Manager
+  version: 1.0.0
+openapi: 3.1.0
+paths:
+  /health/liveness:
+    get:
+      description: "\u041F\u0438\u043D\u0433"
+      operationId: liveness_health_liveness_get
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                title: Response Liveness Health Liveness Get
+                type: boolean
+          description: Successful Response
+      summary: Liveness
+      tags:
+      - Health
+  /health/readiness:
+    get:
+      description: "\u0413\u043E\u0442\u043E\u0432\u043D\u043E\u0441\u0442\u044C \u043F\
+        \u0440\u0438\u043D\u0438\u043C\u0430\u0442\u044C \u0442\u0440\u0430\u0444\u0438\
+        \u043A"
+      operationId: readiness_health_readiness_get
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                title: Response Readiness Health Readiness Get
+                type: boolean
+          description: Successful Response
+      summary: Readiness
+      tags:
+      - Health
+  /v1/cluster/state:
+    get:
+      operationId: get_cluster_state_v1_cluster_state_get
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ClusterStateResponseSchema'
+          description: Successful Response
+      summary: Get current full state of the cluster
+      tags:
+      - Cluster
+  /v1/cluster/topology:
+    get:
+      operationId: get_topology_v1_cluster_topology_get
+      parameters:
+      - description: Filter by GPU model, e.g., 'A100'
+        in: query
+        name: gpu_model
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Filter by GPU model, e.g., 'A100'
+          title: Gpu Model
+      - description: Filter by minimum GPU count per node
+        in: query
+        name: min_gpu_count
+        required: false
+        schema:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Filter by minimum GPU count per node
+          title: Min Gpu Count
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/TopologyNodeResponseSchema'
+                title: Response Get Topology V1 Cluster Topology Get
+                type: array
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Get cluster topology with optional filters
+      tags:
+      - Cluster
+  /v1/scenarios/plan-on-current:
+    post:
+      operationId: plan_on_current_cluster_v1_scenarios_plan_on_current_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PlanScenarioRequestSchema'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PlanScenarioResponseSchema'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Plan resource allocation on the currently configured cluster
+      tags:
+      - Scenarios
+  /v1/scenarios/plan-on-empty:
+    post:
+      operationId: plan_on_empty_cluster_v1_scenarios_plan_on_empty_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PlanScenarioRequestSchema'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PlanScenarioResponseSchema'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Plan resource allocation on an empty cluster
+      tags:
+      - Scenarios
+  /v1/scenarios/preview-scale-down:
+    post:
+      operationId: preview_scale_down_v1_scenarios_preview_scale_down_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PreviewScaleDownSchema'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PlanScenarioResponseSchema'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Plan resource downscale on the currently configured cluster
+      tags:
+      - Scenarios

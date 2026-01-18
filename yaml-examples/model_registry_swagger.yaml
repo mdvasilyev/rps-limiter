@@ -1,0 +1,4007 @@
+components:
+  schemas:
+    CommonConfigurationPayloadPatch:
+      additionalProperties: false
+      properties:
+        config:
+          anyOf:
+          - $ref: '#/components/schemas/VLLMConfigSchemaPatch'
+          - type: 'null'
+        cpuLimit:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Cpulimit
+        cpuRequest:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Cpurequest
+        envVars:
+          anyOf:
+          - additionalProperties:
+              type: string
+            type: object
+          - type: 'null'
+          title: Envvars
+        gpuGb:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Gpugb
+        name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Name
+        ramLimit:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Ramlimit
+        ramRequest:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Ramrequest
+        type:
+          anyOf:
+          - $ref: '#/components/schemas/LmEngineType'
+          - type: 'null'
+      title: CommonConfigurationPayloadPatch
+      type: object
+    EndpointBaseSchemaPatch:
+      additionalProperties: false
+      properties:
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+        path:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Path
+      title: EndpointBaseSchemaPatch
+      type: object
+    EndpointCreateSchema:
+      additionalProperties: false
+      properties:
+        description:
+          title: Description
+          type: string
+        path:
+          title: Path
+          type: string
+      required:
+      - path
+      - description
+      title: EndpointCreateSchema
+      type: object
+    EndpointReadSchema:
+      additionalProperties: false
+      properties:
+        description:
+          title: Description
+          type: string
+        id:
+          title: Id
+          type: integer
+        path:
+          title: Path
+          type: string
+      required:
+      - path
+      - description
+      - id
+      title: EndpointReadSchema
+      type: object
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          title: Detail
+          type: array
+      title: HTTPValidationError
+      type: object
+    InstanceReadSchema:
+      properties:
+        address:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Address
+        id:
+          title: Id
+          type: integer
+        ownerId:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Ownerid
+        replicas:
+          title: Replicas
+          type: integer
+      required:
+      - id
+      - replicas
+      - ownerId
+      - address
+      title: InstanceReadSchema
+      type: object
+    LmEngineType:
+      enum:
+      - vllm
+      - triton
+      title: LmEngineType
+      type: string
+    LmType:
+      enum:
+      - llm
+      - vlm
+      title: LmType
+      type: string
+    ModelCreateSchema:
+      additionalProperties: false
+      properties:
+        configId:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Configid
+        endpointIds:
+          items:
+            type: integer
+          maxItems: 20
+          title: Endpointids
+          type: array
+        hfRepoId:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Hfrepoid
+        name:
+          title: Name
+          type: string
+        tagIds:
+          items:
+            type: integer
+          maxItems: 20
+          title: Tagids
+          type: array
+        type:
+          $ref: '#/components/schemas/LmType'
+      required:
+      - name
+      - type
+      - endpointIds
+      - tagIds
+      - configId
+      title: ModelCreateSchema
+      type: object
+    ModelPatchSchema:
+      additionalProperties: false
+      properties:
+        configId:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Configid
+        hfRepoId:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Hfrepoid
+        name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Name
+      title: ModelPatchSchema
+      type: object
+    ModelReadSchema:
+      additionalProperties: false
+      properties:
+        configuration:
+          anyOf:
+          - discriminator:
+              mapping:
+                triton: '#/components/schemas/TritonConfigurationReadSchema'
+                vllm: '#/components/schemas/VLLMConfigurationReadSchema'
+              propertyName: type
+            oneOf:
+            - $ref: '#/components/schemas/VLLMConfigurationReadSchema'
+            - $ref: '#/components/schemas/TritonConfigurationReadSchema'
+          - type: 'null'
+          title: Configuration
+        deleted:
+          title: Deleted
+          type: boolean
+        endpoints:
+          items:
+            $ref: '#/components/schemas/EndpointReadSchema'
+          title: Endpoints
+          type: array
+        hfRepoId:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Hfrepoid
+        id:
+          format: uuid4
+          title: Id
+          type: string
+        instance:
+          $ref: '#/components/schemas/InstanceReadSchema'
+        name:
+          title: Name
+          type: string
+        status:
+          $ref: '#/components/schemas/ModelStatus'
+        storage:
+          anyOf:
+          - $ref: '#/components/schemas/StorageReadSchema'
+          - type: 'null'
+        tags:
+          items:
+            $ref: '#/components/schemas/TagReadSchema'
+          title: Tags
+          type: array
+        type:
+          $ref: '#/components/schemas/LmType'
+      required:
+      - name
+      - type
+      - id
+      - status
+      - endpoints
+      - instance
+      - tags
+      - storage
+      - configuration
+      - deleted
+      title: ModelReadSchema
+      type: object
+    ModelStatus:
+      enum:
+      - CREATED
+      - DOWNLOADING
+      - DOWNLOADED
+      - STARTING
+      - RUNNING
+      - STOPPING
+      - DELETED
+      title: ModelStatus
+      type: string
+    ? Paginated_Annotated_Union_VLLMConfigurationReadSchema__TritonConfigurationReadSchema___FieldInfo_annotation_NoneType__required_True__discriminator__type____
+    : properties:
+        items:
+          items:
+            discriminator:
+              mapping:
+                triton: '#/components/schemas/TritonConfigurationReadSchema'
+                vllm: '#/components/schemas/VLLMConfigurationReadSchema'
+              propertyName: type
+            oneOf:
+            - $ref: '#/components/schemas/VLLMConfigurationReadSchema'
+            - $ref: '#/components/schemas/TritonConfigurationReadSchema'
+          title: Items
+          type: array
+        limit:
+          title: Limit
+          type: integer
+        offset:
+          title: Offset
+          type: integer
+        total:
+          title: Total
+          type: integer
+      required:
+      - items
+      - total
+      - limit
+      - offset
+      title: Paginated[Annotated[Union[VLLMConfigurationReadSchema, TritonConfigurationReadSchema],
+        FieldInfo(annotation=NoneType, required=True, discriminator='type')]]
+      type: object
+    Paginated_EndpointReadSchema_:
+      properties:
+        items:
+          items:
+            $ref: '#/components/schemas/EndpointReadSchema'
+          title: Items
+          type: array
+        limit:
+          title: Limit
+          type: integer
+        offset:
+          title: Offset
+          type: integer
+        total:
+          title: Total
+          type: integer
+      required:
+      - items
+      - total
+      - limit
+      - offset
+      title: Paginated[EndpointReadSchema]
+      type: object
+    Paginated_ModelReadSchema_:
+      properties:
+        items:
+          items:
+            $ref: '#/components/schemas/ModelReadSchema'
+          title: Items
+          type: array
+        limit:
+          title: Limit
+          type: integer
+        offset:
+          title: Offset
+          type: integer
+        total:
+          title: Total
+          type: integer
+      required:
+      - items
+      - total
+      - limit
+      - offset
+      title: Paginated[ModelReadSchema]
+      type: object
+    Paginated_StorageReadSchema_:
+      properties:
+        items:
+          items:
+            $ref: '#/components/schemas/StorageReadSchema'
+          title: Items
+          type: array
+        limit:
+          title: Limit
+          type: integer
+        offset:
+          title: Offset
+          type: integer
+        total:
+          title: Total
+          type: integer
+      required:
+      - items
+      - total
+      - limit
+      - offset
+      title: Paginated[StorageReadSchema]
+      type: object
+    Paginated_TagReadSchema_:
+      properties:
+        items:
+          items:
+            $ref: '#/components/schemas/TagReadSchema'
+          title: Items
+          type: array
+        limit:
+          title: Limit
+          type: integer
+        offset:
+          title: Offset
+          type: integer
+        total:
+          title: Total
+          type: integer
+      required:
+      - items
+      - total
+      - limit
+      - offset
+      title: Paginated[TagReadSchema]
+      type: object
+    StorageBaseSchemaPatch:
+      additionalProperties: false
+      properties:
+        artifactId:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Artifactid
+        revision:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Revision
+        type:
+          anyOf:
+          - $ref: '#/components/schemas/StorageType'
+          - type: 'null'
+        uri:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Uri
+      title: StorageBaseSchemaPatch
+      type: object
+    StorageCreateSchema:
+      additionalProperties: false
+      properties:
+        artifactId:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Artifactid
+        revision:
+          title: Revision
+          type: string
+        type:
+          $ref: '#/components/schemas/StorageType'
+        uri:
+          title: Uri
+          type: string
+      required:
+      - uri
+      - type
+      - revision
+      title: StorageCreateSchema
+      type: object
+    StorageReadSchema:
+      additionalProperties: false
+      properties:
+        artifactId:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Artifactid
+        id:
+          title: Id
+          type: integer
+        revision:
+          title: Revision
+          type: string
+        type:
+          $ref: '#/components/schemas/StorageType'
+        uri:
+          title: Uri
+          type: string
+      required:
+      - uri
+      - type
+      - revision
+      - id
+      title: StorageReadSchema
+      type: object
+    StorageType:
+      enum:
+      - s3
+      - nfs
+      title: StorageType
+      type: string
+    TagCreateSchema:
+      additionalProperties: false
+      properties:
+        tag:
+          title: Tag
+          type: string
+      required:
+      - tag
+      title: TagCreateSchema
+      type: object
+    TagReadSchema:
+      additionalProperties: false
+      properties:
+        id:
+          title: Id
+          type: integer
+        tag:
+          title: Tag
+          type: string
+      required:
+      - tag
+      - id
+      title: TagReadSchema
+      type: object
+    TritonConfigSchema:
+      additionalProperties: false
+      description: "\u0421\u0445\u0435\u043C\u0430 \u0434\u043B\u044F \u043F\u0430\
+        \u0440\u0430\u043C\u0435\u0442\u0440\u043E\u0432 \u043A\u043E\u043D\u0444\u0438\
+        \u0433\u0443\u0440\u0430\u0446\u0438\u0438 \u0442\u0438\u043F\u0430 'triton'."
+      properties:
+        instance_group_kind:
+          description: "\u0422\u0438\u043F \u0438\u043D\u0441\u0442\u0430\u043D\u0441\
+            \u0430 \u0434\u043B\u044F Triton"
+          enum:
+          - KIND_CPU
+          - KIND_GPU
+          title: Instance Group Kind
+          type: string
+        max_batch_size:
+          anyOf:
+          - exclusiveMinimum: 0.0
+            type: integer
+          - type: 'null'
+          description: "\u041C\u0430\u043A\u0441\u0438\u043C\u0430\u043B\u044C\u043D\
+            \u044B\u0439 \u0440\u0430\u0437\u043C\u0435\u0440 \u0431\u0430\u0442\u0447\
+            \u0430"
+          title: Max Batch Size
+      required:
+      - instance_group_kind
+      title: TritonConfigSchema
+      type: object
+    TritonConfigurationPayload:
+      additionalProperties: false
+      description: "\u041F\u043E\u043B\u043D\u0430\u044F \u0441\u0445\u0435\u043C\u0430\
+        \ \u0434\u043B\u044F \u0441\u043E\u0437\u0434\u0430\u043D\u0438\u044F \u043A\
+        \u043E\u043D\u0444\u0438\u0433\u0443\u0440\u0430\u0446\u0438\u0438 \u0442\u0438\
+        \u043F\u0430 'triton'."
+      properties:
+        config:
+          $ref: '#/components/schemas/TritonConfigSchema'
+        cpuLimit:
+          exclusiveMinimum: 0.0
+          title: Cpulimit
+          type: integer
+        cpuRequest:
+          exclusiveMinimum: 0.0
+          title: Cpurequest
+          type: integer
+        envVars:
+          additionalProperties:
+            type: string
+          title: Envvars
+          type: object
+        gpuGb:
+          minimum: 0.0
+          title: Gpugb
+          type: integer
+        name:
+          maxLength: 255
+          title: Name
+          type: string
+        ramLimit:
+          exclusiveMinimum: 0.0
+          title: Ramlimit
+          type: integer
+        ramRequest:
+          exclusiveMinimum: 0.0
+          title: Ramrequest
+          type: integer
+        type:
+          const: triton
+          title: Type
+          type: string
+      required:
+      - name
+      - gpuGb
+      - cpuRequest
+      - cpuLimit
+      - ramRequest
+      - ramLimit
+      - type
+      - config
+      title: TritonConfigurationPayload
+      type: object
+    TritonConfigurationReadSchema:
+      additionalProperties: false
+      properties:
+        config:
+          type: object
+        cpuLimit:
+          exclusiveMinimum: 0.0
+          title: Cpulimit
+          type: integer
+        cpuRequest:
+          exclusiveMinimum: 0.0
+          title: Cpurequest
+          type: integer
+        createdAt:
+          format: date-time
+          title: Createdat
+          type: string
+        envVars:
+          additionalProperties:
+            type: string
+          title: Envvars
+          type: object
+        gpuGb:
+          minimum: 0.0
+          title: Gpugb
+          type: integer
+        id:
+          title: Id
+          type: integer
+        name:
+          maxLength: 255
+          title: Name
+          type: string
+        ramLimit:
+          exclusiveMinimum: 0.0
+          title: Ramlimit
+          type: integer
+        ramRequest:
+          exclusiveMinimum: 0.0
+          title: Ramrequest
+          type: integer
+        type:
+          const: triton
+          title: Type
+          type: string
+        updatedAt:
+          format: date-time
+          title: Updatedat
+          type: string
+      required:
+      - id
+      - config
+      - createdAt
+      - updatedAt
+      - name
+      - gpuGb
+      - cpuRequest
+      - cpuLimit
+      - ramRequest
+      - ramLimit
+      - type
+      title: TritonConfigurationReadSchema
+      type: object
+    VLLMConfigSchema:
+      additionalProperties: false
+      description: "\u041F\u043E\u043B\u043D\u0430\u044F \u0441\u0445\u0435\u043C\u0430\
+        \ \u0434\u043B\u044F \u043F\u0430\u0440\u0430\u043C\u0435\u0442\u0440\u043E\
+        \u0432 \u043A\u043E\u043D\u0444\u0438\u0433\u0443\u0440\u0430\u0446\u0438\u0438\
+        \ \u0442\u0438\u043F\u0430 'vllm', \u043E\u0441\u043D\u043E\u0432\u0430\u043D\
+        \u043D\u0430\u044F \u043D\u0430 CLI \u0430\u0440\u0433\u0443\u043C\u0435\u043D\
+        \u0442\u0430\u0445."
+      properties:
+        O:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: "\u0421\u043E\u043A\u0440\u0430\u0449\u0435\u043D\u043D\u044B\
+            \u0439 \u043F\u0441\u0435\u0432\u0434\u043E\u043D\u0438\u043C \u0434\u043B\
+            \u044F 'compilation-config'."
+          title: O
+        allow-credentials:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          description: "\u0420\u0430\u0437\u0440\u0435\u0448\u0438\u0442\u044C credentials\
+            \ (CORS)."
+          title: Allow-Credentials
+        allowed-headers:
+          anyOf:
+          - items:
+              type: string
+            type: array
+          - type: 'null'
+          description: "\u0421\u043F\u0438\u0441\u043E\u043A \u0440\u0430\u0437\u0440\
+            \u0435\u0448\u0435\u043D\u043D\u044B\u0445 HTTP \u0437\u0430\u0433\u043E\
+            \u043B\u043E\u0432\u043A\u043E\u0432 (CORS)."
+          title: Allowed-Headers
+        allowed-local-media-path:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Allowed-Local-Media-Path
+        allowed-methods:
+          anyOf:
+          - items:
+              type: string
+            type: array
+          - type: 'null'
+          description: "\u0421\u043F\u0438\u0441\u043E\u043A \u0440\u0430\u0437\u0440\
+            \u0435\u0448\u0435\u043D\u043D\u044B\u0445 HTTP \u043C\u0435\u0442\u043E\
+            \u0434\u043E\u0432 (CORS)."
+          title: Allowed-Methods
+        allowed-origins:
+          anyOf:
+          - items:
+              type: string
+            type: array
+          - type: 'null'
+          description: "\u0421\u043F\u0438\u0441\u043E\u043A \u0440\u0430\u0437\u0440\
+            \u0435\u0448\u0435\u043D\u043D\u044B\u0445 \u0438\u0441\u0442\u043E\u0447\
+            \u043D\u0438\u043A\u043E\u0432 (CORS)."
+          title: Allowed-Origins
+        api-key:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: "API \u043A\u043B\u044E\u0447 \u0434\u043B\u044F \u0437\u0430\
+            \u0449\u0438\u0442\u044B \u044D\u043D\u0434\u043F\u043E\u0438\u043D\u0442\
+            \u043E\u0432."
+          title: Api-Key
+        block-size:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: "\u0420\u0430\u0437\u043C\u0435\u0440 \u0431\u043B\u043E\u043A\
+            \u0430 \u0442\u043E\u043A\u0435\u043D\u043E\u0432 \u0434\u043B\u044F KV-\u043A\
+            \u044D\u0448\u0430 (8, 16, 32)."
+          title: Block-Size
+        calculate-kv-scales:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Calculate-Kv-Scales
+        chat-template:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Chat-Template
+        chat-template-content-format:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Chat-Template-Content-Format
+        code-revision:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: "\u0420\u0435\u0432\u0438\u0437\u0438\u044F \u043A\u043E\u0434\
+            \u0430 \u043C\u043E\u0434\u0435\u043B\u0438."
+          title: Code-Revision
+        collect-detailed-traces:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Collect-Detailed-Traces
+        compilation-config:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: "\u041A\u043E\u043D\u0444\u0438\u0433\u0443\u0440\u0430\u0446\
+            \u0438\u044F \u043A\u043E\u043C\u043F\u0438\u043B\u044F\u0446\u0438\u0438\
+            ."
+          title: Compilation-Config
+        config:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: "\u041F\u0443\u0442\u044C \u043A \u0444\u0430\u0439\u043B\u0443\
+            \ \u043A\u043E\u043D\u0444\u0438\u0433\u0443\u0440\u0430\u0446\u0438\u0438\
+            ."
+          title: Config
+        config-format:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: "\u0424\u043E\u0440\u043C\u0430\u0442 \u0444\u0430\u0439\u043B\
+            \u0430 \u043A\u043E\u043D\u0444\u0438\u0433\u0443\u0440\u0430\u0446\u0438\
+            \u0438."
+          title: Config-Format
+        cpu-offload-gb:
+          anyOf:
+          - exclusiveMinimum: 0.0
+            type: integer
+          - type: 'null'
+          description: "\u0420\u0430\u0437\u043C\u0435\u0440 (\u0432 \u0413\u0411\
+            ) \u0434\u043B\u044F \u0432\u044B\u0433\u0440\u0443\u0437\u043A\u0438\
+            \ \u0441\u043B\u043E\u0435\u0432 \u043C\u043E\u0434\u0435\u043B\u0438\
+            \ \u043D\u0430 CPU."
+          title: Cpu-Offload-Gb
+        device:
+          anyOf:
+          - enum:
+            - cuda
+            - neuron
+            - cpu
+            type: string
+          - type: 'null'
+          description: "\u0423\u0441\u0442\u0440\u043E\u0439\u0441\u0442\u0432\u043E\
+            \ \u0434\u043B\u044F \u0432\u044B\u043F\u043E\u043B\u043D\u0435\u043D\u0438\
+            \u044F \u043C\u043E\u0434\u0435\u043B\u0438."
+          title: Device
+        disable-async-output-proc:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Disable-Async-Output-Proc
+        disable-custom-all-reduce:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Disable-Custom-All-Reduce
+        disable-fastapi-docs:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Disable-Fastapi-Docs
+        disable-frontend-multiprocessing:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Disable-Frontend-Multiprocessing
+        disable-log-requests:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Disable-Log-Requests
+        disable-log-stats:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Disable-Log-Stats
+        disable-logprobs-during-spec-decoding:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          description: "\u041E\u0442\u043A\u043B\u044E\u0447\u0438\u0442\u044C logprobs\
+            \ \u0432\u043E \u0432\u0440\u0435\u043C\u044F \u0441\u043F\u0435\u043A\
+            \u0443\u043B\u044F\u0442\u0438\u0432\u043D\u043E\u0433\u043E \u0434\u0435\
+            \u043A\u043E\u0434\u0438\u0440\u043E\u0432\u0430\u043D\u0438\u044F."
+          title: Disable-Logprobs-During-Spec-Decoding
+        disable-mm-preprocessor-cache:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Disable-Mm-Preprocessor-Cache
+        disable-sliding-window:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Disable-Sliding-Window
+        distributed-executor-backend:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: "\u0411\u044D\u043A\u0435\u043D\u0434 \u0434\u043B\u044F \u0440\
+            \u0430\u0441\u043F\u0440\u0435\u0434\u0435\u043B\u0435\u043D\u043D\u043E\
+            \u0433\u043E \u0432\u044B\u043F\u043E\u043B\u043D\u0435\u043D\u0438\u044F\
+            \ (ray, mpi)."
+          title: Distributed-Executor-Backend
+        download-dir:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: "\u0414\u0438\u0440\u0435\u043A\u0442\u043E\u0440\u0438\u044F\
+            \ \u0434\u043B\u044F \u0437\u0430\u0433\u0440\u0443\u0437\u043A\u0438\
+            \ \u043C\u043E\u0434\u0435\u043B\u0435\u0439."
+          title: Download-Dir
+        dtype:
+          anyOf:
+          - enum:
+            - auto
+            - half
+            - float16
+            - bfloat16
+            - float
+            - float32
+            type: string
+          - type: 'null'
+          description: "\u0422\u0438\u043F \u0434\u0430\u043D\u043D\u044B\u0445 \u0434\
+            \u043B\u044F \u0432\u0435\u0441\u043E\u0432 \u043C\u043E\u0434\u0435\u043B\
+            \u0438."
+          title: Dtype
+        enable-auto-tool-choice:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Enable-Auto-Tool-Choice
+        enable-chunked-prefill:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Enable-Chunked-Prefill
+        enable-lora:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          description: "\u0412\u043A\u043B\u044E\u0447\u0438\u0442\u044C \u043F\u043E\
+            \u0434\u0434\u0435\u0440\u0436\u043A\u0443 LoRA."
+          title: Enable-Lora
+        enable-lora-bias:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          description: "\u0412\u043A\u043B\u044E\u0447\u0438\u0442\u044C \u0441\u043C\
+            \u0435\u0449\u0435\u043D\u0438\u0435 \u0434\u043B\u044F LoRA \u0441\u043B\
+            \u043E\u0435\u0432."
+          title: Enable-Lora-Bias
+        enable-prefix-caching:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          description: "\u0412\u043A\u043B\u044E\u0447\u0438\u0442\u044C \u043A\u044D\
+            \u0448\u0438\u0440\u043E\u0432\u0430\u043D\u0438\u0435 \u043F\u0440\u0435\
+            \u0444\u0438\u043A\u0441\u043E\u0432."
+          title: Enable-Prefix-Caching
+        enable-prompt-adapter:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          description: "\u0412\u043A\u043B\u044E\u0447\u0438\u0442\u044C Prompt Adapters."
+          title: Enable-Prompt-Adapter
+        enable-prompt-tokens-details:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Enable-Prompt-Tokens-Details
+        enable-reasoning:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Enable-Reasoning
+        enable-request-id-headers:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Enable-Request-Id-Headers
+        enable-sleep-mode:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Enable-Sleep-Mode
+        enforce-eager:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          description: "\u0412\u0441\u0435\u0433\u0434\u0430 \u0432\u044B\u043F\u043E\
+            \u043B\u043D\u044F\u0442\u044C \u043C\u043E\u0434\u0435\u043B\u044C \u0432\
+            \ eager \u0440\u0435\u0436\u0438\u043C\u0435."
+          title: Enforce-Eager
+        fully-sharded-loras:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          description: "\u0417\u0430\u0433\u0440\u0443\u0436\u0430\u0442\u044C LoRA\
+            \ \u0432 \u043F\u043E\u043B\u043D\u043E\u0441\u0442\u044C\u044E \u0448\
+            \u0430\u0440\u0434\u0438\u0440\u043E\u0432\u0430\u043D\u043D\u043E\u043C\
+            \ \u0440\u0435\u0436\u0438\u043C\u0435."
+          title: Fully-Sharded-Loras
+        generation-config:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: "\u041F\u0443\u0442\u044C \u043A \u0444\u0430\u0439\u043B\u0443\
+            \ \u043A\u043E\u043D\u0444\u0438\u0433\u0443\u0440\u0430\u0446\u0438\u0438\
+            \ \u0433\u0435\u043D\u0435\u0440\u0430\u0446\u0438\u0438."
+          title: Generation-Config
+        gpu-memory-utilization:
+          anyOf:
+          - exclusiveMinimum: 0.0
+            maximum: 1.0
+            type: number
+          - type: 'null'
+          description: "\u0414\u043E\u043B\u044F GPU \u043F\u0430\u043C\u044F\u0442\
+            \u0438 \u0434\u043B\u044F \u0438\u0441\u043F\u043E\u043B\u044C\u0437\u043E\
+            \u0432\u0430\u043D\u0438\u044F (0.0-1.0)."
+          title: Gpu-Memory-Utilization
+        guided-decoding-backend:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Guided-Decoding-Backend
+        hf-overrides:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: "\u041F\u0435\u0440\u0435\u043E\u043F\u0440\u0435\u0434\u0435\
+            \u043B\u0435\u043D\u0438\u044F \u0434\u043B\u044F Hugging Face."
+          title: Hf-Overrides
+        host:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: "\u0425\u043E\u0441\u0442 \u0434\u043B\u044F \u0437\u0430\u043F\
+            \u0443\u0441\u043A\u0430 API \u0441\u0435\u0440\u0432\u0435\u0440\u0430\
+            \ ('0.0.0.0' \u0434\u043B\u044F \u0434\u043E\u0441\u0442\u0443\u043F\u0430\
+            \ \u0438\u0437\u0432\u043D\u0435)."
+          title: Host
+        ignore-patterns:
+          anyOf:
+          - items:
+              type: string
+            type: array
+          - type: 'null'
+          title: Ignore-Patterns
+        kv-cache-dtype:
+          anyOf:
+          - enum:
+            - auto
+            - fp8
+            type: string
+          - type: 'null'
+          description: "\u0422\u0438\u043F \u0434\u0430\u043D\u043D\u044B\u0445 \u0434\
+            \u043B\u044F KV-\u043A\u044D\u0448\u0430."
+          title: Kv-Cache-Dtype
+        kv-transfer-config:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Kv-Transfer-Config
+        limit-mm-per-prompt:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Limit-Mm-Per-Prompt
+        load-format:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: "\u0424\u043E\u0440\u043C\u0430\u0442 \u0437\u0430\u0433\u0440\
+            \u0443\u0437\u043A\u0438 \u0432\u0435\u0441\u043E\u0432 (auto, pt, safetensors)."
+          title: Load-Format
+        logits-processor-pattern:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Logits-Processor-Pattern
+        long-lora-scaling-factors:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: "\u041C\u0430\u0441\u0448\u0442\u0430\u0431\u0438\u0440\u0443\
+            \u044E\u0449\u0438\u0435 \u0444\u0430\u043A\u0442\u043E\u0440\u044B \u0434\
+            \u043B\u044F LongLoRA."
+          title: Long-Lora-Scaling-Factors
+        lora-dtype:
+          anyOf:
+          - enum:
+            - auto
+            - float16
+            - bfloat16
+            - float32
+            type: string
+          - type: 'null'
+          description: "\u0422\u0438\u043F \u0434\u0430\u043D\u043D\u044B\u0445 \u0434\
+            \u043B\u044F LoRA \u0432\u0435\u0441\u043E\u0432."
+          title: Lora-Dtype
+        lora-extra-vocab-size:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: "\u0414\u043E\u043F\u043E\u043B\u043D\u0438\u0442\u0435\u043B\
+            \u044C\u043D\u044B\u0439 \u0440\u0430\u0437\u043C\u0435\u0440 \u0441\u043B\
+            \u043E\u0432\u0430\u0440\u044F \u0434\u043B\u044F LoRA."
+          title: Lora-Extra-Vocab-Size
+        lora-modules:
+          anyOf:
+          - items:
+              type: object
+            type: array
+          - type: string
+          - type: 'null'
+          description: "\u0421\u043F\u0438\u0441\u043E\u043A LoRA \u043C\u043E\u0434\
+            \u0443\u043B\u0435\u0439 \u0434\u043B\u044F \u0437\u0430\u0433\u0440\u0443\
+            \u0437\u043A\u0438."
+          title: Lora-Modules
+        max-cpu-loras:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: "\u041C\u0430\u043A\u0441\u0438\u043C\u0430\u043B\u044C\u043D\
+            \u043E\u0435 \u043A\u043E\u043B\u0438\u0447\u0435\u0441\u0442\u0432\u043E\
+            \ LoRA \u0434\u043B\u044F \u0445\u0440\u0430\u043D\u0435\u043D\u0438\u044F\
+            \ \u043D\u0430 CPU."
+          title: Max-Cpu-Loras
+        max-log-len:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: "\u041C\u0430\u043A\u0441\u0438\u043C\u0430\u043B\u044C\u043D\
+            \u0430\u044F \u0434\u043B\u0438\u043D\u0430 \u043B\u043E\u0433\u043E\u0432\
+            \ \u0437\u0430\u043F\u0440\u043E\u0441\u043E\u0432."
+          title: Max-Log-Len
+        max-logprobs:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: "\u041C\u0430\u043A\u0441\u0438\u043C\u0430\u043B\u044C\u043D\
+            \u043E\u0435 \u043A\u043E\u043B\u0438\u0447\u0435\u0441\u0442\u0432\u043E\
+            \ logprobs \u0434\u043B\u044F \u0432\u043E\u0437\u0432\u0440\u0430\u0442\
+            \u0430."
+          title: Max-Logprobs
+        max-lora-rank:
+          anyOf:
+          - exclusiveMinimum: 0.0
+            type: integer
+          - type: 'null'
+          description: "\u041C\u0430\u043A\u0441\u0438\u043C\u0430\u043B\u044C\u043D\
+            \u044B\u0439 \u0440\u0430\u043D\u0433 LoRA."
+          title: Max-Lora-Rank
+        max-loras:
+          anyOf:
+          - exclusiveMinimum: 0.0
+            type: integer
+          - type: 'null'
+          description: "\u041C\u0430\u043A\u0441\u0438\u043C\u0430\u043B\u044C\u043D\
+            \u043E\u0435 \u043A\u043E\u043B\u0438\u0447\u0435\u0441\u0442\u0432\u043E\
+            \ \u0430\u043A\u0442\u0438\u0432\u043D\u044B\u0445 LoRA."
+          title: Max-Loras
+        max-model-len:
+          anyOf:
+          - exclusiveMinimum: 0.0
+            type: integer
+          - type: 'null'
+          description: "\u041C\u0430\u043A\u0441\u0438\u043C\u0430\u043B\u044C\u043D\
+            \u0430\u044F \u0434\u043B\u0438\u043D\u0430 \u043F\u043E\u0441\u043B\u0435\
+            \u0434\u043E\u0432\u0430\u0442\u0435\u043B\u044C\u043D\u043E\u0441\u0442\
+            \u0438 \u0434\u043B\u044F \u043C\u043E\u0434\u0435\u043B\u0438."
+          title: Max-Model-Len
+        max-num-batched-tokens:
+          anyOf:
+          - exclusiveMinimum: 0.0
+            type: integer
+          - type: 'null'
+          description: "\u041C\u0430\u043A\u0441\u0438\u043C\u0430\u043B\u044C\u043D\
+            \u043E\u0435 \u043A\u043E\u043B\u0438\u0447\u0435\u0441\u0442\u0432\u043E\
+            \ \u0442\u043E\u043A\u0435\u043D\u043E\u0432 \u0432 \u0431\u0430\u0442\
+            \u0447\u0435."
+          title: Max-Num-Batched-Tokens
+        max-num-seqs:
+          anyOf:
+          - exclusiveMinimum: 0.0
+            type: integer
+          - type: 'null'
+          description: "\u041C\u0430\u043A\u0441\u0438\u043C\u0430\u043B\u044C\u043D\
+            \u043E\u0435 \u043A\u043E\u043B\u0438\u0447\u0435\u0441\u0442\u0432\u043E\
+            \ \u043F\u043E\u0441\u043B\u0435\u0434\u043E\u0432\u0430\u0442\u0435\u043B\
+            \u044C\u043D\u043E\u0441\u0442\u0435\u0439 \u0432 \u0431\u0430\u0442\u0447\
+            \u0435."
+          title: Max-Num-Seqs
+        max-prompt-adapter-token:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: "\u041C\u0430\u043A\u0441\u0438\u043C\u0430\u043B\u044C\u043D\
+            \u043E\u0435 \u043A\u043E\u043B\u0438\u0447\u0435\u0441\u0442\u0432\u043E\
+            \ \u0442\u043E\u043A\u0435\u043D\u043E\u0432 \u0434\u043B\u044F Prompt\
+            \ Adapter."
+          title: Max-Prompt-Adapter-Token
+        max-prompt-adapters:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: "\u041C\u0430\u043A\u0441\u0438\u043C\u0430\u043B\u044C\u043D\
+            \u043E\u0435 \u043A\u043E\u043B\u0438\u0447\u0435\u0441\u0442\u0432\u043E\
+            \ Prompt Adapters."
+          title: Max-Prompt-Adapters
+        max-seq-len-to-capture:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: "\u041C\u0430\u043A\u0441\u0438\u043C\u0430\u043B\u044C\u043D\
+            \u0430\u044F \u0434\u043B\u0438\u043D\u0430 \u043F\u043E\u0441\u043B\u0435\
+            \u0434\u043E\u0432\u0430\u0442\u0435\u043B\u044C\u043D\u043E\u0441\u0442\
+            \u0438 \u0434\u043B\u044F CUDA \u0433\u0440\u0430\u0444\u0430."
+          title: Max-Seq-Len-To-Capture
+        middleware:
+          anyOf:
+          - items:
+              type: object
+            type: array
+          - type: 'null'
+          description: "\u041A\u043E\u043D\u0444\u0438\u0433\u0443\u0440\u0430\u0446\
+            \u0438\u044F ASGI middleware."
+          title: Middleware
+        mm-processor-kwargs:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Mm-Processor-Kwargs
+        model-impl:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: "\u0420\u0435\u0430\u043B\u0438\u0437\u0430\u0446\u0438\u044F\
+            \ \u043C\u043E\u0434\u0435\u043B\u0438."
+          title: Model-Impl
+        model-loader-extra-config:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Model-Loader-Extra-Config
+        multi-step-stream-outputs:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Multi-Step-Stream-Outputs
+        ngram-prompt-lookup-max:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Ngram-Prompt-Lookup-Max
+        ngram-prompt-lookup-min:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Ngram-Prompt-Lookup-Min
+        no-enable-prefix-caching:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          description: "\u042F\u0432\u043D\u043E \u043E\u0442\u043A\u043B\u044E\u0447\
+            \u0438\u0442\u044C \u043A\u044D\u0448\u0438\u0440\u043E\u0432\u0430\u043D\
+            \u0438\u0435 \u043F\u0440\u0435\u0444\u0438\u043A\u0441\u043E\u0432."
+          title: No-Enable-Prefix-Caching
+        num-gpu-blocks-override:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: "\u041F\u0435\u0440\u0435\u043E\u043F\u0440\u0435\u0434\u0435\
+            \u043B\u0438\u0442\u044C \u043A\u043E\u043B\u0438\u0447\u0435\u0441\u0442\
+            \u0432\u043E GPU \u0431\u043B\u043E\u043A\u043E\u0432."
+          title: Num-Gpu-Blocks-Override
+        num-lookahead-slots:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: "\u041A\u043E\u043B\u0438\u0447\u0435\u0441\u0442\u0432\u043E\
+            \ \u0441\u043B\u043E\u0442\u043E\u0432 \u0434\u043B\u044F lookahead \u0434\
+            \u0435\u043A\u043E\u0434\u0438\u0440\u043E\u0432\u0430\u043D\u0438\u044F\
+            ."
+          title: Num-Lookahead-Slots
+        num-scheduler-steps:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: "\u041A\u043E\u043B\u0438\u0447\u0435\u0441\u0442\u0432\u043E\
+            \ \u0448\u0430\u0433\u043E\u0432 \u043F\u043B\u0430\u043D\u0438\u0440\u043E\
+            \u0432\u0449\u0438\u043A\u0430."
+          title: Num-Scheduler-Steps
+        num-speculative-tokens:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: "\u041A\u043E\u043B\u0438\u0447\u0435\u0441\u0442\u0432\u043E\
+            \ \u0442\u043E\u043A\u0435\u043D\u043E\u0432 \u0434\u043B\u044F \u0441\
+            \u043F\u0435\u043A\u0443\u043B\u044F\u0442\u0438\u0432\u043D\u043E\u0439\
+            \ \u0433\u0435\u043D\u0435\u0440\u0430\u0446\u0438\u0438."
+          title: Num-Speculative-Tokens
+        otlp-traces-endpoint:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Otlp-Traces-Endpoint
+        override-generation-config:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Override-Generation-Config
+        override-neuron-config:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Override-Neuron-Config
+        override-pooler-config:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Override-Pooler-Config
+        pipeline-parallel-size:
+          anyOf:
+          - exclusiveMinimum: 0.0
+            type: integer
+          - type: 'null'
+          description: "\u041A\u043E\u043B\u0438\u0447\u0435\u0441\u0442\u0432\u043E\
+            \ GPU \u0434\u043B\u044F \u043A\u043E\u043D\u0432\u0435\u0439\u0435\u0440\
+            \u043D\u043E\u0433\u043E \u043F\u0430\u0440\u0430\u043B\u043B\u0435\u043B\
+            \u0438\u0437\u043C\u0430."
+          title: Pipeline-Parallel-Size
+        port:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: "\u041F\u043E\u0440\u0442 \u0434\u043B\u044F API \u0441\u0435\
+            \u0440\u0432\u0435\u0440\u0430."
+          title: Port
+        pp:
+          anyOf:
+          - exclusiveMinimum: 0.0
+            type: integer
+          - type: 'null'
+          description: "\u0421\u043E\u043A\u0440\u0430\u0449\u0435\u043D\u043D\u044B\
+            \u0439 \u043F\u0441\u0435\u0432\u0434\u043E\u043D\u0438\u043C \u0434\u043B\
+            \u044F 'pipeline-parallel-size'."
+          title: Pp
+        preemption-mode:
+          anyOf:
+          - enum:
+            - swap
+            - recompute
+            type: string
+          - type: 'null'
+          description: "\u0420\u0435\u0436\u0438\u043C \u0432\u044B\u0442\u0435\u0441\
+            \u043D\u0435\u043D\u0438\u044F ('swap' \u0438\u043B\u0438 'recompute')."
+          title: Preemption-Mode
+        prompt-adapters:
+          anyOf:
+          - {}
+          - type: 'null'
+          description: "\u041A\u043E\u043D\u0444\u0438\u0433\u0443\u0440\u0430\u0446\
+            \u0438\u044F \u0434\u043B\u044F Prompt Adapters."
+          title: Prompt-Adapters
+        q:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: "\u0421\u043E\u043A\u0440\u0430\u0449\u0435\u043D\u043D\u044B\
+            \u0439 \u043F\u0441\u0435\u0432\u0434\u043E\u043D\u0438\u043C \u0434\u043B\
+            \u044F 'quantization'."
+          title: Q
+        qlora-adapter-name-or-path:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: "\u041F\u0443\u0442\u044C \u0438\u043B\u0438 \u0438\u043C\u044F\
+            \ \u0430\u0434\u0430\u043F\u0442\u0435\u0440\u0430 QLoRA."
+          title: Qlora-Adapter-Name-Or-Path
+        quantization:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: "\u041C\u0435\u0442\u043E\u0434 \u043A\u0432\u0430\u043D\u0442\
+            \u043E\u0432\u0430\u043D\u0438\u044F (\u043D\u0430\u043F\u0440\u0438\u043C\
+            \u0435\u0440, 'awq', 'gptq')."
+          title: Quantization
+        ray-workers-use-nsight:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Ray-Workers-Use-Nsight
+        reasoning-parser:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Reasoning-Parser
+        response-role:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: "\u0420\u043E\u043B\u044C, \u0438\u0441\u043F\u043E\u043B\u044C\
+            \u0437\u0443\u0435\u043C\u0430\u044F \u0432 \u043E\u0442\u0432\u0435\u0442\
+            \u0430\u0445 \u0447\u0430\u0442\u0430."
+          title: Response-Role
+        return-tokens-as-token-ids:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Return-Tokens-As-Token-Ids
+        revision:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: "\u0420\u0435\u0432\u0438\u0437\u0438\u044F \u043C\u043E\u0434\
+            \u0435\u043B\u0438 (\u0432\u0435\u0442\u043A\u0430, \u0442\u0435\u0433\
+            \ \u0438\u043B\u0438 \u043A\u043E\u043C\u043C\u0438\u0442) \u043D\u0430\
+            \ Hugging Face Hub."
+          title: Revision
+        root-path:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: "\u041A\u043E\u0440\u043D\u0435\u0432\u043E\u0439 \u043F\u0443\
+            \u0442\u044C \u0434\u043B\u044F API \u044D\u043D\u0434\u043F\u043E\u0438\
+            \u043D\u0442\u043E\u0432."
+          title: Root-Path
+        rope-scaling:
+          anyOf:
+          - type: object
+          - type: 'null'
+          title: Rope-Scaling
+        rope-theta:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Rope-Theta
+        scheduler-delay-factor:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: "\u0424\u0430\u043A\u0442\u043E\u0440 \u0437\u0430\u0434\u0435\
+            \u0440\u0436\u043A\u0438 \u0434\u043B\u044F \u043F\u043B\u0430\u043D\u0438\
+            \u0440\u043E\u0432\u0449\u0438\u043A\u0430."
+          title: Scheduler-Delay-Factor
+        scheduling-policy:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: "\u041F\u043E\u043B\u0438\u0442\u0438\u043A\u0430 \u043F\u043B\
+            \u0430\u043D\u0438\u0440\u043E\u0432\u0430\u043D\u0438\u044F (\u043D\u0430\
+            \u043F\u0440\u0438\u043C\u0435\u0440, 'fcfs')."
+          title: Scheduling-Policy
+        seed:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: "\u0421\u043B\u0443\u0447\u0430\u0439\u043D\u043E\u0435 \u0437\
+            \u0435\u0440\u043D\u043E \u0434\u043B\u044F \u0432\u043E\u0441\u043F\u0440\
+            \u043E\u0438\u0437\u0432\u043E\u0434\u0438\u043C\u043E\u0441\u0442\u0438\
+            ."
+          title: Seed
+        served-model-name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: "\u0418\u043C\u044F \u043C\u043E\u0434\u0435\u043B\u0438, \u043A\
+            \u043E\u0442\u043E\u0440\u043E\u0435 \u0431\u0443\u0434\u0435\u0442 \u043E\
+            \u0442\u043E\u0431\u0440\u0430\u0436\u0430\u0442\u044C\u0441\u044F \u0432\
+            \ API."
+          title: Served-Model-Name
+        skip-tokenizer-init:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          description: "\u041F\u0440\u043E\u043F\u0443\u0441\u0442\u0438\u0442\u044C\
+            \ \u0438\u043D\u0438\u0446\u0438\u0430\u043B\u0438\u0437\u0430\u0446\u0438\
+            \u044E \u0442\u043E\u043A\u0435\u043D\u0438\u0437\u0430\u0442\u043E\u0440\
+            \u0430."
+          title: Skip-Tokenizer-Init
+        spec-decoding-acceptance-method:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: "\u041C\u0435\u0442\u043E\u0434 \u043F\u0440\u0438\u043D\u044F\
+            \u0442\u0438\u044F \u0434\u043B\u044F \u0441\u043F\u0435\u043A\u0443\u043B\
+            \u044F\u0442\u0438\u0432\u043D\u043E\u0433\u043E \u0434\u0435\u043A\u043E\
+            \u0434\u0438\u0440\u043E\u0432\u0430\u043D\u0438\u044F."
+          title: Spec-Decoding-Acceptance-Method
+        spec-draft-tp:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: "\u0421\u043E\u043A\u0440\u0430\u0449\u0435\u043D\u043D\u044B\
+            \u0439 \u043F\u0441\u0435\u0432\u0434\u043E\u043D\u0438\u043C \u0434\u043B\
+            \u044F speculative-draft-tensor-parallel-size."
+          title: Spec-Draft-Tp
+        speculative-disable-by-batch-size:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: "\u041E\u0442\u043A\u043B\u044E\u0447\u0438\u0442\u044C \u0441\
+            \u043F\u0435\u043A\u0443\u043B\u044F\u0442\u0438\u0432\u043D\u043E\u0435\
+            \ \u0434\u0435\u043A\u043E\u0434\u0438\u0440\u043E\u0432\u0430\u043D\u0438\
+            \u0435, \u0435\u0441\u043B\u0438 \u0440\u0430\u0437\u043C\u0435\u0440\
+            \ \u0431\u0430\u0442\u0447\u0430 \u043F\u0440\u0435\u0432\u044B\u0448\u0430\
+            \u0435\u0442 \u044D\u0442\u043E \u0437\u043D\u0430\u0447\u0435\u043D\u0438\
+            \u0435."
+          title: Speculative-Disable-By-Batch-Size
+        speculative-disable-mqa-scorer:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          description: "\u041E\u0442\u043A\u043B\u044E\u0447\u0438\u0442\u044C MQA\
+            \ Scorer."
+          title: Speculative-Disable-Mqa-Scorer
+        speculative-draft-tensor-parallel-size:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: "TP size \u0434\u043B\u044F \u043C\u043E\u0434\u0435\u043B\u0438\
+            -\u0447\u0435\u0440\u043D\u043E\u0432\u0438\u043A\u0430."
+          title: Speculative-Draft-Tensor-Parallel-Size
+        speculative-max-model-len:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: "max_model_len \u0434\u043B\u044F \u043C\u043E\u0434\u0435\u043B\
+            \u0438-\u0447\u0435\u0440\u043D\u043E\u0432\u0438\u043A\u0430."
+          title: Speculative-Max-Model-Len
+        speculative-model:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: "\u041C\u043E\u0434\u0435\u043B\u044C-\u0447\u0435\u0440\u043D\
+            \u043E\u0432\u0438\u043A \u0434\u043B\u044F \u0441\u043F\u0435\u043A\u0443\
+            \u043B\u044F\u0442\u0438\u0432\u043D\u043E\u0433\u043E \u0434\u0435\u043A\
+            \u043E\u0434\u0438\u0440\u043E\u0432\u0430\u043D\u0438\u044F."
+          title: Speculative-Model
+        speculative-model-quantization:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: "\u041A\u0432\u0430\u043D\u0442\u043E\u0432\u0430\u043D\u0438\
+            \u0435 \u0434\u043B\u044F \u043C\u043E\u0434\u0435\u043B\u0438-\u0447\u0435\
+            \u0440\u043D\u043E\u0432\u0438\u043A\u0430."
+          title: Speculative-Model-Quantization
+        ssl-ca-certs:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: "\u041F\u0443\u0442\u044C \u043A \u0444\u0430\u0439\u043B\u0443\
+            \ CA \u0441\u0435\u0440\u0442\u0438\u0444\u0438\u043A\u0430\u0442\u043E\
+            \u0432."
+          title: Ssl-Ca-Certs
+        ssl-cert-reqs:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: "\u0422\u0440\u0435\u0431\u0443\u0435\u0442\u0441\u044F \u043B\
+            \u0438 \u0441\u0435\u0440\u0442\u0438\u0444\u0438\u043A\u0430\u0442 \u043A\
+            \u043B\u0438\u0435\u043D\u0442\u0430."
+          title: Ssl-Cert-Reqs
+        ssl-certfile:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: "\u041F\u0443\u0442\u044C \u043A SSL certificate \u0444\u0430\
+            \u0439\u043B\u0443."
+          title: Ssl-Certfile
+        ssl-keyfile:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: "\u041F\u0443\u0442\u044C \u043A SSL key \u0444\u0430\u0439\
+            \u043B\u0443."
+          title: Ssl-Keyfile
+        swap-space:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: "\u0420\u0430\u0437\u043C\u0435\u0440 CPU swap \u043F\u0440\
+            \u043E\u0441\u0442\u0440\u0430\u043D\u0441\u0442\u0432\u0430 \u0432 \u0413\
+            \u0411."
+          title: Swap-Space
+        task:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Task
+        tokenizer:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: "\u0418\u043C\u044F \u0438\u043B\u0438 \u043F\u0443\u0442\u044C\
+            \ \u043A \u0442\u043E\u043A\u0435\u043D\u0438\u0437\u0430\u0442\u043E\u0440\
+            \u0443."
+          title: Tokenizer
+        tokenizer-mode:
+          anyOf:
+          - enum:
+            - auto
+            - slow
+            - mistral
+            - custom
+            type: string
+          - type: 'null'
+          description: "\u0420\u0435\u0436\u0438\u043C \u0442\u043E\u043A\u0435\u043D\
+            \u0438\u0437\u0430\u0442\u043E\u0440\u0430."
+          title: Tokenizer-Mode
+        tokenizer-pool-extra-config:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Tokenizer-Pool-Extra-Config
+        tokenizer-pool-size:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Tokenizer-Pool-Size
+        tokenizer-pool-type:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Tokenizer-Pool-Type
+        tokenizer-revision:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: "\u0420\u0435\u0432\u0438\u0437\u0438\u044F \u0442\u043E\u043A\
+            \u0435\u043D\u0438\u0437\u0430\u0442\u043E\u0440\u0430."
+          title: Tokenizer-Revision
+        tool-call-parser:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Tool-Call-Parser
+        tool-parser-plugin:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Tool-Parser-Plugin
+        tp:
+          anyOf:
+          - exclusiveMinimum: 0.0
+            type: integer
+          - type: 'null'
+          description: "\u0421\u043E\u043A\u0440\u0430\u0449\u0435\u043D\u043D\u044B\
+            \u0439 \u043F\u0441\u0435\u0432\u0434\u043E\u043D\u0438\u043C \u0434\u043B\
+            \u044F 'tensor-parallel-size'."
+          title: Tp
+        trust-remote-code:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          description: "\u0414\u043E\u0432\u0435\u0440\u044F\u0442\u044C \u0443\u0434\
+            \u0430\u043B\u0435\u043D\u043D\u043E\u043C\u0443 \u043A\u043E\u0434\u0443\
+            \ \u043F\u0440\u0438 \u0437\u0430\u0433\u0440\u0443\u0437\u043A\u0435\
+            \ \u043C\u043E\u0434\u0435\u043B\u0438."
+          title: Trust-Remote-Code
+        typical-acceptance-sampler-posterior-alpha:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Typical-Acceptance-Sampler-Posterior-Alpha
+        typical-acceptance-sampler-posterior-threshold:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Typical-Acceptance-Sampler-Posterior-Threshold
+        use-v2-block-manager:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          description: "\u0418\u0441\u043F\u043E\u043B\u044C\u0437\u043E\u0432\u0430\
+            \u0442\u044C BlockManager V2."
+          title: Use-V2-Block-Manager
+        uvicorn-log-level:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Uvicorn-Log-Level
+        worker-cls:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: "\u041A\u043B\u0430\u0441\u0441 \u0432\u043E\u0440\u043A\u0435\
+            \u0440\u0430 \u0434\u043B\u044F \u0438\u0441\u043F\u043E\u043B\u044C\u0437\
+            \u043E\u0432\u0430\u043D\u0438\u044F."
+          title: Worker-Cls
+      title: VLLMConfigSchema
+      type: object
+    VLLMConfigSchemaPatch:
+      additionalProperties: false
+      properties:
+        O:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: "\u0421\u043E\u043A\u0440\u0430\u0449\u0435\u043D\u043D\u044B\
+            \u0439 \u043F\u0441\u0435\u0432\u0434\u043E\u043D\u0438\u043C \u0434\u043B\
+            \u044F 'compilation-config'."
+          title: O
+        allow-credentials:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          description: "\u0420\u0430\u0437\u0440\u0435\u0448\u0438\u0442\u044C credentials\
+            \ (CORS)."
+          title: Allow-Credentials
+        allowed-headers:
+          anyOf:
+          - items:
+              type: string
+            type: array
+          - type: 'null'
+          description: "\u0421\u043F\u0438\u0441\u043E\u043A \u0440\u0430\u0437\u0440\
+            \u0435\u0448\u0435\u043D\u043D\u044B\u0445 HTTP \u0437\u0430\u0433\u043E\
+            \u043B\u043E\u0432\u043A\u043E\u0432 (CORS)."
+          title: Allowed-Headers
+        allowed-local-media-path:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Allowed-Local-Media-Path
+        allowed-methods:
+          anyOf:
+          - items:
+              type: string
+            type: array
+          - type: 'null'
+          description: "\u0421\u043F\u0438\u0441\u043E\u043A \u0440\u0430\u0437\u0440\
+            \u0435\u0448\u0435\u043D\u043D\u044B\u0445 HTTP \u043C\u0435\u0442\u043E\
+            \u0434\u043E\u0432 (CORS)."
+          title: Allowed-Methods
+        allowed-origins:
+          anyOf:
+          - items:
+              type: string
+            type: array
+          - type: 'null'
+          description: "\u0421\u043F\u0438\u0441\u043E\u043A \u0440\u0430\u0437\u0440\
+            \u0435\u0448\u0435\u043D\u043D\u044B\u0445 \u0438\u0441\u0442\u043E\u0447\
+            \u043D\u0438\u043A\u043E\u0432 (CORS)."
+          title: Allowed-Origins
+        api-key:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: "API \u043A\u043B\u044E\u0447 \u0434\u043B\u044F \u0437\u0430\
+            \u0449\u0438\u0442\u044B \u044D\u043D\u0434\u043F\u043E\u0438\u043D\u0442\
+            \u043E\u0432."
+          title: Api-Key
+        block-size:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: "\u0420\u0430\u0437\u043C\u0435\u0440 \u0431\u043B\u043E\u043A\
+            \u0430 \u0442\u043E\u043A\u0435\u043D\u043E\u0432 \u0434\u043B\u044F KV-\u043A\
+            \u044D\u0448\u0430 (8, 16, 32)."
+          title: Block-Size
+        calculate-kv-scales:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Calculate-Kv-Scales
+        chat-template:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Chat-Template
+        chat-template-content-format:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Chat-Template-Content-Format
+        code-revision:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: "\u0420\u0435\u0432\u0438\u0437\u0438\u044F \u043A\u043E\u0434\
+            \u0430 \u043C\u043E\u0434\u0435\u043B\u0438."
+          title: Code-Revision
+        collect-detailed-traces:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Collect-Detailed-Traces
+        compilation-config:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: "\u041A\u043E\u043D\u0444\u0438\u0433\u0443\u0440\u0430\u0446\
+            \u0438\u044F \u043A\u043E\u043C\u043F\u0438\u043B\u044F\u0446\u0438\u0438\
+            ."
+          title: Compilation-Config
+        config:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: "\u041F\u0443\u0442\u044C \u043A \u0444\u0430\u0439\u043B\u0443\
+            \ \u043A\u043E\u043D\u0444\u0438\u0433\u0443\u0440\u0430\u0446\u0438\u0438\
+            ."
+          title: Config
+        config-format:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: "\u0424\u043E\u0440\u043C\u0430\u0442 \u0444\u0430\u0439\u043B\
+            \u0430 \u043A\u043E\u043D\u0444\u0438\u0433\u0443\u0440\u0430\u0446\u0438\
+            \u0438."
+          title: Config-Format
+        cpu-offload-gb:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: "\u0420\u0430\u0437\u043C\u0435\u0440 (\u0432 \u0413\u0411\
+            ) \u0434\u043B\u044F \u0432\u044B\u0433\u0440\u0443\u0437\u043A\u0438\
+            \ \u0441\u043B\u043E\u0435\u0432 \u043C\u043E\u0434\u0435\u043B\u0438\
+            \ \u043D\u0430 CPU."
+          title: Cpu-Offload-Gb
+        device:
+          anyOf:
+          - enum:
+            - cuda
+            - neuron
+            - cpu
+            type: string
+          - type: 'null'
+          description: "\u0423\u0441\u0442\u0440\u043E\u0439\u0441\u0442\u0432\u043E\
+            \ \u0434\u043B\u044F \u0432\u044B\u043F\u043E\u043B\u043D\u0435\u043D\u0438\
+            \u044F \u043C\u043E\u0434\u0435\u043B\u0438."
+          title: Device
+        disable-async-output-proc:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Disable-Async-Output-Proc
+        disable-custom-all-reduce:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Disable-Custom-All-Reduce
+        disable-fastapi-docs:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Disable-Fastapi-Docs
+        disable-frontend-multiprocessing:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Disable-Frontend-Multiprocessing
+        disable-log-requests:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Disable-Log-Requests
+        disable-log-stats:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Disable-Log-Stats
+        disable-logprobs-during-spec-decoding:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          description: "\u041E\u0442\u043A\u043B\u044E\u0447\u0438\u0442\u044C logprobs\
+            \ \u0432\u043E \u0432\u0440\u0435\u043C\u044F \u0441\u043F\u0435\u043A\
+            \u0443\u043B\u044F\u0442\u0438\u0432\u043D\u043E\u0433\u043E \u0434\u0435\
+            \u043A\u043E\u0434\u0438\u0440\u043E\u0432\u0430\u043D\u0438\u044F."
+          title: Disable-Logprobs-During-Spec-Decoding
+        disable-mm-preprocessor-cache:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Disable-Mm-Preprocessor-Cache
+        disable-sliding-window:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Disable-Sliding-Window
+        distributed-executor-backend:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: "\u0411\u044D\u043A\u0435\u043D\u0434 \u0434\u043B\u044F \u0440\
+            \u0430\u0441\u043F\u0440\u0435\u0434\u0435\u043B\u0435\u043D\u043D\u043E\
+            \u0433\u043E \u0432\u044B\u043F\u043E\u043B\u043D\u0435\u043D\u0438\u044F\
+            \ (ray, mpi)."
+          title: Distributed-Executor-Backend
+        download-dir:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: "\u0414\u0438\u0440\u0435\u043A\u0442\u043E\u0440\u0438\u044F\
+            \ \u0434\u043B\u044F \u0437\u0430\u0433\u0440\u0443\u0437\u043A\u0438\
+            \ \u043C\u043E\u0434\u0435\u043B\u0435\u0439."
+          title: Download-Dir
+        dtype:
+          anyOf:
+          - enum:
+            - auto
+            - half
+            - float16
+            - bfloat16
+            - float
+            - float32
+            type: string
+          - type: 'null'
+          description: "\u0422\u0438\u043F \u0434\u0430\u043D\u043D\u044B\u0445 \u0434\
+            \u043B\u044F \u0432\u0435\u0441\u043E\u0432 \u043C\u043E\u0434\u0435\u043B\
+            \u0438."
+          title: Dtype
+        enable-auto-tool-choice:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Enable-Auto-Tool-Choice
+        enable-chunked-prefill:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Enable-Chunked-Prefill
+        enable-lora:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          description: "\u0412\u043A\u043B\u044E\u0447\u0438\u0442\u044C \u043F\u043E\
+            \u0434\u0434\u0435\u0440\u0436\u043A\u0443 LoRA."
+          title: Enable-Lora
+        enable-lora-bias:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          description: "\u0412\u043A\u043B\u044E\u0447\u0438\u0442\u044C \u0441\u043C\
+            \u0435\u0449\u0435\u043D\u0438\u0435 \u0434\u043B\u044F LoRA \u0441\u043B\
+            \u043E\u0435\u0432."
+          title: Enable-Lora-Bias
+        enable-prefix-caching:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          description: "\u0412\u043A\u043B\u044E\u0447\u0438\u0442\u044C \u043A\u044D\
+            \u0448\u0438\u0440\u043E\u0432\u0430\u043D\u0438\u0435 \u043F\u0440\u0435\
+            \u0444\u0438\u043A\u0441\u043E\u0432."
+          title: Enable-Prefix-Caching
+        enable-prompt-adapter:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          description: "\u0412\u043A\u043B\u044E\u0447\u0438\u0442\u044C Prompt Adapters."
+          title: Enable-Prompt-Adapter
+        enable-prompt-tokens-details:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Enable-Prompt-Tokens-Details
+        enable-reasoning:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Enable-Reasoning
+        enable-request-id-headers:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Enable-Request-Id-Headers
+        enable-sleep-mode:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Enable-Sleep-Mode
+        enforce-eager:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          description: "\u0412\u0441\u0435\u0433\u0434\u0430 \u0432\u044B\u043F\u043E\
+            \u043B\u043D\u044F\u0442\u044C \u043C\u043E\u0434\u0435\u043B\u044C \u0432\
+            \ eager \u0440\u0435\u0436\u0438\u043C\u0435."
+          title: Enforce-Eager
+        fully-sharded-loras:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          description: "\u0417\u0430\u0433\u0440\u0443\u0436\u0430\u0442\u044C LoRA\
+            \ \u0432 \u043F\u043E\u043B\u043D\u043E\u0441\u0442\u044C\u044E \u0448\
+            \u0430\u0440\u0434\u0438\u0440\u043E\u0432\u0430\u043D\u043D\u043E\u043C\
+            \ \u0440\u0435\u0436\u0438\u043C\u0435."
+          title: Fully-Sharded-Loras
+        generation-config:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: "\u041F\u0443\u0442\u044C \u043A \u0444\u0430\u0439\u043B\u0443\
+            \ \u043A\u043E\u043D\u0444\u0438\u0433\u0443\u0440\u0430\u0446\u0438\u0438\
+            \ \u0433\u0435\u043D\u0435\u0440\u0430\u0446\u0438\u0438."
+          title: Generation-Config
+        gpu-memory-utilization:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: "\u0414\u043E\u043B\u044F GPU \u043F\u0430\u043C\u044F\u0442\
+            \u0438 \u0434\u043B\u044F \u0438\u0441\u043F\u043E\u043B\u044C\u0437\u043E\
+            \u0432\u0430\u043D\u0438\u044F (0.0-1.0)."
+          title: Gpu-Memory-Utilization
+        guided-decoding-backend:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Guided-Decoding-Backend
+        hf-overrides:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: "\u041F\u0435\u0440\u0435\u043E\u043F\u0440\u0435\u0434\u0435\
+            \u043B\u0435\u043D\u0438\u044F \u0434\u043B\u044F Hugging Face."
+          title: Hf-Overrides
+        host:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: "\u0425\u043E\u0441\u0442 \u0434\u043B\u044F \u0437\u0430\u043F\
+            \u0443\u0441\u043A\u0430 API \u0441\u0435\u0440\u0432\u0435\u0440\u0430\
+            \ ('0.0.0.0' \u0434\u043B\u044F \u0434\u043E\u0441\u0442\u0443\u043F\u0430\
+            \ \u0438\u0437\u0432\u043D\u0435)."
+          title: Host
+        ignore-patterns:
+          anyOf:
+          - items:
+              type: string
+            type: array
+          - type: 'null'
+          title: Ignore-Patterns
+        kv-cache-dtype:
+          anyOf:
+          - enum:
+            - auto
+            - fp8
+            type: string
+          - type: 'null'
+          description: "\u0422\u0438\u043F \u0434\u0430\u043D\u043D\u044B\u0445 \u0434\
+            \u043B\u044F KV-\u043A\u044D\u0448\u0430."
+          title: Kv-Cache-Dtype
+        kv-transfer-config:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Kv-Transfer-Config
+        limit-mm-per-prompt:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Limit-Mm-Per-Prompt
+        load-format:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: "\u0424\u043E\u0440\u043C\u0430\u0442 \u0437\u0430\u0433\u0440\
+            \u0443\u0437\u043A\u0438 \u0432\u0435\u0441\u043E\u0432 (auto, pt, safetensors)."
+          title: Load-Format
+        logits-processor-pattern:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Logits-Processor-Pattern
+        long-lora-scaling-factors:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: "\u041C\u0430\u0441\u0448\u0442\u0430\u0431\u0438\u0440\u0443\
+            \u044E\u0449\u0438\u0435 \u0444\u0430\u043A\u0442\u043E\u0440\u044B \u0434\
+            \u043B\u044F LongLoRA."
+          title: Long-Lora-Scaling-Factors
+        lora-dtype:
+          anyOf:
+          - enum:
+            - auto
+            - float16
+            - bfloat16
+            - float32
+            type: string
+          - type: 'null'
+          description: "\u0422\u0438\u043F \u0434\u0430\u043D\u043D\u044B\u0445 \u0434\
+            \u043B\u044F LoRA \u0432\u0435\u0441\u043E\u0432."
+          title: Lora-Dtype
+        lora-extra-vocab-size:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: "\u0414\u043E\u043F\u043E\u043B\u043D\u0438\u0442\u0435\u043B\
+            \u044C\u043D\u044B\u0439 \u0440\u0430\u0437\u043C\u0435\u0440 \u0441\u043B\
+            \u043E\u0432\u0430\u0440\u044F \u0434\u043B\u044F LoRA."
+          title: Lora-Extra-Vocab-Size
+        lora-modules:
+          anyOf:
+          - items:
+              type: object
+            type: array
+          - type: string
+          - type: 'null'
+          description: "\u0421\u043F\u0438\u0441\u043E\u043A LoRA \u043C\u043E\u0434\
+            \u0443\u043B\u0435\u0439 \u0434\u043B\u044F \u0437\u0430\u0433\u0440\u0443\
+            \u0437\u043A\u0438."
+          title: Lora-Modules
+        max-cpu-loras:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: "\u041C\u0430\u043A\u0441\u0438\u043C\u0430\u043B\u044C\u043D\
+            \u043E\u0435 \u043A\u043E\u043B\u0438\u0447\u0435\u0441\u0442\u0432\u043E\
+            \ LoRA \u0434\u043B\u044F \u0445\u0440\u0430\u043D\u0435\u043D\u0438\u044F\
+            \ \u043D\u0430 CPU."
+          title: Max-Cpu-Loras
+        max-log-len:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: "\u041C\u0430\u043A\u0441\u0438\u043C\u0430\u043B\u044C\u043D\
+            \u0430\u044F \u0434\u043B\u0438\u043D\u0430 \u043B\u043E\u0433\u043E\u0432\
+            \ \u0437\u0430\u043F\u0440\u043E\u0441\u043E\u0432."
+          title: Max-Log-Len
+        max-logprobs:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: "\u041C\u0430\u043A\u0441\u0438\u043C\u0430\u043B\u044C\u043D\
+            \u043E\u0435 \u043A\u043E\u043B\u0438\u0447\u0435\u0441\u0442\u0432\u043E\
+            \ logprobs \u0434\u043B\u044F \u0432\u043E\u0437\u0432\u0440\u0430\u0442\
+            \u0430."
+          title: Max-Logprobs
+        max-lora-rank:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: "\u041C\u0430\u043A\u0441\u0438\u043C\u0430\u043B\u044C\u043D\
+            \u044B\u0439 \u0440\u0430\u043D\u0433 LoRA."
+          title: Max-Lora-Rank
+        max-loras:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: "\u041C\u0430\u043A\u0441\u0438\u043C\u0430\u043B\u044C\u043D\
+            \u043E\u0435 \u043A\u043E\u043B\u0438\u0447\u0435\u0441\u0442\u0432\u043E\
+            \ \u0430\u043A\u0442\u0438\u0432\u043D\u044B\u0445 LoRA."
+          title: Max-Loras
+        max-model-len:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: "\u041C\u0430\u043A\u0441\u0438\u043C\u0430\u043B\u044C\u043D\
+            \u0430\u044F \u0434\u043B\u0438\u043D\u0430 \u043F\u043E\u0441\u043B\u0435\
+            \u0434\u043E\u0432\u0430\u0442\u0435\u043B\u044C\u043D\u043E\u0441\u0442\
+            \u0438 \u0434\u043B\u044F \u043C\u043E\u0434\u0435\u043B\u0438."
+          title: Max-Model-Len
+        max-num-batched-tokens:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: "\u041C\u0430\u043A\u0441\u0438\u043C\u0430\u043B\u044C\u043D\
+            \u043E\u0435 \u043A\u043E\u043B\u0438\u0447\u0435\u0441\u0442\u0432\u043E\
+            \ \u0442\u043E\u043A\u0435\u043D\u043E\u0432 \u0432 \u0431\u0430\u0442\
+            \u0447\u0435."
+          title: Max-Num-Batched-Tokens
+        max-num-seqs:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: "\u041C\u0430\u043A\u0441\u0438\u043C\u0430\u043B\u044C\u043D\
+            \u043E\u0435 \u043A\u043E\u043B\u0438\u0447\u0435\u0441\u0442\u0432\u043E\
+            \ \u043F\u043E\u0441\u043B\u0435\u0434\u043E\u0432\u0430\u0442\u0435\u043B\
+            \u044C\u043D\u043E\u0441\u0442\u0435\u0439 \u0432 \u0431\u0430\u0442\u0447\
+            \u0435."
+          title: Max-Num-Seqs
+        max-prompt-adapter-token:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: "\u041C\u0430\u043A\u0441\u0438\u043C\u0430\u043B\u044C\u043D\
+            \u043E\u0435 \u043A\u043E\u043B\u0438\u0447\u0435\u0441\u0442\u0432\u043E\
+            \ \u0442\u043E\u043A\u0435\u043D\u043E\u0432 \u0434\u043B\u044F Prompt\
+            \ Adapter."
+          title: Max-Prompt-Adapter-Token
+        max-prompt-adapters:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: "\u041C\u0430\u043A\u0441\u0438\u043C\u0430\u043B\u044C\u043D\
+            \u043E\u0435 \u043A\u043E\u043B\u0438\u0447\u0435\u0441\u0442\u0432\u043E\
+            \ Prompt Adapters."
+          title: Max-Prompt-Adapters
+        max-seq-len-to-capture:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: "\u041C\u0430\u043A\u0441\u0438\u043C\u0430\u043B\u044C\u043D\
+            \u0430\u044F \u0434\u043B\u0438\u043D\u0430 \u043F\u043E\u0441\u043B\u0435\
+            \u0434\u043E\u0432\u0430\u0442\u0435\u043B\u044C\u043D\u043E\u0441\u0442\
+            \u0438 \u0434\u043B\u044F CUDA \u0433\u0440\u0430\u0444\u0430."
+          title: Max-Seq-Len-To-Capture
+        middleware:
+          anyOf:
+          - items:
+              type: object
+            type: array
+          - type: 'null'
+          description: "\u041A\u043E\u043D\u0444\u0438\u0433\u0443\u0440\u0430\u0446\
+            \u0438\u044F ASGI middleware."
+          title: Middleware
+        mm-processor-kwargs:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Mm-Processor-Kwargs
+        model-impl:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: "\u0420\u0435\u0430\u043B\u0438\u0437\u0430\u0446\u0438\u044F\
+            \ \u043C\u043E\u0434\u0435\u043B\u0438."
+          title: Model-Impl
+        model-loader-extra-config:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Model-Loader-Extra-Config
+        multi-step-stream-outputs:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Multi-Step-Stream-Outputs
+        ngram-prompt-lookup-max:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Ngram-Prompt-Lookup-Max
+        ngram-prompt-lookup-min:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Ngram-Prompt-Lookup-Min
+        no-enable-prefix-caching:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          description: "\u042F\u0432\u043D\u043E \u043E\u0442\u043A\u043B\u044E\u0447\
+            \u0438\u0442\u044C \u043A\u044D\u0448\u0438\u0440\u043E\u0432\u0430\u043D\
+            \u0438\u0435 \u043F\u0440\u0435\u0444\u0438\u043A\u0441\u043E\u0432."
+          title: No-Enable-Prefix-Caching
+        num-gpu-blocks-override:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: "\u041F\u0435\u0440\u0435\u043E\u043F\u0440\u0435\u0434\u0435\
+            \u043B\u0438\u0442\u044C \u043A\u043E\u043B\u0438\u0447\u0435\u0441\u0442\
+            \u0432\u043E GPU \u0431\u043B\u043E\u043A\u043E\u0432."
+          title: Num-Gpu-Blocks-Override
+        num-lookahead-slots:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: "\u041A\u043E\u043B\u0438\u0447\u0435\u0441\u0442\u0432\u043E\
+            \ \u0441\u043B\u043E\u0442\u043E\u0432 \u0434\u043B\u044F lookahead \u0434\
+            \u0435\u043A\u043E\u0434\u0438\u0440\u043E\u0432\u0430\u043D\u0438\u044F\
+            ."
+          title: Num-Lookahead-Slots
+        num-scheduler-steps:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: "\u041A\u043E\u043B\u0438\u0447\u0435\u0441\u0442\u0432\u043E\
+            \ \u0448\u0430\u0433\u043E\u0432 \u043F\u043B\u0430\u043D\u0438\u0440\u043E\
+            \u0432\u0449\u0438\u043A\u0430."
+          title: Num-Scheduler-Steps
+        num-speculative-tokens:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: "\u041A\u043E\u043B\u0438\u0447\u0435\u0441\u0442\u0432\u043E\
+            \ \u0442\u043E\u043A\u0435\u043D\u043E\u0432 \u0434\u043B\u044F \u0441\
+            \u043F\u0435\u043A\u0443\u043B\u044F\u0442\u0438\u0432\u043D\u043E\u0439\
+            \ \u0433\u0435\u043D\u0435\u0440\u0430\u0446\u0438\u0438."
+          title: Num-Speculative-Tokens
+        otlp-traces-endpoint:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Otlp-Traces-Endpoint
+        override-generation-config:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Override-Generation-Config
+        override-neuron-config:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Override-Neuron-Config
+        override-pooler-config:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Override-Pooler-Config
+        pipeline-parallel-size:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: "\u041A\u043E\u043B\u0438\u0447\u0435\u0441\u0442\u0432\u043E\
+            \ GPU \u0434\u043B\u044F \u043A\u043E\u043D\u0432\u0435\u0439\u0435\u0440\
+            \u043D\u043E\u0433\u043E \u043F\u0430\u0440\u0430\u043B\u043B\u0435\u043B\
+            \u0438\u0437\u043C\u0430."
+          title: Pipeline-Parallel-Size
+        port:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: "\u041F\u043E\u0440\u0442 \u0434\u043B\u044F API \u0441\u0435\
+            \u0440\u0432\u0435\u0440\u0430."
+          title: Port
+        pp:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: "\u0421\u043E\u043A\u0440\u0430\u0449\u0435\u043D\u043D\u044B\
+            \u0439 \u043F\u0441\u0435\u0432\u0434\u043E\u043D\u0438\u043C \u0434\u043B\
+            \u044F 'pipeline-parallel-size'."
+          title: Pp
+        preemption-mode:
+          anyOf:
+          - enum:
+            - swap
+            - recompute
+            type: string
+          - type: 'null'
+          description: "\u0420\u0435\u0436\u0438\u043C \u0432\u044B\u0442\u0435\u0441\
+            \u043D\u0435\u043D\u0438\u044F ('swap' \u0438\u043B\u0438 'recompute')."
+          title: Preemption-Mode
+        prompt-adapters:
+          anyOf:
+          - {}
+          - type: 'null'
+          description: "\u041A\u043E\u043D\u0444\u0438\u0433\u0443\u0440\u0430\u0446\
+            \u0438\u044F \u0434\u043B\u044F Prompt Adapters."
+          title: Prompt-Adapters
+        q:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: "\u0421\u043E\u043A\u0440\u0430\u0449\u0435\u043D\u043D\u044B\
+            \u0439 \u043F\u0441\u0435\u0432\u0434\u043E\u043D\u0438\u043C \u0434\u043B\
+            \u044F 'quantization'."
+          title: Q
+        qlora-adapter-name-or-path:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: "\u041F\u0443\u0442\u044C \u0438\u043B\u0438 \u0438\u043C\u044F\
+            \ \u0430\u0434\u0430\u043F\u0442\u0435\u0440\u0430 QLoRA."
+          title: Qlora-Adapter-Name-Or-Path
+        quantization:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: "\u041C\u0435\u0442\u043E\u0434 \u043A\u0432\u0430\u043D\u0442\
+            \u043E\u0432\u0430\u043D\u0438\u044F (\u043D\u0430\u043F\u0440\u0438\u043C\
+            \u0435\u0440, 'awq', 'gptq')."
+          title: Quantization
+        ray-workers-use-nsight:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Ray-Workers-Use-Nsight
+        reasoning-parser:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Reasoning-Parser
+        response-role:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: "\u0420\u043E\u043B\u044C, \u0438\u0441\u043F\u043E\u043B\u044C\
+            \u0437\u0443\u0435\u043C\u0430\u044F \u0432 \u043E\u0442\u0432\u0435\u0442\
+            \u0430\u0445 \u0447\u0430\u0442\u0430."
+          title: Response-Role
+        return-tokens-as-token-ids:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Return-Tokens-As-Token-Ids
+        revision:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: "\u0420\u0435\u0432\u0438\u0437\u0438\u044F \u043C\u043E\u0434\
+            \u0435\u043B\u0438 (\u0432\u0435\u0442\u043A\u0430, \u0442\u0435\u0433\
+            \ \u0438\u043B\u0438 \u043A\u043E\u043C\u043C\u0438\u0442) \u043D\u0430\
+            \ Hugging Face Hub."
+          title: Revision
+        root-path:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: "\u041A\u043E\u0440\u043D\u0435\u0432\u043E\u0439 \u043F\u0443\
+            \u0442\u044C \u0434\u043B\u044F API \u044D\u043D\u0434\u043F\u043E\u0438\
+            \u043D\u0442\u043E\u0432."
+          title: Root-Path
+        rope-scaling:
+          anyOf:
+          - type: object
+          - type: 'null'
+          title: Rope-Scaling
+        rope-theta:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Rope-Theta
+        scheduler-delay-factor:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: "\u0424\u0430\u043A\u0442\u043E\u0440 \u0437\u0430\u0434\u0435\
+            \u0440\u0436\u043A\u0438 \u0434\u043B\u044F \u043F\u043B\u0430\u043D\u0438\
+            \u0440\u043E\u0432\u0449\u0438\u043A\u0430."
+          title: Scheduler-Delay-Factor
+        scheduling-policy:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: "\u041F\u043E\u043B\u0438\u0442\u0438\u043A\u0430 \u043F\u043B\
+            \u0430\u043D\u0438\u0440\u043E\u0432\u0430\u043D\u0438\u044F (\u043D\u0430\
+            \u043F\u0440\u0438\u043C\u0435\u0440, 'fcfs')."
+          title: Scheduling-Policy
+        seed:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: "\u0421\u043B\u0443\u0447\u0430\u0439\u043D\u043E\u0435 \u0437\
+            \u0435\u0440\u043D\u043E \u0434\u043B\u044F \u0432\u043E\u0441\u043F\u0440\
+            \u043E\u0438\u0437\u0432\u043E\u0434\u0438\u043C\u043E\u0441\u0442\u0438\
+            ."
+          title: Seed
+        served-model-name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: "\u0418\u043C\u044F \u043C\u043E\u0434\u0435\u043B\u0438, \u043A\
+            \u043E\u0442\u043E\u0440\u043E\u0435 \u0431\u0443\u0434\u0435\u0442 \u043E\
+            \u0442\u043E\u0431\u0440\u0430\u0436\u0430\u0442\u044C\u0441\u044F \u0432\
+            \ API."
+          title: Served-Model-Name
+        skip-tokenizer-init:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          description: "\u041F\u0440\u043E\u043F\u0443\u0441\u0442\u0438\u0442\u044C\
+            \ \u0438\u043D\u0438\u0446\u0438\u0430\u043B\u0438\u0437\u0430\u0446\u0438\
+            \u044E \u0442\u043E\u043A\u0435\u043D\u0438\u0437\u0430\u0442\u043E\u0440\
+            \u0430."
+          title: Skip-Tokenizer-Init
+        spec-decoding-acceptance-method:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: "\u041C\u0435\u0442\u043E\u0434 \u043F\u0440\u0438\u043D\u044F\
+            \u0442\u0438\u044F \u0434\u043B\u044F \u0441\u043F\u0435\u043A\u0443\u043B\
+            \u044F\u0442\u0438\u0432\u043D\u043E\u0433\u043E \u0434\u0435\u043A\u043E\
+            \u0434\u0438\u0440\u043E\u0432\u0430\u043D\u0438\u044F."
+          title: Spec-Decoding-Acceptance-Method
+        spec-draft-tp:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: "\u0421\u043E\u043A\u0440\u0430\u0449\u0435\u043D\u043D\u044B\
+            \u0439 \u043F\u0441\u0435\u0432\u0434\u043E\u043D\u0438\u043C \u0434\u043B\
+            \u044F speculative-draft-tensor-parallel-size."
+          title: Spec-Draft-Tp
+        speculative-disable-by-batch-size:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: "\u041E\u0442\u043A\u043B\u044E\u0447\u0438\u0442\u044C \u0441\
+            \u043F\u0435\u043A\u0443\u043B\u044F\u0442\u0438\u0432\u043D\u043E\u0435\
+            \ \u0434\u0435\u043A\u043E\u0434\u0438\u0440\u043E\u0432\u0430\u043D\u0438\
+            \u0435, \u0435\u0441\u043B\u0438 \u0440\u0430\u0437\u043C\u0435\u0440\
+            \ \u0431\u0430\u0442\u0447\u0430 \u043F\u0440\u0435\u0432\u044B\u0448\u0430\
+            \u0435\u0442 \u044D\u0442\u043E \u0437\u043D\u0430\u0447\u0435\u043D\u0438\
+            \u0435."
+          title: Speculative-Disable-By-Batch-Size
+        speculative-disable-mqa-scorer:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          description: "\u041E\u0442\u043A\u043B\u044E\u0447\u0438\u0442\u044C MQA\
+            \ Scorer."
+          title: Speculative-Disable-Mqa-Scorer
+        speculative-draft-tensor-parallel-size:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: "TP size \u0434\u043B\u044F \u043C\u043E\u0434\u0435\u043B\u0438\
+            -\u0447\u0435\u0440\u043D\u043E\u0432\u0438\u043A\u0430."
+          title: Speculative-Draft-Tensor-Parallel-Size
+        speculative-max-model-len:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: "max_model_len \u0434\u043B\u044F \u043C\u043E\u0434\u0435\u043B\
+            \u0438-\u0447\u0435\u0440\u043D\u043E\u0432\u0438\u043A\u0430."
+          title: Speculative-Max-Model-Len
+        speculative-model:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: "\u041C\u043E\u0434\u0435\u043B\u044C-\u0447\u0435\u0440\u043D\
+            \u043E\u0432\u0438\u043A \u0434\u043B\u044F \u0441\u043F\u0435\u043A\u0443\
+            \u043B\u044F\u0442\u0438\u0432\u043D\u043E\u0433\u043E \u0434\u0435\u043A\
+            \u043E\u0434\u0438\u0440\u043E\u0432\u0430\u043D\u0438\u044F."
+          title: Speculative-Model
+        speculative-model-quantization:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: "\u041A\u0432\u0430\u043D\u0442\u043E\u0432\u0430\u043D\u0438\
+            \u0435 \u0434\u043B\u044F \u043C\u043E\u0434\u0435\u043B\u0438-\u0447\u0435\
+            \u0440\u043D\u043E\u0432\u0438\u043A\u0430."
+          title: Speculative-Model-Quantization
+        ssl-ca-certs:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: "\u041F\u0443\u0442\u044C \u043A \u0444\u0430\u0439\u043B\u0443\
+            \ CA \u0441\u0435\u0440\u0442\u0438\u0444\u0438\u043A\u0430\u0442\u043E\
+            \u0432."
+          title: Ssl-Ca-Certs
+        ssl-cert-reqs:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: "\u0422\u0440\u0435\u0431\u0443\u0435\u0442\u0441\u044F \u043B\
+            \u0438 \u0441\u0435\u0440\u0442\u0438\u0444\u0438\u043A\u0430\u0442 \u043A\
+            \u043B\u0438\u0435\u043D\u0442\u0430."
+          title: Ssl-Cert-Reqs
+        ssl-certfile:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: "\u041F\u0443\u0442\u044C \u043A SSL certificate \u0444\u0430\
+            \u0439\u043B\u0443."
+          title: Ssl-Certfile
+        ssl-keyfile:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: "\u041F\u0443\u0442\u044C \u043A SSL key \u0444\u0430\u0439\
+            \u043B\u0443."
+          title: Ssl-Keyfile
+        swap-space:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: "\u0420\u0430\u0437\u043C\u0435\u0440 CPU swap \u043F\u0440\
+            \u043E\u0441\u0442\u0440\u0430\u043D\u0441\u0442\u0432\u0430 \u0432 \u0413\
+            \u0411."
+          title: Swap-Space
+        task:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Task
+        tokenizer:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: "\u0418\u043C\u044F \u0438\u043B\u0438 \u043F\u0443\u0442\u044C\
+            \ \u043A \u0442\u043E\u043A\u0435\u043D\u0438\u0437\u0430\u0442\u043E\u0440\
+            \u0443."
+          title: Tokenizer
+        tokenizer-mode:
+          anyOf:
+          - enum:
+            - auto
+            - slow
+            - mistral
+            - custom
+            type: string
+          - type: 'null'
+          description: "\u0420\u0435\u0436\u0438\u043C \u0442\u043E\u043A\u0435\u043D\
+            \u0438\u0437\u0430\u0442\u043E\u0440\u0430."
+          title: Tokenizer-Mode
+        tokenizer-pool-extra-config:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Tokenizer-Pool-Extra-Config
+        tokenizer-pool-size:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Tokenizer-Pool-Size
+        tokenizer-pool-type:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Tokenizer-Pool-Type
+        tokenizer-revision:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: "\u0420\u0435\u0432\u0438\u0437\u0438\u044F \u0442\u043E\u043A\
+            \u0435\u043D\u0438\u0437\u0430\u0442\u043E\u0440\u0430."
+          title: Tokenizer-Revision
+        tool-call-parser:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Tool-Call-Parser
+        tool-parser-plugin:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Tool-Parser-Plugin
+        tp:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: "\u0421\u043E\u043A\u0440\u0430\u0449\u0435\u043D\u043D\u044B\
+            \u0439 \u043F\u0441\u0435\u0432\u0434\u043E\u043D\u0438\u043C \u0434\u043B\
+            \u044F 'tensor-parallel-size'."
+          title: Tp
+        trust-remote-code:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          description: "\u0414\u043E\u0432\u0435\u0440\u044F\u0442\u044C \u0443\u0434\
+            \u0430\u043B\u0435\u043D\u043D\u043E\u043C\u0443 \u043A\u043E\u0434\u0443\
+            \ \u043F\u0440\u0438 \u0437\u0430\u0433\u0440\u0443\u0437\u043A\u0435\
+            \ \u043C\u043E\u0434\u0435\u043B\u0438."
+          title: Trust-Remote-Code
+        typical-acceptance-sampler-posterior-alpha:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Typical-Acceptance-Sampler-Posterior-Alpha
+        typical-acceptance-sampler-posterior-threshold:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Typical-Acceptance-Sampler-Posterior-Threshold
+        use-v2-block-manager:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          description: "\u0418\u0441\u043F\u043E\u043B\u044C\u0437\u043E\u0432\u0430\
+            \u0442\u044C BlockManager V2."
+          title: Use-V2-Block-Manager
+        uvicorn-log-level:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Uvicorn-Log-Level
+        worker-cls:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: "\u041A\u043B\u0430\u0441\u0441 \u0432\u043E\u0440\u043A\u0435\
+            \u0440\u0430 \u0434\u043B\u044F \u0438\u0441\u043F\u043E\u043B\u044C\u0437\
+            \u043E\u0432\u0430\u043D\u0438\u044F."
+          title: Worker-Cls
+      title: VLLMConfigSchemaPatch
+      type: object
+    VLLMConfigurationPayload:
+      additionalProperties: false
+      description: "\u041F\u043E\u043B\u043D\u0430\u044F \u0441\u0445\u0435\u043C\u0430\
+        \ \u0434\u043B\u044F \u0441\u043E\u0437\u0434\u0430\u043D\u0438\u044F \u043A\
+        \u043E\u043D\u0444\u0438\u0433\u0443\u0440\u0430\u0446\u0438\u0438 \u0442\u0438\
+        \u043F\u0430 'vllm'."
+      properties:
+        config:
+          $ref: '#/components/schemas/VLLMConfigSchema'
+        cpuLimit:
+          exclusiveMinimum: 0.0
+          title: Cpulimit
+          type: integer
+        cpuRequest:
+          exclusiveMinimum: 0.0
+          title: Cpurequest
+          type: integer
+        envVars:
+          additionalProperties:
+            type: string
+          title: Envvars
+          type: object
+        gpuGb:
+          minimum: 0.0
+          title: Gpugb
+          type: integer
+        name:
+          maxLength: 255
+          title: Name
+          type: string
+        ramLimit:
+          exclusiveMinimum: 0.0
+          title: Ramlimit
+          type: integer
+        ramRequest:
+          exclusiveMinimum: 0.0
+          title: Ramrequest
+          type: integer
+        type:
+          const: vllm
+          title: Type
+          type: string
+      required:
+      - name
+      - gpuGb
+      - cpuRequest
+      - cpuLimit
+      - ramRequest
+      - ramLimit
+      - type
+      - config
+      title: VLLMConfigurationPayload
+      type: object
+    VLLMConfigurationReadSchema:
+      additionalProperties: false
+      properties:
+        config:
+          type: object
+        cpuLimit:
+          exclusiveMinimum: 0.0
+          title: Cpulimit
+          type: integer
+        cpuRequest:
+          exclusiveMinimum: 0.0
+          title: Cpurequest
+          type: integer
+        createdAt:
+          format: date-time
+          title: Createdat
+          type: string
+        envVars:
+          additionalProperties:
+            type: string
+          title: Envvars
+          type: object
+        gpuGb:
+          minimum: 0.0
+          title: Gpugb
+          type: integer
+        id:
+          title: Id
+          type: integer
+        name:
+          maxLength: 255
+          title: Name
+          type: string
+        ramLimit:
+          exclusiveMinimum: 0.0
+          title: Ramlimit
+          type: integer
+        ramRequest:
+          exclusiveMinimum: 0.0
+          title: Ramrequest
+          type: integer
+        type:
+          const: vllm
+          title: Type
+          type: string
+        updatedAt:
+          format: date-time
+          title: Updatedat
+          type: string
+      required:
+      - id
+      - config
+      - createdAt
+      - updatedAt
+      - name
+      - gpuGb
+      - cpuRequest
+      - cpuLimit
+      - ramRequest
+      - ramLimit
+      - type
+      title: VLLMConfigurationReadSchema
+      type: object
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          title: Location
+          type: array
+        msg:
+          title: Message
+          type: string
+        type:
+          title: Error Type
+          type: string
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+      type: object
+info:
+  title: Model Registry
+  version: dev
+openapi: 3.1.0
+paths:
+  /health/liveness:
+    get:
+      description: "\u041F\u0438\u043D\u0433"
+      operationId: liveness_health_liveness_get
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                title: Response Liveness Health Liveness Get
+                type: boolean
+          description: Successful Response
+      summary: Liveness
+      tags:
+      - Health
+  /health/readiness:
+    get:
+      description: "\u0413\u043E\u0442\u043E\u0432\u043D\u043E\u0441\u0442\u044C \u043F\
+        \u0440\u0438\u043D\u0438\u043C\u0430\u0442\u044C \u0442\u0440\u0430\u0444\u0438\
+        \u043A"
+      operationId: readiness_health_readiness_get
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                title: Response Readiness Health Readiness Get
+                type: boolean
+          description: Successful Response
+      summary: Readiness
+      tags:
+      - Health
+  /v2/configurations:
+    post:
+      operationId: create_configuration_v2_configurations_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              discriminator:
+                mapping:
+                  triton: '#/components/schemas/TritonConfigurationPayload'
+                  vllm: '#/components/schemas/VLLMConfigurationPayload'
+                propertyName: type
+              oneOf:
+              - $ref: '#/components/schemas/VLLMConfigurationPayload'
+              - $ref: '#/components/schemas/TritonConfigurationPayload'
+              title: Schema
+        required: true
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                discriminator:
+                  mapping:
+                    triton: '#/components/schemas/TritonConfigurationReadSchema'
+                    vllm: '#/components/schemas/VLLMConfigurationReadSchema'
+                  propertyName: type
+                oneOf:
+                - $ref: '#/components/schemas/VLLMConfigurationReadSchema'
+                - $ref: '#/components/schemas/TritonConfigurationReadSchema'
+                title: Response Create Configuration V2 Configurations Post
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Create Configuration
+      tags:
+      - Configurations
+  /v2/configurations/find-by:
+    get:
+      description: "\u041F\u043E\u0438\u0441\u043A \u043A\u043E\u043D\u0444\u0438\u0433\
+        \u0443\u0440\u0430\u0446\u0438\u0439 \u0441 \u0433\u0438\u0431\u043A\u043E\
+        \u0439 \u0444\u0438\u043B\u044C\u0442\u0440\u0430\u0446\u0438\u0435\u0439\
+        , \u0441\u043E\u0440\u0442\u0438\u0440\u043E\u0432\u043A\u043E\u0439 \u0438\
+        \ \u043F\u0430\u0433\u0438\u043D\u0430\u0446\u0438\u0435\u0439."
+      operationId: search_configurations_v2_configurations_find_by_get
+      parameters:
+      - description: "\u0421\u043C\u0435\u0449\u0435\u043D\u0438\u0435"
+        in: query
+        name: offset
+        required: false
+        schema:
+          default: 0
+          description: "\u0421\u043C\u0435\u0449\u0435\u043D\u0438\u0435"
+          minimum: 0
+          title: Offset
+          type: integer
+      - description: "\u041B\u0438\u043C\u0438\u0442"
+        in: query
+        name: limit
+        required: false
+        schema:
+          default: 50
+          description: "\u041B\u0438\u043C\u0438\u0442"
+          maximum: 100
+          minimum: 1
+          title: Limit
+          type: integer
+      - description: "\u0421\u043E\u0440\u0442\u0438\u0440\u043E\u0432\u043A\u0430\
+          . \u041F\u0440\u0438\u043C\u0435\u0440: `name,-id`. \u0414\u043E\u0441\u0442\
+          \u0443\u043F\u043D\u044B\u0435 \u043F\u043E\u043B\u044F: `cpuLimit, cpuRequest,\
+          \ gpuGb, id, name, ramLimit, ramRequest, type`"
+        in: query
+        name: sort
+        required: false
+        schema:
+          anyOf:
+          - items:
+              type: string
+            type: array
+          - type: 'null'
+          description: "\u0421\u043E\u0440\u0442\u0438\u0440\u043E\u0432\u043A\u0430\
+            . \u041F\u0440\u0438\u043C\u0435\u0440: `name,-id`. \u0414\u043E\u0441\
+            \u0442\u0443\u043F\u043D\u044B\u0435 \u043F\u043E\u043B\u044F: `cpuLimit,\
+            \ cpuRequest, gpuGb, id, name, ramLimit, ramRequest, type`"
+          title: Sort
+      - description: 'JSON object with criteria, e.g. {"criteria": [{"field": "name",
+          "op": "ilike", "value": "test"}]}'
+        in: query
+        name: filters
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: 'JSON object with criteria, e.g. {"criteria": [{"field": "name",
+            "op": "ilike", "value": "test"}]}'
+          title: Filters
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Paginated_Annotated_Union_VLLMConfigurationReadSchema__TritonConfigurationReadSchema___FieldInfo_annotation_NoneType__required_True__discriminator__type____'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Search Configurations
+      tags:
+      - Configurations
+  /v2/configurations/{config_id}:
+    get:
+      operationId: get_configuration_v2_configurations__config_id__get
+      parameters:
+      - in: path
+        name: config_id
+        required: true
+        schema:
+          title: Config Id
+          type: integer
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                discriminator:
+                  mapping:
+                    triton: '#/components/schemas/TritonConfigurationReadSchema'
+                    vllm: '#/components/schemas/VLLMConfigurationReadSchema'
+                  propertyName: type
+                oneOf:
+                - $ref: '#/components/schemas/VLLMConfigurationReadSchema'
+                - $ref: '#/components/schemas/TritonConfigurationReadSchema'
+                title: Response Get Configuration V2 Configurations  Config Id  Get
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Get Configuration
+      tags:
+      - Configurations
+    patch:
+      operationId: update_configuration_v2_configurations__config_id__patch
+      parameters:
+      - in: path
+        name: config_id
+        required: true
+        schema:
+          title: Config Id
+          type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CommonConfigurationPayloadPatch'
+        required: true
+      responses:
+        '202':
+          content:
+            application/json:
+              schema:
+                discriminator:
+                  mapping:
+                    triton: '#/components/schemas/TritonConfigurationReadSchema'
+                    vllm: '#/components/schemas/VLLMConfigurationReadSchema'
+                  propertyName: type
+                oneOf:
+                - $ref: '#/components/schemas/VLLMConfigurationReadSchema'
+                - $ref: '#/components/schemas/TritonConfigurationReadSchema'
+                title: Response Update Configuration V2 Configurations  Config Id  Patch
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Update Configuration
+      tags:
+      - Configurations
+  /v2/endpoints:
+    post:
+      operationId: create_endpoint_v2_endpoints_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EndpointCreateSchema'
+        required: true
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EndpointReadSchema'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Create Endpoint
+      tags:
+      - Endpoints
+  /v2/endpoints/find-by:
+    get:
+      description: "\u041F\u043E\u0438\u0441\u043A \u043A\u043E\u043D\u0444\u0438\u0433\
+        \u0443\u0440\u0430\u0446\u0438\u0439 \u0441 \u0433\u0438\u0431\u043A\u043E\
+        \u0439 \u0444\u0438\u043B\u044C\u0442\u0440\u0430\u0446\u0438\u0435\u0439\
+        , \u0441\u043E\u0440\u0442\u0438\u0440\u043E\u0432\u043A\u043E\u0439 \u0438\
+        \ \u043F\u0430\u0433\u0438\u043D\u0430\u0446\u0438\u0435\u0439."
+      operationId: search_endpoints_v2_endpoints_find_by_get
+      parameters:
+      - description: "\u0421\u043C\u0435\u0449\u0435\u043D\u0438\u0435"
+        in: query
+        name: offset
+        required: false
+        schema:
+          default: 0
+          description: "\u0421\u043C\u0435\u0449\u0435\u043D\u0438\u0435"
+          minimum: 0
+          title: Offset
+          type: integer
+      - description: "\u041B\u0438\u043C\u0438\u0442"
+        in: query
+        name: limit
+        required: false
+        schema:
+          default: 50
+          description: "\u041B\u0438\u043C\u0438\u0442"
+          maximum: 100
+          minimum: 1
+          title: Limit
+          type: integer
+      - description: "\u0421\u043E\u0440\u0442\u0438\u0440\u043E\u0432\u043A\u0430\
+          . \u041F\u0440\u0438\u043C\u0435\u0440: `name,-id`. \u0414\u043E\u0441\u0442\
+          \u0443\u043F\u043D\u044B\u0435 \u043F\u043E\u043B\u044F: `id, path`"
+        in: query
+        name: sort
+        required: false
+        schema:
+          anyOf:
+          - items:
+              type: string
+            type: array
+          - type: 'null'
+          description: "\u0421\u043E\u0440\u0442\u0438\u0440\u043E\u0432\u043A\u0430\
+            . \u041F\u0440\u0438\u043C\u0435\u0440: `name,-id`. \u0414\u043E\u0441\
+            \u0442\u0443\u043F\u043D\u044B\u0435 \u043F\u043E\u043B\u044F: `id, path`"
+          title: Sort
+      - description: 'JSON object with criteria, e.g. {"criteria": [{"field": "name",
+          "op": "ilike", "value": "test"}]}'
+        in: query
+        name: filters
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: 'JSON object with criteria, e.g. {"criteria": [{"field": "name",
+            "op": "ilike", "value": "test"}]}'
+          title: Filters
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Paginated_EndpointReadSchema_'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Search Endpoints
+      tags:
+      - Endpoints
+  /v2/endpoints/{endpoint_id}:
+    get:
+      operationId: get_endpoint_v2_endpoints__endpoint_id__get
+      parameters:
+      - in: path
+        name: endpoint_id
+        required: true
+        schema:
+          title: Endpoint Id
+          type: integer
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EndpointReadSchema'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Get Endpoint
+      tags:
+      - Endpoints
+    patch:
+      operationId: update_endpoint_v2_endpoints__endpoint_id__patch
+      parameters:
+      - in: path
+        name: endpoint_id
+        required: true
+        schema:
+          title: Endpoint Id
+          type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EndpointBaseSchemaPatch'
+        required: true
+      responses:
+        '202':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EndpointReadSchema'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Update Endpoint
+      tags:
+      - Endpoints
+  /v2/models:
+    post:
+      operationId: create_model_v2_models_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ModelCreateSchema'
+        required: true
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ModelReadSchema'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Create Model
+      tags:
+      - Models
+  /v2/models/find-by:
+    get:
+      description: "\u041F\u043E\u0438\u0441\u043A \u043C\u043E\u0434\u0435\u043B\u0435\
+        \u0439 \u0441 \u0433\u0438\u0431\u043A\u043E\u0439 \u0444\u0438\u043B\u044C\
+        \u0442\u0440\u0430\u0446\u0438\u0435\u0439, \u0441\u043E\u0440\u0442\u0438\
+        \u0440\u043E\u0432\u043A\u043E\u0439 \u0438 \u043F\u0430\u0433\u0438\u043D\
+        \u0430\u0446\u0438\u0435\u0439."
+      operationId: search_models_v2_models_find_by_get
+      parameters:
+      - description: "\u0421\u043C\u0435\u0449\u0435\u043D\u0438\u0435"
+        in: query
+        name: offset
+        required: false
+        schema:
+          default: 0
+          description: "\u0421\u043C\u0435\u0449\u0435\u043D\u0438\u0435"
+          minimum: 0
+          title: Offset
+          type: integer
+      - description: "\u041B\u0438\u043C\u0438\u0442"
+        in: query
+        name: limit
+        required: false
+        schema:
+          default: 50
+          description: "\u041B\u0438\u043C\u0438\u0442"
+          maximum: 100
+          minimum: 1
+          title: Limit
+          type: integer
+      - description: "\u0421\u043E\u0440\u0442\u0438\u0440\u043E\u0432\u043A\u0430\
+          . \u041F\u0440\u0438\u043C\u0435\u0440: `name,-id`. \u0414\u043E\u0441\u0442\
+          \u0443\u043F\u043D\u044B\u0435 \u043F\u043E\u043B\u044F: `configId, deleted,\
+          \ endpointId, hfRepoId, name, ownerId, status, storageId, tagId, tagName,\
+          \ type`"
+        in: query
+        name: sort
+        required: false
+        schema:
+          anyOf:
+          - items:
+              type: string
+            type: array
+          - type: 'null'
+          description: "\u0421\u043E\u0440\u0442\u0438\u0440\u043E\u0432\u043A\u0430\
+            . \u041F\u0440\u0438\u043C\u0435\u0440: `name,-id`. \u0414\u043E\u0441\
+            \u0442\u0443\u043F\u043D\u044B\u0435 \u043F\u043E\u043B\u044F: `configId,\
+            \ deleted, endpointId, hfRepoId, name, ownerId, status, storageId, tagId,\
+            \ tagName, type`"
+          title: Sort
+      - description: 'JSON object with criteria, e.g. {"criteria": [{"field": "name",
+          "op": "ilike", "value": "test"}]}'
+        in: query
+        name: filters
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: 'JSON object with criteria, e.g. {"criteria": [{"field": "name",
+            "op": "ilike", "value": "test"}]}'
+          title: Filters
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Paginated_ModelReadSchema_'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Search Models
+      tags:
+      - Models
+  /v2/models/ready-to-install/find-by:
+    get:
+      description: "\u041F\u043E\u0438\u0441\u043A \u043C\u043E\u0434\u0435\u043B\u0435\
+        \u0439, \u043A\u043E\u0442\u043E\u0440\u044B\u0435 \u0434\u043E\u0441\u0442\
+        \u0443\u043F\u043D\u044B \u0434\u043B\u044F \u0443\u0441\u0442\u0430\u043D\
+        \u043E\u0432\u043A\u0438 \u0441 \u0433\u0438\u0431\u043A\u043E\u0439 \u0444\
+        \u0438\u043B\u044C\u0442\u0440\u0430\u0446\u0438\u0435\u0439, \u0441\u043E\
+        \u0440\u0442\u0438\u0440\u043E\u0432\u043A\u043E\u0439 \u0438 \u043F\u0430\
+        \u0433\u0438\u043D\u0430\u0446\u0438\u0435\u0439."
+      operationId: get_ready_to_install_by_v2_models_ready_to_install_find_by_get
+      parameters:
+      - description: "\u0421\u043C\u0435\u0449\u0435\u043D\u0438\u0435"
+        in: query
+        name: offset
+        required: false
+        schema:
+          default: 0
+          description: "\u0421\u043C\u0435\u0449\u0435\u043D\u0438\u0435"
+          minimum: 0
+          title: Offset
+          type: integer
+      - description: "\u041B\u0438\u043C\u0438\u0442"
+        in: query
+        name: limit
+        required: false
+        schema:
+          default: 50
+          description: "\u041B\u0438\u043C\u0438\u0442"
+          maximum: 100
+          minimum: 1
+          title: Limit
+          type: integer
+      - description: "\u0421\u043E\u0440\u0442\u0438\u0440\u043E\u0432\u043A\u0430\
+          . \u041F\u0440\u0438\u043C\u0435\u0440: `name,-id`. \u0414\u043E\u0441\u0442\
+          \u0443\u043F\u043D\u044B\u0435 \u043F\u043E\u043B\u044F: `configId, deleted,\
+          \ endpointId, hfRepoId, name, ownerId, status, storageId, tagId, tagName,\
+          \ type`"
+        in: query
+        name: sort
+        required: false
+        schema:
+          anyOf:
+          - items:
+              type: string
+            type: array
+          - type: 'null'
+          description: "\u0421\u043E\u0440\u0442\u0438\u0440\u043E\u0432\u043A\u0430\
+            . \u041F\u0440\u0438\u043C\u0435\u0440: `name,-id`. \u0414\u043E\u0441\
+            \u0442\u0443\u043F\u043D\u044B\u0435 \u043F\u043E\u043B\u044F: `configId,\
+            \ deleted, endpointId, hfRepoId, name, ownerId, status, storageId, tagId,\
+            \ tagName, type`"
+          title: Sort
+      - description: 'JSON object with criteria, e.g. {"criteria": [{"field": "name",
+          "op": "ilike", "value": "test"}]}'
+        in: query
+        name: filters
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: 'JSON object with criteria, e.g. {"criteria": [{"field": "name",
+            "op": "ilike", "value": "test"}]}'
+          title: Filters
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Paginated_ModelReadSchema_'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Get Ready To Install By
+      tags:
+      - Models
+  /v2/models/ready-to-install/{model_id}:
+    get:
+      description: "\u041F\u043E\u0438\u0441\u043A \u043C\u043E\u0434\u0435\u043B\u0438\
+        , \u043A\u043E\u0442\u043E\u0440\u0430\u044F \u0434\u043E\u0441\u0442\u0443\
+        \u043F\u043D\u0430 \u0434\u043B\u044F \u0443\u0441\u0442\u0430\u043D\u043E\
+        \u0432\u043A\u0438"
+      operationId: get_ready_to_install_by_id_v2_models_ready_to_install__model_id__get
+      parameters:
+      - in: path
+        name: model_id
+        required: true
+        schema:
+          format: uuid4
+          title: Model Id
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ModelReadSchema'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Get Ready To Install By Id
+      tags:
+      - Models
+  /v2/models/running/find-by:
+    get:
+      description: "\u041F\u043E\u0438\u0441\u043A \u0437\u0430\u043F\u0443\u0449\u0435\
+        \u043D\u044B\u0445 \u043C\u043E\u0434\u0435\u043B\u0435\u0439 \u0441 \u0433\
+        \u0438\u0431\u043A\u043E\u0439 \u0444\u0438\u043B\u044C\u0442\u0440\u0430\u0446\
+        \u0438\u0435\u0439, \u0441\u043E\u0440\u0442\u0438\u0440\u043E\u0432\u043A\
+        \u043E\u0439 \u0438 \u043F\u0430\u0433\u0438\u043D\u0430\u0446\u0438\u0435\
+        \u0439."
+      operationId: get_running_by_v2_models_running_find_by_get
+      parameters:
+      - description: "\u0421\u043C\u0435\u0449\u0435\u043D\u0438\u0435"
+        in: query
+        name: offset
+        required: false
+        schema:
+          default: 0
+          description: "\u0421\u043C\u0435\u0449\u0435\u043D\u0438\u0435"
+          minimum: 0
+          title: Offset
+          type: integer
+      - description: "\u041B\u0438\u043C\u0438\u0442"
+        in: query
+        name: limit
+        required: false
+        schema:
+          default: 50
+          description: "\u041B\u0438\u043C\u0438\u0442"
+          maximum: 100
+          minimum: 1
+          title: Limit
+          type: integer
+      - description: "\u0421\u043E\u0440\u0442\u0438\u0440\u043E\u0432\u043A\u0430\
+          . \u041F\u0440\u0438\u043C\u0435\u0440: `name,-id`. \u0414\u043E\u0441\u0442\
+          \u0443\u043F\u043D\u044B\u0435 \u043F\u043E\u043B\u044F: `configId, deleted,\
+          \ endpointId, hfRepoId, name, ownerId, status, storageId, tagId, tagName,\
+          \ type`"
+        in: query
+        name: sort
+        required: false
+        schema:
+          anyOf:
+          - items:
+              type: string
+            type: array
+          - type: 'null'
+          description: "\u0421\u043E\u0440\u0442\u0438\u0440\u043E\u0432\u043A\u0430\
+            . \u041F\u0440\u0438\u043C\u0435\u0440: `name,-id`. \u0414\u043E\u0441\
+            \u0442\u0443\u043F\u043D\u044B\u0435 \u043F\u043E\u043B\u044F: `configId,\
+            \ deleted, endpointId, hfRepoId, name, ownerId, status, storageId, tagId,\
+            \ tagName, type`"
+          title: Sort
+      - description: 'JSON object with criteria, e.g. {"criteria": [{"field": "name",
+          "op": "ilike", "value": "test"}]}'
+        in: query
+        name: filters
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: 'JSON object with criteria, e.g. {"criteria": [{"field": "name",
+            "op": "ilike", "value": "test"}]}'
+          title: Filters
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Paginated_ModelReadSchema_'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Get Running By
+      tags:
+      - Models
+  /v2/models/running/{model_id}:
+    get:
+      description: "\u041F\u043E\u0438\u0441\u043A \u0437\u0430\u043F\u0443\u0449\u0435\
+        \u043D\u043E\u0439 \u043C\u043E\u0434\u0435\u043B\u0438 \u043F\u043E ID"
+      operationId: get_running_by_id_v2_models_running__model_id__get
+      parameters:
+      - in: path
+        name: model_id
+        required: true
+        schema:
+          format: uuid4
+          title: Model Id
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ModelReadSchema'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Get Running By Id
+      tags:
+      - Models
+  /v2/models/{model_id}:
+    delete:
+      operationId: delete_model_v2_models__model_id__delete
+      parameters:
+      - in: path
+        name: model_id
+        required: true
+        schema:
+          format: uuid4
+          title: Model Id
+          type: string
+      responses:
+        '204':
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Delete Model
+      tags:
+      - Models
+    get:
+      operationId: get_model_v2_models__model_id__get
+      parameters:
+      - in: path
+        name: model_id
+        required: true
+        schema:
+          format: uuid4
+          title: Model Id
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ModelReadSchema'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Get Model
+      tags:
+      - Models
+    patch:
+      operationId: update_model_v2_models__model_id__patch
+      parameters:
+      - in: path
+        name: model_id
+        required: true
+        schema:
+          format: uuid4
+          title: Model Id
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ModelPatchSchema'
+        required: true
+      responses:
+        '202':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ModelReadSchema'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Update Model
+      tags:
+      - Models
+  /v2/models/{model_id}/endpoints/{endpoint_id}:
+    delete:
+      operationId: remove_endpoint_from_model_v2_models__model_id__endpoints__endpoint_id__delete
+      parameters:
+      - in: path
+        name: model_id
+        required: true
+        schema:
+          format: uuid4
+          title: Model Id
+          type: string
+      - in: path
+        name: endpoint_id
+        required: true
+        schema:
+          title: Endpoint Id
+          type: integer
+      responses:
+        '204':
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Remove an endpoint from a model
+      tags:
+      - Models
+    put:
+      operationId: add_endpoint_to_model_v2_models__model_id__endpoints__endpoint_id__put
+      parameters:
+      - in: path
+        name: model_id
+        required: true
+        schema:
+          format: uuid4
+          title: Model Id
+          type: string
+      - in: path
+        name: endpoint_id
+        required: true
+        schema:
+          title: Endpoint Id
+          type: integer
+      responses:
+        '204':
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Add an endpoint to a model
+      tags:
+      - Models
+  /v2/models/{model_id}/storage:
+    delete:
+      description: "\u041E\u0442\u0432\u044F\u0437\u044B\u0432\u0430\u0435\u0442 \u0445\
+        \u0440\u0430\u043D\u0438\u043B\u0438\u0449\u0435 \u043E\u0442 \u043C\u043E\
+        \u0434\u0435\u043B\u0438."
+      operationId: unassign_model_storage_v2_models__model_id__storage_delete
+      parameters:
+      - in: path
+        name: model_id
+        required: true
+        schema:
+          format: uuid4
+          title: Model Id
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ModelReadSchema'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Unassign Model Storage
+      tags:
+      - Models
+  /v2/models/{model_id}/storage/{storage_id}:
+    put:
+      description: "\u041F\u0440\u0438\u0432\u044F\u0437\u044B\u0432\u0430\u0435\u0442\
+        \ \u0438\u043B\u0438 \u043E\u0431\u043D\u043E\u0432\u043B\u044F\u0435\u0442\
+        \ \u0445\u0440\u0430\u043D\u0438\u043B\u0438\u0449\u0435 \u0434\u043B\u044F\
+        \ \u043C\u043E\u0434\u0435\u043B\u0438."
+      operationId: assign_model_storage_v2_models__model_id__storage__storage_id__put
+      parameters:
+      - in: path
+        name: model_id
+        required: true
+        schema:
+          format: uuid4
+          title: Model Id
+          type: string
+      - in: path
+        name: storage_id
+        required: true
+        schema:
+          title: Storage Id
+          type: integer
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ModelReadSchema'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Assign Model Storage
+      tags:
+      - Models
+  /v2/models/{model_id}/tags/{tag_id}:
+    delete:
+      operationId: remove_tag_from_model_v2_models__model_id__tags__tag_id__delete
+      parameters:
+      - in: path
+        name: model_id
+        required: true
+        schema:
+          format: uuid4
+          title: Model Id
+          type: string
+      - in: path
+        name: tag_id
+        required: true
+        schema:
+          title: Tag Id
+          type: integer
+      responses:
+        '204':
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Remove a tag from a model
+      tags:
+      - Models
+    put:
+      operationId: add_tag_to_model_v2_models__model_id__tags__tag_id__put
+      parameters:
+      - in: path
+        name: model_id
+        required: true
+        schema:
+          format: uuid4
+          title: Model Id
+          type: string
+      - in: path
+        name: tag_id
+        required: true
+        schema:
+          title: Tag Id
+          type: integer
+      responses:
+        '204':
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Add a tag to a model
+      tags:
+      - Models
+  /v2/storages:
+    post:
+      operationId: create_storage_v2_storages_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StorageCreateSchema'
+        required: true
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StorageReadSchema'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Create Storage
+      tags:
+      - Storages
+  /v2/storages/find-by:
+    get:
+      description: "\u041F\u043E\u0438\u0441\u043A \u043A\u043E\u043D\u0444\u0438\u0433\
+        \u0443\u0440\u0430\u0446\u0438\u0439 \u0441 \u0433\u0438\u0431\u043A\u043E\
+        \u0439 \u0444\u0438\u043B\u044C\u0442\u0440\u0430\u0446\u0438\u0435\u0439\
+        , \u0441\u043E\u0440\u0442\u0438\u0440\u043E\u0432\u043A\u043E\u0439 \u0438\
+        \ \u043F\u0430\u0433\u0438\u043D\u0430\u0446\u0438\u0435\u0439."
+      operationId: search_storages_v2_storages_find_by_get
+      parameters:
+      - description: "\u0421\u043C\u0435\u0449\u0435\u043D\u0438\u0435"
+        in: query
+        name: offset
+        required: false
+        schema:
+          default: 0
+          description: "\u0421\u043C\u0435\u0449\u0435\u043D\u0438\u0435"
+          minimum: 0
+          title: Offset
+          type: integer
+      - description: "\u041B\u0438\u043C\u0438\u0442"
+        in: query
+        name: limit
+        required: false
+        schema:
+          default: 50
+          description: "\u041B\u0438\u043C\u0438\u0442"
+          maximum: 100
+          minimum: 1
+          title: Limit
+          type: integer
+      - description: "\u0421\u043E\u0440\u0442\u0438\u0440\u043E\u0432\u043A\u0430\
+          . \u041F\u0440\u0438\u043C\u0435\u0440: `name,-id`. \u0414\u043E\u0441\u0442\
+          \u0443\u043F\u043D\u044B\u0435 \u043F\u043E\u043B\u044F: `id, revision,\
+          \ storageId, type, uri`"
+        in: query
+        name: sort
+        required: false
+        schema:
+          anyOf:
+          - items:
+              type: string
+            type: array
+          - type: 'null'
+          description: "\u0421\u043E\u0440\u0442\u0438\u0440\u043E\u0432\u043A\u0430\
+            . \u041F\u0440\u0438\u043C\u0435\u0440: `name,-id`. \u0414\u043E\u0441\
+            \u0442\u0443\u043F\u043D\u044B\u0435 \u043F\u043E\u043B\u044F: `id, revision,\
+            \ storageId, type, uri`"
+          title: Sort
+      - description: 'JSON object with criteria, e.g. {"criteria": [{"field": "name",
+          "op": "ilike", "value": "test"}]}'
+        in: query
+        name: filters
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: 'JSON object with criteria, e.g. {"criteria": [{"field": "name",
+            "op": "ilike", "value": "test"}]}'
+          title: Filters
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Paginated_StorageReadSchema_'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Search Storages
+      tags:
+      - Storages
+  /v2/storages/{storage_id}:
+    get:
+      operationId: get_storage_v2_storages__storage_id__get
+      parameters:
+      - in: path
+        name: storage_id
+        required: true
+        schema:
+          title: Storage Id
+          type: integer
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StorageReadSchema'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Get Storage
+      tags:
+      - Storages
+    patch:
+      operationId: update_storage_v2_storages__storage_id__patch
+      parameters:
+      - in: path
+        name: storage_id
+        required: true
+        schema:
+          title: Storage Id
+          type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StorageBaseSchemaPatch'
+        required: true
+      responses:
+        '202':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StorageReadSchema'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Update Storage
+      tags:
+      - Storages
+  /v2/tags:
+    post:
+      operationId: create_tag_v2_tags_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TagCreateSchema'
+        required: true
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TagReadSchema'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Create Tag
+      tags:
+      - Tags
+  /v2/tags/find-by:
+    get:
+      description: "\u041F\u043E\u0438\u0441\u043A \u043A\u043E\u043D\u0444\u0438\u0433\
+        \u0443\u0440\u0430\u0446\u0438\u0439 \u0441 \u0433\u0438\u0431\u043A\u043E\
+        \u0439 \u0444\u0438\u043B\u044C\u0442\u0440\u0430\u0446\u0438\u0435\u0439\
+        , \u0441\u043E\u0440\u0442\u0438\u0440\u043E\u0432\u043A\u043E\u0439 \u0438\
+        \ \u043F\u0430\u0433\u0438\u043D\u0430\u0446\u0438\u0435\u0439."
+      operationId: search_tags_v2_tags_find_by_get
+      parameters:
+      - description: "\u0421\u043C\u0435\u0449\u0435\u043D\u0438\u0435"
+        in: query
+        name: offset
+        required: false
+        schema:
+          default: 0
+          description: "\u0421\u043C\u0435\u0449\u0435\u043D\u0438\u0435"
+          minimum: 0
+          title: Offset
+          type: integer
+      - description: "\u041B\u0438\u043C\u0438\u0442"
+        in: query
+        name: limit
+        required: false
+        schema:
+          default: 50
+          description: "\u041B\u0438\u043C\u0438\u0442"
+          maximum: 100
+          minimum: 1
+          title: Limit
+          type: integer
+      - description: "\u0421\u043E\u0440\u0442\u0438\u0440\u043E\u0432\u043A\u0430\
+          . \u041F\u0440\u0438\u043C\u0435\u0440: `name,-id`. \u0414\u043E\u0441\u0442\
+          \u0443\u043F\u043D\u044B\u0435 \u043F\u043E\u043B\u044F: `id, tag`"
+        in: query
+        name: sort
+        required: false
+        schema:
+          anyOf:
+          - items:
+              type: string
+            type: array
+          - type: 'null'
+          description: "\u0421\u043E\u0440\u0442\u0438\u0440\u043E\u0432\u043A\u0430\
+            . \u041F\u0440\u0438\u043C\u0435\u0440: `name,-id`. \u0414\u043E\u0441\
+            \u0442\u0443\u043F\u043D\u044B\u0435 \u043F\u043E\u043B\u044F: `id, tag`"
+          title: Sort
+      - description: 'JSON object with criteria, e.g. {"criteria": [{"field": "name",
+          "op": "ilike", "value": "test"}]}'
+        in: query
+        name: filters
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: 'JSON object with criteria, e.g. {"criteria": [{"field": "name",
+            "op": "ilike", "value": "test"}]}'
+          title: Filters
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Paginated_TagReadSchema_'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Search Tags
+      tags:
+      - Tags
+  /v2/tags/{tag_id}:
+    get:
+      operationId: get_tag_v2_tags__tag_id__get
+      parameters:
+      - in: path
+        name: tag_id
+        required: true
+        schema:
+          title: Tag Id
+          type: integer
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TagReadSchema'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Get Tag
+      tags:
+      - Tags

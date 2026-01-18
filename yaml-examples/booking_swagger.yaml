@@ -1,0 +1,693 @@
+---
+openapi: 3.1.0
+info:
+  title: FastAPI
+  version: dev
+paths:
+  "/api/v1/reservations/available-slots":
+    get:
+      tags:
+      - reservations
+      summary: Get Available Slots
+      description: РџРѕР»СѓС‡РµРЅРёРµ РґРѕСЃС‚СѓРїРЅС‹С… РІСЂРµРјРµРЅРЅС‹С… СЃР»РѕС‚РѕРІ
+        РґР»СЏ РјРѕРґРµР»Рё.
+      operationId: get_available_slots_api_v1_reservations_available_slots_get
+      security:
+      - HTTPBearer: []
+      parameters:
+      - name: model_id
+        in: query
+        required: true
+        schema:
+          type: string
+          description: ID РјРѕРґРµР»Рё
+          title: Model Id
+        description: ID РјРѕРґРµР»Рё
+        example: 7419f7e2-4c83-44b9-84ea-023d02b75362
+      - name: config_id
+        in: query
+        required: true
+        schema:
+          type: integer
+          description: ID РєРѕРЅС„РёРіСѓСЂР°С†РёРё
+          title: Config Id
+        description: ID РєРѕРЅС„РёРіСѓСЂР°С†РёРё
+        example: 1
+      - name: context
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Context
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  "$ref": "#/components/schemas/SlotBucketsCanHandleDto"
+                title: Response Get Available Slots Api V1 Reservations Available
+                  Slots Get
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/HTTPValidationError"
+  "/api/v1/reservations":
+    get:
+      tags:
+      - reservations
+      summary: Get Reservations
+      description: РџРѕР»СѓС‡РµРЅРёРµ Р±СЂРѕРЅРёСЂРѕРІР°РЅРёР№ СЃ РїР°РіРёРЅР°С†РёРµР№.
+      operationId: get_reservations_api_v1_reservations_get
+      parameters:
+      - name: model_name
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Model Name
+      - name: min_start_time
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Min Start Time
+      - name: max_start_time
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Max Start Time
+      - name: min_end_time
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Min End Time
+      - name: max_end_time
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Max End Time
+      - name: user_id
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: User Id
+      - name: page
+        in: query
+        required: false
+        schema:
+          type: integer
+          minimum: 1
+          default: 1
+          title: Page
+      - name: page_size
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 1000
+          minimum: 1
+          default: 20
+          title: Page Size
+      - name: sort_by
+        in: query
+        required: false
+        schema:
+          type: string
+          default: start_time
+          title: Sort By
+      - name: sort_order
+        in: query
+        required: false
+        schema:
+          "$ref": "#/components/schemas/SortOrder"
+          default: asc
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ReservationPaginatedResponse"
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/HTTPValidationError"
+    post:
+      tags:
+      - reservations
+      summary: Create Reservation
+      description: РЎРѕР·РґР°РЅРёРµ РЅРѕРІРѕРіРѕ Р±СЂРѕРЅРёСЂРѕРІР°РЅРёСЏ.
+      operationId: create_reservation_api_v1_reservations_post
+      security:
+      - HTTPBearer: []
+      parameters:
+      - name: context
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Context
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              "$ref": "#/components/schemas/ReservationCreateSchema"
+      responses:
+        '201':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ReservationResponse"
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/HTTPValidationError"
+  "/api/v1/reservations/{reservation_id}":
+    patch:
+      tags:
+      - reservations
+      summary: Update Reservation
+      description: РћР±РЅРѕРІР»РµРЅРёРµ СЃСѓС‰РµСЃС‚РІСѓСЋС‰РµРіРѕ Р±СЂРѕРЅРёСЂРѕРІР°РЅРёСЏ.
+      operationId: update_reservation_api_v1_reservations__reservation_id__patch
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: string
+                title: Response Update Reservation Api V1 Reservations  Reservation
+                  Id  Patch
+    delete:
+      tags:
+      - reservations
+      summary: Cancel Reservation
+      description: РћС‚РјРµРЅР° Р±СЂРѕРЅРёСЂРѕРІР°РЅРёСЏ.
+      operationId: cancel_reservation_api_v1_reservations__reservation_id__delete
+      security:
+      - HTTPBearer: []
+      parameters:
+      - name: reservation_id
+        in: path
+        required: true
+        schema:
+          type: string
+          description: UUID Р±СЂРѕРЅРёСЂРѕРІР°РЅРёСЏ
+          title: Reservation Id
+        description: UUID Р±СЂРѕРЅРёСЂРѕРІР°РЅРёСЏ
+      - name: context
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Context
+      responses:
+        '204':
+          description: Successful Response
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/HTTPValidationError"
+    get:
+      tags:
+      - reservations
+      summary: Show Reservation
+      description: Р’С‹РІРѕРґ РёРЅС„РѕСЂРјР°С†РёРё Рѕ Р±СЂРѕРЅРёСЂРѕРІР°РЅРёРё СЃ
+        РёСЃРїРѕР»СЊР·РѕРІР°РЅРёРµРј РІСЂРµРјРµРЅРЅРѕРіРѕ РґРёР°РїР°Р·РѕРЅР° Рё РµРіРѕ
+        РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂР°.
+      operationId: show_reservation_api_v1_reservations__reservation_id__get
+      parameters:
+      - name: reservation_id
+        in: path
+        required: true
+        schema:
+          type: string
+          description: UUID Р±СЂРѕРЅРёСЂРѕРІР°РЅРёСЏ
+          title: Reservation Id
+        description: UUID Р±СЂРѕРЅРёСЂРѕРІР°РЅРёСЏ
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ReservationWithSlotsUsageResponse"
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/HTTPValidationError"
+  "/api/v1/reservations/{reservation_id}/slot-usage/{slot_usage_id}":
+    delete:
+      tags:
+      - reservations
+      summary: Cancel Reservation Slot Usage
+      description: РћС‚РјРµРЅР° РёСЃРїРѕР»СЊР·РѕРІР°РЅРёСЏ РІСЂРµРјРµРЅРЅРѕРіРѕ РґРёР°РїР°Р·РѕРЅР°.
+      operationId: cancel_reservation_slot_usage_api_v1_reservations__reservation_id__slot_usage__slot_usage_id__delete
+      security:
+      - HTTPBearer: []
+      parameters:
+      - name: reservation_id
+        in: path
+        required: true
+        schema:
+          type: string
+          description: UUID Р±СЂРѕРЅРёСЂРѕРІР°РЅРёСЏ
+          title: Reservation Id
+        description: UUID Р±СЂРѕРЅРёСЂРѕРІР°РЅРёСЏ
+      - name: slot_usage_id
+        in: path
+        required: true
+        schema:
+          type: string
+          description: UUID РёСЃРїРѕР»СЊР·РѕРІР°РЅРёСЏ РІСЂРµРјРµРЅРЅРѕРіРѕ РґРёР°РїР°Р·РѕРЅР°
+          title: Slot Usage Id
+        description: UUID РёСЃРїРѕР»СЊР·РѕРІР°РЅРёСЏ РІСЂРµРјРµРЅРЅРѕРіРѕ РґРёР°РїР°Р·РѕРЅР°
+      - name: context
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Context
+      responses:
+        '204':
+          description: Successful Response
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/HTTPValidationError"
+  "/api/v1/profile/reservations":
+    get:
+      tags:
+      - profile
+      summary: Get User Reservations
+      description: РџРѕР»СѓС‡РµРЅРёРµ Р±СЂРѕРЅРёСЂРѕРІР°РЅРёР№ РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ
+        СЃ С„РёР»СЊС‚СЂР°С†РёРµР№.
+      operationId: get_user_reservations_api_v1_profile_reservations_get
+      security:
+      - HTTPBearer: []
+      parameters:
+      - name: model_name
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Model Name
+      - name: min_start_time
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Min Start Time
+      - name: max_start_time
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Max Start Time
+      - name: min_end_time
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Min End Time
+      - name: max_end_time
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Max End Time
+      - name: user_id
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: User Id
+      - name: page
+        in: query
+        required: false
+        schema:
+          type: integer
+          minimum: 1
+          default: 1
+          title: Page
+      - name: page_size
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 1000
+          minimum: 1
+          default: 20
+          title: Page Size
+      - name: sort_by
+        in: query
+        required: false
+        schema:
+          type: string
+          default: start_time
+          title: Sort By
+      - name: sort_order
+        in: query
+        required: false
+        schema:
+          "$ref": "#/components/schemas/SortOrder"
+          default: asc
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ReservationPaginatedResponse"
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/HTTPValidationError"
+  "/api/v1/models":
+    get:
+      tags:
+      - models
+      summary: Get Models
+      operationId: get_models_api_v1_models_get
+      responses:
+        '301':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+  "/health/readiness":
+    get:
+      summary: Readiness Check
+      operationId: readiness_check_health_readiness_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+  "/health/liveness":
+    get:
+      summary: Liveness Check
+      operationId: liveness_check_health_liveness_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+components:
+  schemas:
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            "$ref": "#/components/schemas/ValidationError"
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    ReservationCreateSchema:
+      properties:
+        model_id:
+          type: string
+          title: Model Id
+          description: UUID of the AI model to be reserved
+          examples:
+          - 123e4567-e89b-12d3-a456-426614174000
+        slots:
+          items:
+            "$ref": "#/components/schemas/Slot"
+          type: array
+          title: Slots
+          description: List of slots to be reserved
+          examples:
+          - end: 1715182800
+            start: 1715175600
+      type: object
+      required:
+      - model_id
+      - slots
+      title: Reservation Base Schema
+      description: Schema for creating new model reservations with specified time
+        slots
+      example:
+        model_id: 123e4567-e89b-12d3-a456-426614174000
+        slots:
+        - end: 1715182800
+          start: 1715175600
+    ReservationPaginatedResponse:
+      properties:
+        items:
+          items:
+            "$ref": "#/components/schemas/ReservationResponse"
+          type: array
+          title: Items
+        total:
+          type: integer
+          title: Total
+        page:
+          type: integer
+          title: Page
+        page_size:
+          type: integer
+          title: Page Size
+      type: object
+      required:
+      - items
+      - total
+      - page
+      - page_size
+      title: ReservationPaginatedResponse
+      description: Pydantic СЃС…РµРјР° РґР»СЏ РїР°РіРёРЅРёСЂРѕРІР°РЅРЅРѕРіРѕ РѕС‚РІРµС‚Р°
+    ReservationResponse:
+      properties:
+        id:
+          type: string
+          title: Id
+        user:
+          "$ref": "#/components/schemas/ReservationUserResponse"
+        model_name:
+          type: string
+          title: Model Name
+        config_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Config Id
+        model_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Model Id
+        slots:
+          items:
+            "$ref": "#/components/schemas/SlotUsageResponse"
+          type: array
+          title: Slots
+      type: object
+      required:
+      - id
+      - user
+      - model_name
+      - slots
+      title: ReservationResponse
+      description: Pydantic СЃС…РµРјР° РґР»СЏ РѕС‚РІРµС‚Р° СЃ РІСЂРµРјРµРЅРЅС‹Рј РґРёР°РїР°Р·РѕРЅРѕРј
+    ReservationUserResponse:
+      properties:
+        id:
+          type: string
+          title: Id
+        name:
+          type: string
+          title: Name
+      type: object
+      required:
+      - id
+      - name
+      title: ReservationUserResponse
+      description: Pydantic СЃС…РµРјР° РґР»СЏ РѕС‚РІРµС‚Р° СЃ РїРѕР»СЊР·РѕРІР°С‚РµР»РµРј
+    ReservationWithSlotsUsageResponse:
+      properties:
+        id:
+          type: string
+          title: Id
+        user:
+          "$ref": "#/components/schemas/ReservationUserResponse"
+        model_name:
+          type: string
+          title: Model Name
+        config_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Config Id
+        model_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Model Id
+        slots:
+          items:
+            "$ref": "#/components/schemas/SlotUsageResponse"
+          type: array
+          title: Slots
+      type: object
+      required:
+      - id
+      - user
+      - model_name
+      - slots
+      title: ReservationWithSlotsUsageResponse
+      description: Pydantic СЃС…РµРјР° РґР»СЏ РѕС‚РІРµС‚Р° СЃ РёСЃРїРѕР»СЊР·РѕРІР°РЅРёРµРј
+        РІСЂРµРјРµРЅРЅРѕРіРѕ РґРёР°РїР°Р·РѕРЅР° Рё РµРіРѕ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂР°
+    Slot:
+      properties:
+        start:
+          type: integer
+          exclusiveMinimum: 0
+          title: Start
+          description: Unix timestamp when the reservation slot begins
+          examples:
+          - 1715175600
+        end:
+          type: integer
+          exclusiveMinimum: 0
+          title: End
+          description: Unix timestamp when the reservation slot ends
+          examples:
+          - 1715182800
+      type: object
+      required:
+      - start
+      - end
+      title: Slot
+    SlotBucketsCanHandleDto:
+      properties:
+        can_handle:
+          type: boolean
+          title: Can Handle
+        slot:
+          "$ref": "#/components/schemas/TimeRange"
+      type: object
+      required:
+      - can_handle
+      - slot
+      title: SlotBucketsCanHandleDto
+    SlotUsageResponse:
+      properties:
+        start:
+          type: integer
+          title: Start
+        end:
+          type: integer
+          title: End
+        id:
+          type: string
+          title: Id
+      type: object
+      required:
+      - start
+      - end
+      - id
+      title: SlotUsageResponse
+      description: Pydantic СЃС…РµРјР° РґР»СЏ РѕС‚РІРµС‚Р° СЃ РёСЃРїРѕР»СЊР·РѕРІР°РЅРёРµРј
+        РІСЂРµРјРµРЅРЅРѕРіРѕ РґРёР°РїР°Р·РѕРЅР° Рё РµРіРѕ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂР°
+    SortOrder:
+      type: string
+      enum:
+      - asc
+      - desc
+      title: SortOrder
+    TimeRange:
+      properties:
+        start:
+          type: integer
+          title: Start
+        end:
+          type: integer
+          title: End
+      type: object
+      required:
+      - start
+      - end
+      title: TimeRange
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+  securitySchemes:
+    HTTPBearer:
+      type: http
+      scheme: bearer
