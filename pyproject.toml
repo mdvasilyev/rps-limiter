@@ -19,6 +19,7 @@ prometheus-client = "^0.24.1"
 aiohttp = "^3.13.3"
 uvicorn = "^0.40.0"
 pyyaml = "^6.0.3"
+apscheduler = "^3.11.2"
 
 
 [build-system]
