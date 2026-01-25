@@ -1,19 +1,16 @@
 from contextlib import asynccontextmanager
 
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
-from apscheduler.triggers.interval import IntervalTrigger
 from fastapi import FastAPI
 
 from src.adapters.api.v1.routes import api_router_list
-from src.core.configurations import get_config
 
 
 @asynccontextmanager
-async def lifespan(_: FastAPI):
-    config = get_config()
+async def lifespan(app: FastAPI):
     scheduler = AsyncIOScheduler()
-    scheduler.add_job(stub, IntervalTrigger(seconds=config.worker.interval))
     scheduler.start()
+    app.state.scheduler = scheduler
 
     yield
 
