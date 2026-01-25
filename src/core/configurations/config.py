@@ -9,8 +9,23 @@ class AppConfig(BaseModel):
     port: int
 
 
+class DBConfig(BaseModel):
+    host: str
+    port: int
+    name: str
+    user: str
+    password: str
+    pool_size: int
+
+
+class WorkerSettings(BaseModel):
+    interval: int
+
+
 class GlobalConfig(BaseModel):
     app: AppConfig
+    db: DBConfig
+    worker: WorkerSettings
 
     @classmethod
     def load(cls, file_path: str = "config.yaml") -> "GlobalConfig":

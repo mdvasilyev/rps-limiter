@@ -1,7 +1,8 @@
 """Configurations module."""
 
-from .config import get_config
+from .config import DBConfig, get_config
 
 __all__ = [
+    "DBConfig",
     "get_config",
 ]
