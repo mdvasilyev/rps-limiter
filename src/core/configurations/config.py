@@ -22,10 +22,16 @@ class WorkerSettings(BaseModel):
     interval: int
 
 
+class RabbitMQConfig(BaseModel):
+    url: str
+    logs_queue: str
+
+
 class GlobalConfig(BaseModel):
     app: AppConfig
     db: DBConfig
     worker: WorkerSettings
+    rabbitmq: RabbitMQConfig
 
     @classmethod
     def load(cls, file_path: str = "config.yaml") -> "GlobalConfig":
