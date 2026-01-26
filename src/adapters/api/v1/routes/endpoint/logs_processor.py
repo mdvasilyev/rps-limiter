@@ -7,7 +7,7 @@ from src.adapters.api.v1.routes.model import JobResponse
 from src.application.workers import fetch_and_process
 from src.core.configurations import get_config
 
-logs_processor_router = APIRouter(tags=["logs_processor"])
+logs_processor_router = APIRouter(prefix="/api/v1", tags=["logs_processor"])
 
 LOGS_PROCESSOR_JOB_ID = "logs_processor_job"
 
