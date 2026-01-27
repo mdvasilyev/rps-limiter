@@ -1,20 +1,54 @@
-from contextlib import asynccontextmanager
+import asyncio
+from contextlib import asynccontextmanager, suppress
 
-from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from fastapi import FastAPI
+from loguru import logger
 
 from src.adapters.api.v1.routes import api_router_list
+from src.core.configurations.config import get_config
+from src.core.configurations.rabbit import create_rabbit_broker
+from src.infrastructure.rabbit import periodic_publish_logs_signal
+
+config = get_config()
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    scheduler = AsyncIOScheduler()
-    scheduler.start()
-    app.state.scheduler = scheduler
+    logger.info("Starting FastAPI application")
+
+    broker = create_rabbit_broker()
+
+    await broker.connect()
+    app.state.broker = broker
+
+    logger.info("RabbitMQ broker connected")
+
+    stop_event = asyncio.Event()
+
+    task = asyncio.create_task(
+        periodic_publish_logs_signal(
+            stop_event=stop_event,
+            broker=broker,
+        )
+    )
+
+    app.state.periodic_task = task
+    app.state.periodic_stop_event = stop_event
+
+    logger.info("Periodic logs signal publisher task started")
 
     yield
 
-    scheduler.shutdown()
+    logger.info("Shutting down FastAPI application")
+
+    stop_event.set()
+    task.cancel()
+
+    with suppress(asyncio.CancelledError):
+        await task
+
+    await broker.stop()
+    logger.info("RabbitMQ broker stopped")
 
 
 def setup_routers(app: FastAPI) -> None:
@@ -33,8 +67,3 @@ def get_app() -> FastAPI:
     setup_routers(app)
 
     return app
-
-
-async def stub():
-    # Ваша логика: fetch из сервиса, transform, save в DB
-    pass
