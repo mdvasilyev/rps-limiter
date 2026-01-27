@@ -1,18 +1,37 @@
+import asyncio
 from pathlib import Path
 
-from src.application.services import LogsProcessor, RPSController
+from faststream import FastStream
+from faststream.rabbit import RabbitBroker, RabbitRouter
+from loguru import logger
+
+from src.application.services import LogsProcessor
+from src.core.configurations.config import get_config
+from src.core.configurations.rabbit import create_rabbit_broker
+
+config = get_config()
+
+broker: RabbitBroker = create_rabbit_broker()
+app = FastStream(broker)
+router = RabbitRouter()
+
+broker.include_router(router)
 
 
-async def fetch_and_process():
-    processor = LogsProcessor(Path("yaml-examples/entrypoint_metrics.txt"))
+@router.subscriber(config.rabbitmq.logs_queue)
+async def handle_logs_signal(message: dict):
+    logger.info(
+        "Received logs processing signal: {}",
+        message.get("triggered_at"),
+    )
 
-    await processor.load()
-    processor.parse()
+    service = LogsProcessor(Path("yaml-examples/entrypoint_metrics.txt"))
+    logger.info("Requests count: {}", service.count_requests())
 
-    rps = processor.calculate_rps()
 
-    print(processor.count_requests())
-    print("RPS:", rps)
+async def main():
+    await app.run()
 
-    controller = RPSController(low=10, high=50)
-    print(controller.evaluate(rps))
+
+if __name__ == "__main__":
+    asyncio.run(main())
