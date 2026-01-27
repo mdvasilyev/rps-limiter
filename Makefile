@@ -11,8 +11,11 @@ upgrade:
 downgrade:
 	poetry run alembic downgrade -1
 
-run:
+run-fastapi:
 	PYTHONPATH=. poetry run python src/application/main.py
+
+run-faststream:
+	PYTHONPATH=. poetry run python src/application/workers/fetch_and_process.py
 
 up:
 	docker compose up
