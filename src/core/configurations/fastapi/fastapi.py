@@ -1,10 +1,12 @@
 import asyncio
 from contextlib import asynccontextmanager, suppress
 
+import aiohttp
 from fastapi import FastAPI
 from loguru import logger
 
 from src.adapters.api.v1.routes import api_router_list
+from src.application.services.service_clients import ServiceClients
 from src.core.configurations.config import get_config
 from src.core.configurations.rabbit import create_rabbit_broker
 from src.infrastructure.rabbit import periodic_publish_logs_signal
@@ -15,6 +17,9 @@ config = get_config()
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     logger.info("Starting FastAPI application")
+
+    session = aiohttp.ClientSession()
+    app.state.service_clients = ServiceClients(config, session=session)
 
     broker = create_rabbit_broker()
 
@@ -46,6 +51,8 @@ async def lifespan(app: FastAPI):
 
     with suppress(asyncio.CancelledError):
         await task
+
+    await app.state.service_clients.close()
 
     await broker.stop()
     logger.info("RabbitMQ broker stopped")
