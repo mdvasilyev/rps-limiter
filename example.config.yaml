@@ -16,3 +16,19 @@ worker:
 rabbitmq:
   url: amqp://guest:guest@localhost:5672/
   logs_queue: logs.process
+
+
+model_registry:
+  url: "http://localhost:8001/v2/models"
+
+model_dispatcher:
+  url: "http://localhost:8002/v1/command"
+
+booking:
+  url: "http://localhost:8003/api/v1/reservations"
+
+entrypoint:
+  url: "http://localhost:8004/metrics"
+
+notificator:
+  url: "http://localhost:8005/notify"

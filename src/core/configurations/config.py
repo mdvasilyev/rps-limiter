@@ -27,11 +27,37 @@ class RabbitMQConfig(BaseModel):
     logs_queue: str
 
 
+class ModelRegistryConfig(BaseModel):
+    url: str
+
+
+class ModelDispatcherConfig(BaseModel):
+    url: str
+
+
+class BookingServiceConfig(BaseModel):
+    url: str
+
+
+class EntrypointConfig(BaseModel):
+    url: str
+
+
+class NotificatorConfig(BaseModel):
+    url: str
+
+
 class GlobalConfig(BaseModel):
     app: AppConfig
     db: DBConfig
     worker: WorkerSettings
     rabbitmq: RabbitMQConfig
+
+    model_registry: ModelRegistryConfig
+    model_dispatcher: ModelDispatcherConfig
+    booking: BookingServiceConfig
+    entrypoint: EntrypointConfig
+    notificator: NotificatorConfig
 
     @classmethod
     def load(cls, file_path: str = "config.yaml") -> "GlobalConfig":
