@@ -4,9 +4,8 @@ from datetime import UTC, datetime
 from faststream.rabbit import RabbitBroker
 from loguru import logger
 
-from src.core.configurations import get_config
-
-config = get_config()
+from src.core.configurations.config import GlobalConfig
+from src.core.configurations.dishka import container
 
 
 async def publish_logs_signal(
@@ -31,6 +30,8 @@ async def periodic_publish_logs_signal(
     stop_event: asyncio.Event,
     broker,
 ):
+    config: GlobalConfig = container.get(GlobalConfig)
+
     interval = config.worker.interval
     queue = config.rabbitmq.logs_queue
 
