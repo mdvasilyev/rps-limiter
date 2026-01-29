@@ -1,55 +1,27 @@
-from dataclasses import dataclass
-from typing import NamedTuple, Self
-
 import httpx
+from dishka import Provider, Scope, provide
 from httpx import AsyncClient, HTTPStatusError, RequestError
 from loguru import logger
-from pydantic import BaseModel, ValidationError
+from pydantic import ValidationError
 
+from src.application.services.service_clients.base import BaseServiceClient
+from src.core.configurations.config import GlobalConfig
+from src.domain.dto import Metric
 from src.domain.exceptions.prometheus import PrometheusError
 
 
-@dataclass(frozen=True, kw_only=True)
-class ModelRpsDTO:
-    model_name: str
-    rps: float
-
-
-class MetricValue(NamedTuple):
-    timestamp: float
-    value: str
-
-
-class Metric(BaseModel):
-    metric: dict[str, str]
-    value: MetricValue
-
-
-class PrometheusClient:
-    def __init__(self, base_url: str, timeout: float = 5.0) -> None:
-        self._base_url = base_url
-        self._timeout = timeout
-        self._url_path = "/api/v1/query"
-        self._client: AsyncClient | None = None
-
-    async def __aenter__(self) -> Self:
-        self._client = AsyncClient(base_url=self._base_url, timeout=self._timeout)
-        return self
-
-    async def __aexit__(self, exc_type, exc_val, exc_tb) -> None:
-        if self._client:
-            await self._client.aclose()
+class PrometheusClient(BaseServiceClient):
+    def __init__(
+        self, base_url: str, client: httpx.AsyncClient, timeout: float = 5.0
+    ) -> None:
+        super().__init__(base_url, client, timeout)
+        self._url_path = f"{base_url}/api/v1/query"
 
     async def query_vector(self, promql_query: str) -> list[Metric]:
-        if self._client is None:
-            raise PrometheusError(
-                "Client not initialized. Use 'async with' context manager."
-            )
-
         try:
             params = {"query": promql_query}
             response: httpx.Response = await self._client.get(
-                self._url_path, params=params
+                self._url_path, params=params, timeout=self._timeout
             )
             response.raise_for_status()
 
@@ -75,3 +47,9 @@ class PrometheusClient:
             raise PrometheusError("Invalid JSON response") from exc
 
 
+class PrometheusClientProvider(Provider):
+    @provide(scope=Scope.APP)
+    def prometheus_client(
+        self, config: GlobalConfig, client: AsyncClient
+    ) -> PrometheusClient:
+        return PrometheusClient(config.prometheus.url, client)

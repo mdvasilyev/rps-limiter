@@ -1,3 +1,8 @@
+from dishka import Provider, Scope, provide
+from httpx import AsyncClient
+
+from src.core.configurations.config import GlobalConfig
+
 from .base import BaseServiceClient
 
 
@@ -8,3 +13,11 @@ class NotificatorClient(BaseServiceClient):
             path="/notify",
             json=payload,
         )
+
+
+class NotificatorClientProvider(Provider):
+    @provide(scope=Scope.APP)
+    def notificator_client(
+        self, config: GlobalConfig, client: AsyncClient
+    ) -> NotificatorClient:
+        return NotificatorClient(config.notificator.url, client)

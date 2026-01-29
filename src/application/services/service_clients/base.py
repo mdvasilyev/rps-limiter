@@ -1,18 +1,18 @@
 from typing import Any
 
-import aiohttp
+import httpx
 
 
 class BaseServiceClient:
     def __init__(
         self,
         base_url: str,
-        session: aiohttp.ClientSession,
-        timeout: int = 5,
-    ):
+        client: httpx.AsyncClient,
+        timeout: float = 5.0,
+    ) -> None:
         self._base_url = base_url.rstrip("/")
-        self._session = session
-        self._timeout = aiohttp.ClientTimeout(total=timeout)
+        self._client = client
+        self._timeout = timeout
 
     async def _request(
         self,
@@ -22,16 +22,17 @@ class BaseServiceClient:
     ) -> Any:
         url = f"{self._base_url}{path}"
 
-        async with self._session.request(
+        response = await self._client.request(
             method=method,
             url=url,
             timeout=self._timeout,
             **kwargs,
-        ) as response:
-            response.raise_for_status()
+        )
 
-            content_type = response.headers.get("Content-Type", "")
-            if "application/json" in content_type:
-                return await response.json()
+        response.raise_for_status()
 
-            return await response.text()
+        content_type = response.headers.get("Content-Type", "")
+        if "application/json" in content_type:
+            return response.json()
+
+        return response.text
