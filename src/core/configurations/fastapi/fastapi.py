@@ -1,13 +1,11 @@
 import asyncio
 from contextlib import asynccontextmanager, suppress
 
-import aiohttp
 from fastapi import FastAPI
 from faststream.rabbit import RabbitBroker
 from loguru import logger
 
 from src.adapters.api.v1.routes import api_router_list
-from src.core.configurations.config import GlobalConfig
 from src.core.configurations.dishka import container
 from src.infrastructure.rabbit import periodic_publish_logs_signal
 
@@ -15,10 +13,6 @@ from src.infrastructure.rabbit import periodic_publish_logs_signal
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     logger.info("Starting FastAPI application")
-
-    config: GlobalConfig = container.get(GlobalConfig)
-
-    session = aiohttp.ClientSession()
 
     broker = container.get(RabbitBroker)
 
