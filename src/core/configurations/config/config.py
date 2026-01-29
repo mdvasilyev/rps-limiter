@@ -38,7 +38,7 @@ class BookingServiceConfig(BaseModel):
     url: str
 
 
-class EntrypointConfig(BaseModel):
+class PrometheusConfig(BaseModel):
     url: str
 
 
@@ -55,13 +55,13 @@ class GlobalConfig(BaseModel):
     model_registry: ModelRegistryConfig
     model_dispatcher: ModelDispatcherConfig
     booking: BookingServiceConfig
-    entrypoint: EntrypointConfig
+    prometheus: PrometheusConfig
     notificator: NotificatorConfig
 
 
 class ConfigProvider(Provider):
     @provide(scope=Scope.APP)
-    def global_config(self) -> "GlobalConfig":
+    def global_config(self) -> GlobalConfig:
         file_path: str = "config.yaml"
         try:
             with open(file_path, "r") as f:

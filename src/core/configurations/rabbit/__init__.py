@@ -1,7 +1,7 @@
 """RabbitMQ configurations module."""
 
-from .connection import create_rabbit_broker
+from .connection import RabbitmqProvider
 
 __all__ = [
-    "create_rabbit_broker",
+    "RabbitmqProvider",
 ]

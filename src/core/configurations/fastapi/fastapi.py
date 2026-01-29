@@ -3,13 +3,12 @@ from contextlib import asynccontextmanager, suppress
 
 import aiohttp
 from fastapi import FastAPI
+from faststream.rabbit import RabbitBroker
 from loguru import logger
 
 from src.adapters.api.v1.routes import api_router_list
-from src.application.services.service_clients import ServiceClients
 from src.core.configurations.config import GlobalConfig
 from src.core.configurations.dishka import container
-from src.core.configurations.rabbit import create_rabbit_broker
 from src.infrastructure.rabbit import periodic_publish_logs_signal
 
 
@@ -20,9 +19,8 @@ async def lifespan(app: FastAPI):
     config: GlobalConfig = container.get(GlobalConfig)
 
     session = aiohttp.ClientSession()
-    app.state.service_clients = ServiceClients(config, session=session)
 
-    broker = create_rabbit_broker()
+    broker = container.get(RabbitBroker)
 
     await broker.connect()
     app.state.broker = broker
@@ -54,8 +52,6 @@ async def lifespan(app: FastAPI):
 
     with suppress(asyncio.CancelledError):
         await task
-
-    await app.state.service_clients.close()
 
     await broker.stop()
     logger.info("RabbitMQ broker stopped")
