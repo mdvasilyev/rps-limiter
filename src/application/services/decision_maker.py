@@ -1,6 +1,5 @@
-from datetime import datetime, timedelta
-
 from dataclasses import dataclass
+from datetime import datetime, timedelta
 
 
 @dataclass
@@ -29,7 +28,7 @@ class Unbook:
     model: str
 
 
-class LogsProcessor:
+class DecisionMaker:
     SCALE_UP_THRESHOLD = 20.0
     SCALE_DOWN_THRESHOLD = 5.0
 
@@ -42,7 +41,7 @@ class LogsProcessor:
     def process(
         self,
         *,
-        active_models: list[str],
+        active_models: dict,
         rps_by_model: dict[str, float],
         increase_by_model: dict[str, float],
     ) -> list:
@@ -58,7 +57,6 @@ class LogsProcessor:
                 ModelState(last_rps=None, zero_since=None),
             )
 
-            # SCALE LOGIC
             if state.last_rps is not None:
                 if rps > state.last_rps and rps >= self.SCALE_UP_THRESHOLD:
                     actions.append(ScaleUp(model))
@@ -66,7 +64,6 @@ class LogsProcessor:
                 elif rps < state.last_rps and rps <= self.SCALE_DOWN_THRESHOLD:
                     actions.append(ScaleDown(model))
 
-            # INACTIVITY LOGIC
             if increase == 0:
                 state.zero_since = state.zero_since or now
                 inactive_for = now - state.zero_since

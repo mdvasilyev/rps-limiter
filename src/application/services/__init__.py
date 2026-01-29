@@ -1,11 +1,19 @@
 """Services module."""
 
-from .logs_processor import LogsProcessor
-from .rps_controller import RPSController
-from .service_clients import ServiceClients
+from .decision_maker import (
+    DecisionMaker,
+    ModelState,
+    ScaleDown,
+    ScaleUp,
+    Unbook,
+    WarnUnbooking,
+)
 
 __all__ = [
-    "ServiceClients",
-    "LogsProcessor",
-    "RPSController",
+    "DecisionMaker",
+    "ModelState",
+    "ScaleUp",
+    "ScaleDown",
+    "WarnUnbooking",
+    "Unbook",
 ]
