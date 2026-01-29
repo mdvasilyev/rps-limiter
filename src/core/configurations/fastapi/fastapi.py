@@ -7,16 +7,17 @@ from loguru import logger
 
 from src.adapters.api.v1.routes import api_router_list
 from src.application.services.service_clients import ServiceClients
-from src.core.configurations.config import get_config
+from src.core.configurations.config import GlobalConfig
+from src.core.configurations.dishka import container
 from src.core.configurations.rabbit import create_rabbit_broker
 from src.infrastructure.rabbit import periodic_publish_logs_signal
-
-config = get_config()
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     logger.info("Starting FastAPI application")
+
+    config: GlobalConfig = container.get(GlobalConfig)
 
     session = aiohttp.ClientSession()
     app.state.service_clients = ServiceClients(config, session=session)
@@ -43,6 +44,8 @@ async def lifespan(app: FastAPI):
     logger.info("Periodic logs signal publisher task started")
 
     yield
+
+    container.close()
 
     logger.info("Shutting down FastAPI application")
 

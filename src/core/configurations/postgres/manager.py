@@ -4,14 +4,17 @@ from typing import AsyncIterator
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncConnection, AsyncEngine, create_async_engine
 
-from src.core.configurations import DBConfig, get_config
+from src.core.configurations.config import DBConfig, GlobalConfig
+from src.core.configurations.dishka import container
 
 
 class PostgresConnectionManager:
     """Connection manager for PostgreSQL."""
 
     def __init__(self) -> None:
-        self._config: DBConfig = get_config().db
+        config: GlobalConfig = container.get(GlobalConfig)
+
+        self._config: DBConfig = config.db
         self._engine: AsyncEngine | None = None
 
     async def init(self) -> None:

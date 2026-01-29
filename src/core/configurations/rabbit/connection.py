@@ -1,8 +1,11 @@
 from faststream.rabbit import RabbitBroker
 
-from src.core.configurations import get_config
+from src.core.configurations.config import GlobalConfig
+from src.core.configurations.dishka import container
 
 
 def create_rabbit_broker() -> RabbitBroker:
     """Create a RabbitMQ broker."""
-    return RabbitBroker(get_config().rabbitmq.url)
+    config: GlobalConfig = container.get(GlobalConfig)
+
+    return RabbitBroker(config.rabbitmq.url)

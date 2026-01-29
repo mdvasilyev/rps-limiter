@@ -1,6 +1,5 @@
-from functools import lru_cache
-
 import yaml
+from dishka import Provider, Scope, provide
 from pydantic import BaseModel, ValidationError
 
 
@@ -59,18 +58,16 @@ class GlobalConfig(BaseModel):
     entrypoint: EntrypointConfig
     notificator: NotificatorConfig
 
-    @classmethod
-    def load(cls, file_path: str = "config.yaml") -> "GlobalConfig":
+
+class ConfigProvider(Provider):
+    @provide(scope=Scope.APP)
+    def global_config(self) -> "GlobalConfig":
+        file_path: str = "config.yaml"
         try:
             with open(file_path, "r") as f:
                 data = yaml.safe_load(f)
-            return cls(**data)
+            return GlobalConfig(**data)
         except FileNotFoundError:
             raise RuntimeError(f"Configuration file '{file_path}' not found.")
         except ValidationError as e:
             raise RuntimeError(f"Invalid configuration:\n{e}")
-
-
-@lru_cache(maxsize=1)
-def get_config() -> GlobalConfig:
-    return GlobalConfig.load()
