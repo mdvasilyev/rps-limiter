@@ -27,7 +27,7 @@ model_dispatcher:
 booking:
   url: "http://localhost:8003/api/v1/reservations"
 
-entrypoint:
+prometheus:
   url: "http://localhost:8004/metrics"
 
 notificator:
