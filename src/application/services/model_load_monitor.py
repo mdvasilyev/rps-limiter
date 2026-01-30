@@ -3,7 +3,7 @@ from loguru import logger
 
 from src.application.services.service_clients.prometheus import PrometheusClient
 from src.domain.dto import Metric, ModelIncreaseDTO, ModelRpsDTO
-from src.domain.exceptions.prometheus import PrometheusError
+from src.domain.exceptions import PrometheusError
 
 
 class ModelLoadMonitor:
