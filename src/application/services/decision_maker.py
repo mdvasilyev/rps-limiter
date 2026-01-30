@@ -1,31 +1,6 @@
-from dataclasses import dataclass
 from datetime import datetime, timedelta
 
-
-@dataclass
-class ModelState:
-    last_rps: float | None
-    zero_since: datetime | None
-
-
-@dataclass(frozen=True)
-class ScaleUp:
-    model: str
-
-
-@dataclass(frozen=True)
-class ScaleDown:
-    model: str
-
-
-@dataclass(frozen=True)
-class WarnUnbooking:
-    model: str
-
-
-@dataclass(frozen=True)
-class Unbook:
-    model: str
+from src.domain.dto import ModelState, ScaleDown, ScaleUp, Unbook, WarnUnbooking
 
 
 class DecisionMaker:
@@ -44,9 +19,9 @@ class DecisionMaker:
         active_models: dict,
         rps_by_model: dict[str, float],
         increase_by_model: dict[str, float],
-    ) -> list:
+    ) -> list[ScaleUp | ScaleDown | WarnUnbooking | Unbook]:
         now = datetime.utcnow()
-        actions = []
+        actions: list[ScaleUp | ScaleDown | WarnUnbooking | Unbook] = []
 
         for model in active_models:
             rps = rps_by_model.get(model, 0.0)
