@@ -16,7 +16,7 @@ class ModelDispatcherClient(BaseServiceClient):
             json=payload,
         )
 
-    async def scale(self, *, model_id: str, replicas: int) -> dict:
+    async def scale(self, model_id: str, replicas: int) -> dict:
         payload = {
             "model_id": model_id,
             "replicas": replicas,

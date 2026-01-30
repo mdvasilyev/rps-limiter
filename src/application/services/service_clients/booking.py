@@ -55,6 +55,12 @@ class BookingClient(BaseServiceClient):
             path=f"/api/v1/reservations/{reservation_id}",
         )
 
+    async def delete_reservation(self, reservation_id: str) -> str:
+        return await self._request(
+            method="DELETE",
+            path=f"/api/v1/reservations/{reservation_id}",
+        )
+
 
 class BookingClientProvider(Provider):
     @provide(scope=Scope.APP)

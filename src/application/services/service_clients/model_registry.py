@@ -46,7 +46,7 @@ class ModelRegistryClient(BaseServiceClient):
         result: list[dict] = []
 
         while True:
-            response = await self.find_running_models(
+            response: dict = await self.find_running_models(
                 offset=offset,
                 limit=batch_size,
                 sort=sort,

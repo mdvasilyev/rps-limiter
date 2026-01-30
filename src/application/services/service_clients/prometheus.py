@@ -7,7 +7,7 @@ from pydantic import ValidationError
 from src.application.services.service_clients.base import BaseServiceClient
 from src.core.configurations.config import GlobalConfig
 from src.domain.dto import Metric
-from src.domain.exceptions.prometheus import PrometheusError
+from src.domain.exceptions import PrometheusError
 
 
 class PrometheusClient(BaseServiceClient):
