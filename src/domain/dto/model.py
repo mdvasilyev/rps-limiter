@@ -8,6 +8,12 @@ class ModelRpsDTO:
     rps: float
 
 
+@dataclass(slots=True)
+class ModelIncreaseDTO:
+    model_name: str
+    requests: float
+
+
 @dataclass
 class ModelState:
     last_rps: float | None

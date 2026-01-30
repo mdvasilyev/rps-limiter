@@ -2,7 +2,7 @@ from dishka import Provider, Scope, provide
 from loguru import logger
 
 from src.application.services.service_clients.prometheus import PrometheusClient
-from src.domain.dto import Metric, ModelRpsDTO
+from src.domain.dto import Metric, ModelIncreaseDTO, ModelRpsDTO
 from src.domain.exceptions.prometheus import PrometheusError
 
 
@@ -39,6 +39,48 @@ class ModelLoadMonitor:
             except (ValueError, TypeError):
                 logger.warning(
                     "Could not parse RPS value for model {}: {}",
+                    model_name,
+                    res.value.value,
+                )
+
+        return parsed_metrics
+
+    async def get_increase_per_model(
+        self,
+        period_min: int,
+    ) -> list[ModelIncreaseDTO]:
+        if period_min <= 0:
+            raise ValueError(f"Period must be positive: {period_min}")
+
+        query = (
+            f"sum by (model_name) ("
+            f'  increase(model_calls_total{{service_name="{self._service_name}"}}[{period_min}m])'
+            f")"
+        )
+
+        try:
+            results: list[Metric] = await self._client.query_vector(query)
+        except PrometheusError:
+            return []
+
+        parsed_metrics: list[ModelIncreaseDTO] = []
+
+        for res in results:
+            model_name: str | None = res.metric.get("model_name")
+            if not model_name:
+                continue
+
+            try:
+                requests = float(res.value.value)
+                parsed_metrics.append(
+                    ModelIncreaseDTO(
+                        model_name=model_name,
+                        requests=requests,
+                    )
+                )
+            except (ValueError, TypeError):
+                logger.warning(
+                    "Could not parse increase value for model {}: {}",
                     model_name,
                     res.value.value,
                 )
