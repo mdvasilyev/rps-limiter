@@ -2,15 +2,10 @@ import asyncio
 
 from faststream import FastStream
 from faststream.rabbit import RabbitBroker, RabbitRouter
+from httpx import AsyncClient
 from loguru import logger
 
-from src.application.services import (
-    DecisionMaker,
-    ScaleDown,
-    ScaleUp,
-    Unbook,
-    WarnUnbooking,
-)
+from src.application.services import DecisionMaker
 from src.application.services.model_load_monitor import ModelLoadMonitor
 from src.application.services.service_clients import (
     BookingClient,
@@ -21,6 +16,8 @@ from src.application.services.service_clients import (
 from src.application.services.service_clients.prometheus import PrometheusClient
 from src.core.configurations.config import GlobalConfig
 from src.core.configurations.dishka import container
+from src.domain.dto.book import Unbook, WarnUnbooking
+from src.domain.dto.scale import ScaleDown, ScaleUp
 
 config = container.get(GlobalConfig)
 
@@ -39,22 +36,20 @@ async def handle_logs_signal(message: dict):
     )
 
     model_registry_client = container.get(ModelRegistryClient)
-    prometheus_client = container.get(PrometheusClient)
     model_dispatcher_client = container.get(ModelDispatcherClient)
     notificator_client = container.get(NotificatorClient)
     booking_client = container.get(BookingClient)
 
-    active_models = await model_registry_client.find_running_models()
+    active_models = await model_registry_client.find_all_running_models()
     if not active_models:
         logger.warning("No active models found")
         return
 
-    # async with PrometheusClient(base_url="") as prom_client:
-    #     monitor = ModelLoadMonitor(prom_client=prom_client, service_name="")
-    #     logger.info("Checking metrics...")
-    #     stats = await monitor.get_current_rps_per_model(1)
-    rps_stats = await prometheus_client.get_rps_per_model()
-    increase_stats = await prometheus_client.get_increase_per_model()
+    model_load_monitor: ModelLoadMonitor = container.get(ModelLoadMonitor)
+
+    period: int = 1
+    rps_stats = await model_load_monitor.get_current_rps_per_model(period)
+    increase_stats = await model_load_monitor.get_increase_per_model(period)
 
     rps_by_model = {m.model_name: m.rps for m in rps_stats}
     increase_by_model = {m.model_name: m.requests for m in increase_stats}
@@ -92,7 +87,14 @@ async def handle_logs_signal(message: dict):
 
 
 async def main():
-    await app.run()
+    try:
+        await app.run()
+    finally:
+        logger.info("Closing AsyncClient")
+        await container.get(AsyncClient).aclose()
+
+        logger.info("Closing container")
+        container.close()
 
 
 if __name__ == "__main__":
