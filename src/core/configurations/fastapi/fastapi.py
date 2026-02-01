@@ -5,16 +5,16 @@ from fastapi import FastAPI
 from faststream.rabbit import RabbitBroker
 from loguru import logger
 
-from src.adapters.api.v1.routes import api_router_list
+from src.application.services.publisher import SignalPublisher
+from src.core.configurations.config import GlobalConfig
 from src.core.configurations.dishka import container
-from src.infrastructure.rabbit import periodic_publish_logs_signal
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     logger.info("Starting FastAPI application")
 
-    broker = container.get(RabbitBroker)
+    broker: RabbitBroker = container.get(RabbitBroker)
 
     await broker.connect()
     app.state.broker = broker
@@ -23,10 +23,12 @@ async def lifespan(app: FastAPI):
 
     stop_event = asyncio.Event()
 
+    periodic_publisher: SignalPublisher = container.get(SignalPublisher)
+
     task = asyncio.create_task(
-        periodic_publish_logs_signal(
+        periodic_publisher.periodic_publish_logs_signal(
             stop_event=stop_event,
-            broker=broker,
+            interval=container.get(GlobalConfig).worker.interval,
         )
     )
 
@@ -51,11 +53,6 @@ async def lifespan(app: FastAPI):
     logger.info("RabbitMQ broker stopped")
 
 
-def setup_routers(app: FastAPI) -> None:
-    for router in api_router_list:
-        app.include_router(router)
-
-
 def get_app() -> FastAPI:
     app = FastAPI(
         title="RPS Limiter",
@@ -63,7 +60,5 @@ def get_app() -> FastAPI:
         version="0.1.0",
         lifespan=lifespan,
     )
-
-    setup_routers(app)
 
     return app

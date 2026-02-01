@@ -1,6 +1,10 @@
 from dishka import Provider, Scope, make_container
 
-from src.application.services import DecisionMaker, ModelLoadMonitorProvider
+from src.application.services import (
+    DecisionMaker,
+    ModelLoadMonitorProvider,
+    SignalPublisherProvider,
+)
 from src.application.services.service_clients import (
     BookingClientProvider,
     ModelDispatcherClientProvider,
@@ -26,4 +30,5 @@ container = make_container(
     ModelRegistryClientProvider(),
     NotificatorClientProvider(),
     ModelLoadMonitorProvider(),
+    SignalPublisherProvider(),
 )
