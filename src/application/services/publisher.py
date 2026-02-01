@@ -13,6 +13,9 @@ class SignalPublisher:
         self._broker = broker
         self._queue = queue
 
+        self._stop_event = asyncio.Event()
+        self._task: asyncio.Task | None = None
+
     async def _publish_logs_signal(self) -> None:
         """Publish signal for logs processing."""
         payload = {
@@ -22,31 +25,53 @@ class SignalPublisher:
 
         try:
             await self._broker.publish(payload, queue=self._queue)
-            logger.debug("Published logs fetch signal to queue='{}'", self._queue)
+            logger.debug(
+                "Published logs fetch signal to queue='{}'",
+                self._queue,
+            )
         except Exception:
             logger.exception("Failed to publish logs fetch signal")
             raise
 
-    async def periodic_publish_logs_signal(
-        self,
-        stop_event: asyncio.Event,
-        interval: int,
-    ):
-        """Periodically publish signals."""
+    async def _periodic_publish_logs_signal(self, interval: int) -> None:
         logger.info(
             "Periodic logs signal publisher started (interval={}s)",
             interval,
         )
 
-        while not stop_event.is_set():
-            await self._publish_logs_signal()
+        try:
+            while not self._stop_event.is_set():
+                await self._publish_logs_signal()
 
-            try:
-                await asyncio.wait_for(stop_event.wait(), timeout=interval)
-            except asyncio.TimeoutError:
-                continue
+                try:
+                    await asyncio.wait_for(
+                        self._stop_event.wait(),
+                        timeout=interval,
+                    )
+                except asyncio.TimeoutError:
+                    continue
+        finally:
+            logger.info("Periodic logs signal publisher stopped")
 
-        logger.info("Periodic logs signal publisher stopped")
+    def start(self, interval: int) -> None:
+        """Start periodic publishing."""
+        if self._task is not None:
+            raise RuntimeError("SignalPublisher already started")
+
+        self._stop_event.clear()
+        self._task = asyncio.create_task(self._periodic_publish_logs_signal(interval))
+
+    async def stop(self) -> None:
+        """Stop periodic publishing gracefully."""
+        if self._task is None:
+            return
+
+        logger.info("Stopping SignalPublisher")
+
+        self._stop_event.set()
+        await self._task
+
+        self._task = None
 
 
 class SignalPublisherProvider(Provider):
