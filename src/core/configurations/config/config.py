@@ -1,3 +1,5 @@
+from typing import Literal
+
 import yaml
 from dishka import Provider, Scope, provide
 from pydantic import BaseModel, ValidationError
@@ -7,6 +9,7 @@ class WorkerSettings(BaseModel):
     process_interval: int
     rps_interval: int
     increase_interval: int
+    unbooking: Literal["ALL", "IN_ROW"]
 
 
 class RabbitMQConfig(BaseModel):
