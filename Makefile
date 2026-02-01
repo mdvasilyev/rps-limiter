@@ -12,7 +12,7 @@ downgrade:
 	poetry run alembic downgrade -1
 
 run-app:
-	PYTHONPATH=. poetry run python src/application/main.py
+	PYTHONPATH=. poetry run python src/main.py
 
 up:
 	docker compose up
