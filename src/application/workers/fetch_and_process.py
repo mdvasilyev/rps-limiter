@@ -15,6 +15,7 @@ from src.domain.dto import (
     ModelIncreaseDTO,
     ModelInfo,
     ModelRpsDTO,
+    Reservation,
     Scale,
     Unbook,
     WarnUnbooking,
@@ -80,21 +81,23 @@ async def handle_logs_signal(message: dict, container: AsyncContainer):
     for action in actions:
         match action:
             case Scale(model_id, replicas):
-                logger.info("Scaling {}", model_id)
+                logger.info(
+                    "Scaling model_id='{}' to replicas='{}'", model_id, replicas
+                )
                 await model_dispatcher_client.scale(model_id, replicas)
 
             case WarnUnbooking(model_id, user_id):
-                logger.info("Warn unbooking {}", model_id)
+                logger.info("Warn unbooking model_id='{}'", model_id)
                 await notificator_client.notify(
                     model_id, user_id, {"warning unbooking": model_id}
                 )
 
             case Unbook(model_id, model_name, user_id):
                 # Ограничить интервал времени
-                reservations: dict = await booking_client.get_reservations(
+                reservations: list[Reservation] = await booking_client.get_reservations(
                     model_name=model_name, user_id=user_id
                 )
-                reservation_id: str = reservations.get("id")
+                reservation_id: str = reservations[0].id
                 logger.info("Unbooking {}", reservation_id)
                 await booking_client.delete_reservation(reservation_id)
                 await notificator_client.notify(

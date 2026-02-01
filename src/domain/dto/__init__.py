@@ -1,6 +1,6 @@
 """DTO module."""
 
-from .book import Unbook, WarnUnbooking
+from .booking import Reservation, Slot, Unbook, User, WarnUnbooking
 from .metric import Metric, MetricValue
 from .model import InstanceInfo, ModelIncreaseDTO, ModelInfo, ModelRpsDTO, ModelState
 from .scale import Scale
@@ -16,4 +16,7 @@ __all__ = [
     "ModelInfo",
     "InstanceInfo",
     "Scale",
+    "Reservation",
+    "User",
+    "Slot",
 ]

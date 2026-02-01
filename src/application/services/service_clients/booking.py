@@ -1,14 +1,51 @@
 from typing import Any
 
 from dishka import Provider, Scope, provide
-from httpx import AsyncClient
+from httpx import AsyncClient, Response
+from loguru import logger
+from starlette import status
 
 from src.core.configurations.config import GlobalConfig
+from src.domain.dto import Reservation, Slot, User
 
 from .base import BaseServiceClient
 
 
 class BookingClient(BaseServiceClient):
+    @staticmethod
+    def _to_reservation(model_data: dict[str, Any]) -> Reservation:
+        """Конвертирует сырые данные в объект Response"""
+        try:
+            return Reservation(
+                id=model_data.get("id"),
+                user=User(
+                    id=model_data.get("user").get("id"),
+                    name=model_data.get("user").get("name"),
+                ),
+                model_name=model_data.get("model_name"),
+                config_id=model_data.get("config_id"),
+                model_id=model_data.get("model_id"),
+                slots=[
+                    Slot(start=slot.start, end=slot.end, id=slot.id)
+                    for slot in model_data.get("slots")
+                ],
+            )
+        except Exception as e:
+            logger.error("Failed to validate model data: {}. Error: {}", model_data, e)
+            raise
+
+    @staticmethod
+    async def _check_and_parse_response(response: Response) -> dict[str, Any]:
+        """Проверяет успешность ответа и возвращает его JSON-тело."""
+        if response.status_code != status.HTTP_200_OK:
+            logger.error(
+                "Booking request failed with status {}: {}",
+                response.status_code,
+                response.text,
+            )
+            raise Exception("Booking service is unavailable")
+        return response.json()
+
     async def get_reservations(
         self,
         *,
@@ -22,7 +59,9 @@ class BookingClient(BaseServiceClient):
         page_size: int = 20,
         sort_by: str = "start_time",
         sort_order: str = "asc",
-    ) -> dict:
+    ) -> list[Reservation]:
+        results: list[Reservation] = []
+
         params: dict[str, Any] = {
             "page": page,
             "page_size": page_size,
@@ -43,11 +82,20 @@ class BookingClient(BaseServiceClient):
         if max_end_time is not None:
             params["max_end_time"] = max_end_time
 
-        return await self._request(
+        response = await self._request(
             method="GET",
             path="/api/v1/reservations",
             params=params,
         )
+
+        result = await self._check_and_parse_response(response)
+
+        items = result.get("items", [])
+
+        for reservation in items:
+            results.append(self._to_reservation(reservation))
+
+        return results
 
     async def get_reservation(self, reservation_id: str) -> dict:
         return await self._request(
