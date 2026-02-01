@@ -82,7 +82,8 @@ class ModelRegistryClient(BaseServiceClient):
 
             items = result.get("items", [])
 
-            results.extend(items)
+            for model in items:
+                results.append(self._to_model_info(model))
 
             if not items:
                 break
