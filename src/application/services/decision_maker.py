@@ -1,6 +1,6 @@
 from datetime import datetime, timedelta
 
-from src.domain.dto import ModelState, Scale, Unbook, WarnUnbooking
+from src.domain.dto import ModelInfo, ModelState, Scale, Unbook, WarnUnbooking
 
 
 class DecisionMaker:
@@ -10,13 +10,13 @@ class DecisionMaker:
     WARN_AFTER = timedelta(minutes=10)
     UNBOOK_AFTER = timedelta(minutes=20)
 
-    def __init__(self):
+    def __init__(self) -> None:
         self._state: dict[str, ModelState] = {}
 
     def process(
         self,
         *,
-        active_models: list[dict],
+        active_models: list[ModelInfo],
         rps_by_model: dict[str, float],
         increase_by_model: dict[str, float],
     ) -> list[Scale | WarnUnbooking | Unbook]:
@@ -24,8 +24,8 @@ class DecisionMaker:
         actions: list[Scale | WarnUnbooking | Unbook] = []
 
         for model in active_models:
-            model_name = model.get("name")
-            model_id = model.get("id")
+            model_name = model.name
+            model_id = model.id
             rps: float = rps_by_model.get(model_name, 0.0)
             increase: float = increase_by_model.get(model_name, 0.0)
 
@@ -35,7 +35,8 @@ class DecisionMaker:
             )
 
             if state.last_rps is not None:
-                replicas = model.get("instance").get("replicas")
+                replicas = model.instance.replicas
+                # TODO проверить соотношение количества реплик к RPS
                 if rps > state.last_rps and rps >= self.SCALE_UP_THRESHOLD:
                     actions.append(Scale(model_id, replicas + 1))
 
@@ -46,7 +47,7 @@ class DecisionMaker:
                 state.zero_since = state.zero_since or now
                 inactive_for = now - state.zero_since
 
-                user_id = model.get("instance").get("ownerId")
+                user_id = model.instance.ownerId
                 if inactive_for >= self.UNBOOK_AFTER:
                     actions.append(Unbook(model_id, model_name, user_id))
                 elif inactive_for >= self.WARN_AFTER:

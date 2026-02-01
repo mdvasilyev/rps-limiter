@@ -10,7 +10,14 @@ from src.application.services.service_clients import (
     ModelRegistryClient,
     NotificatorClient,
 )
-from src.domain.dto import ModelIncreaseDTO, ModelRpsDTO, Scale, Unbook, WarnUnbooking
+from src.domain.dto import (
+    ModelIncreaseDTO,
+    ModelInfo,
+    ModelRpsDTO,
+    Scale,
+    Unbook,
+    WarnUnbooking,
+)
 
 
 async def handle_logs_signal(message: dict, container: AsyncContainer):
@@ -26,7 +33,7 @@ async def handle_logs_signal(message: dict, container: AsyncContainer):
     booking_client = await container.get(BookingClient)
 
     try:
-        active_models: list[dict] = (
+        active_models: list[ModelInfo] = (
             await model_registry_client.find_all_running_models()
         )
         if not active_models:

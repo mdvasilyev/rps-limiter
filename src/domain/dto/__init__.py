@@ -2,7 +2,7 @@
 
 from .book import Unbook, WarnUnbooking
 from .metric import Metric, MetricValue
-from .model import ModelIncreaseDTO, ModelRpsDTO, ModelState
+from .model import InstanceInfo, ModelIncreaseDTO, ModelInfo, ModelRpsDTO, ModelState
 from .scale import Scale
 
 __all__ = [
@@ -13,5 +13,7 @@ __all__ = [
     "ModelRpsDTO",
     "ModelIncreaseDTO",
     "ModelState",
+    "ModelInfo",
+    "InstanceInfo",
     "Scale",
 ]

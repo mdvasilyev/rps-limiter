@@ -9,7 +9,7 @@ from src.core.configurations.config import GlobalConfig
 
 
 class SignalPublisher:
-    def __init__(self, broker: RabbitBroker, queue: str):
+    def __init__(self, broker: RabbitBroker, queue: str) -> None:
         self._broker = broker
         self._queue = queue
 
