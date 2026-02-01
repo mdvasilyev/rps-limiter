@@ -10,6 +10,7 @@ from src.application.services.service_clients import (
     ModelRegistryClient,
     NotificatorClient,
 )
+from src.core.configurations.config import GlobalConfig
 from src.domain.dto import (
     ModelIncreaseDTO,
     ModelInfo,
@@ -45,16 +46,15 @@ async def handle_logs_signal(message: dict, container: AsyncContainer):
 
     model_load_monitor = await container.get(ModelLoadMonitor)
 
-    period = 1
+    config = await container.get(GlobalConfig)
+    rps_interval = config.worker.rps_interval
+    increase_interval = config.worker.increase_interval
     try:
-        # 5 минут, настройка извне
         rps_stats: list[ModelRpsDTO] = (
-            await model_load_monitor.get_current_rps_per_model(period)
+            await model_load_monitor.get_current_rps_per_model(rps_interval)
         )
-        # Увеличенный период 12 часов, например
-        # настройка извне
         increase_stats: list[ModelIncreaseDTO] = (
-            await model_load_monitor.get_increase_per_model(period)
+            await model_load_monitor.get_increase_per_model(increase_interval)
         )
     except ConnectError as exc:
         logger.error("Connection error while getting rps data: {}", exc)

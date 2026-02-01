@@ -1,5 +1,7 @@
 worker:
-  interval: 15
+  process_interval: 5
+  rps_interval: 5
+  increase_interval: 720
 
 rabbitmq:
   url: amqp://guest:guest@localhost:5672/

@@ -4,7 +4,9 @@ from pydantic import BaseModel, ValidationError
 
 
 class WorkerSettings(BaseModel):
-    interval: int
+    process_interval: int
+    rps_interval: int
+    increase_interval: int
 
 
 class RabbitMQConfig(BaseModel):

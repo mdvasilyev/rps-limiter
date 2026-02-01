@@ -17,7 +17,7 @@ async def main():
     async def startup():
         logger.info("Starting up")
         config = await container.get(GlobalConfig)
-        publisher.start(config.worker.interval)
+        publisher.start(config.worker.process_interval)
 
     @app.after_shutdown
     async def shutdown():
