@@ -1,8 +1,5 @@
-import asyncio
-
-from faststream import FastStream
-from faststream.rabbit import RabbitBroker, RabbitRouter
-from httpx import AsyncClient, ConnectError
+from dishka import AsyncContainer
+from httpx import ConnectError
 from loguru import logger
 
 from src.application.services import DecisionMaker
@@ -13,31 +10,20 @@ from src.application.services.service_clients import (
     ModelRegistryClient,
     NotificatorClient,
 )
-from src.core.configurations.config import GlobalConfig
-from src.core.configurations.dishka import container
 from src.domain.dto import ModelIncreaseDTO, ModelRpsDTO, Scale, Unbook, WarnUnbooking
 
-config = container.get(GlobalConfig)
 
-broker: RabbitBroker = container.get(RabbitBroker)
-router: RabbitRouter = RabbitRouter()
-broker.include_router(router)
-
-
-@router.subscriber(config.rabbitmq.logs_queue)
-async def handle_logs_signal(message: dict):
+async def handle_logs_signal(message: dict, container: AsyncContainer):
     # сага провалилась, что делать
     logger.info(
         "Received metrics evaluation signal at {}",
         message.get("triggered_at"),
     )
 
-    model_registry_client: ModelRegistryClient = container.get(ModelRegistryClient)
-    model_dispatcher_client: ModelDispatcherClient = container.get(
-        ModelDispatcherClient
-    )
-    notificator_client: NotificatorClient = container.get(NotificatorClient)
-    booking_client: BookingClient = container.get(BookingClient)
+    model_registry_client = await container.get(ModelRegistryClient)
+    model_dispatcher_client = await container.get(ModelDispatcherClient)
+    notificator_client = await container.get(NotificatorClient)
+    booking_client = await container.get(BookingClient)
 
     try:
         active_models: list[dict] = (
@@ -50,13 +36,16 @@ async def handle_logs_signal(message: dict):
         logger.error("Connection error while finding all running models: {}", exc)
         return
 
-    model_load_monitor: ModelLoadMonitor = container.get(ModelLoadMonitor)
+    model_load_monitor = await container.get(ModelLoadMonitor)
 
     period = 1
     try:
+        # 5 минут, настройка извне
         rps_stats: list[ModelRpsDTO] = (
             await model_load_monitor.get_current_rps_per_model(period)
         )
+        # Увеличенный период 12 часов, например
+        # настройка извне
         increase_stats: list[ModelIncreaseDTO] = (
             await model_load_monitor.get_increase_per_model(period)
         )
@@ -69,7 +58,7 @@ async def handle_logs_signal(message: dict):
         m.model_name: m.requests for m in increase_stats
     }
 
-    decision_maker: DecisionMaker = container.get(DecisionMaker)
+    decision_maker = await container.get(DecisionMaker)
 
     actions: list[Scale | WarnUnbooking | Unbook] = decision_maker.process(
         active_models=active_models,
@@ -94,6 +83,7 @@ async def handle_logs_signal(message: dict):
                 )
 
             case Unbook(model_id, model_name, user_id):
+                # Ограничить интервал времени
                 reservations: dict = await booking_client.get_reservations(
                     model_name=model_name, user_id=user_id
                 )
@@ -103,19 +93,3 @@ async def handle_logs_signal(message: dict):
                 await notificator_client.notify(
                     model_id, user_id, {"unbooking": model_id}
                 )
-
-
-async def main():
-    app = FastStream(broker)
-    try:
-        await app.run()
-    finally:
-        logger.info("Closing AsyncClient")
-        await container.get(AsyncClient).aclose()
-
-        logger.info("Closing container")
-        container.close()
-
-
-if __name__ == "__main__":
-    asyncio.run(main())
