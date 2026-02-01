@@ -1,3 +1,5 @@
+from datetime import datetime, timedelta
+
 from dishka import AsyncContainer
 from httpx import ConnectError
 from loguru import logger
@@ -23,7 +25,6 @@ from src.domain.dto import (
 
 
 async def handle_logs_signal(message: dict, container: AsyncContainer):
-    # сага провалилась, что делать
     logger.info(
         "Received metrics evaluation signal at {}",
         message.get("triggered_at"),
@@ -93,13 +94,27 @@ async def handle_logs_signal(message: dict, container: AsyncContainer):
                 )
 
             case Unbook(model_id, model_name, user_id):
-                # Ограничить интервал времени
-                reservations: list[Reservation] = await booking_client.get_reservations(
-                    model_name=model_name, user_id=user_id
-                )
-                reservation_id: str = reservations[0].id
-                logger.info("Unbooking {}", reservation_id)
-                await booking_client.delete_reservation(reservation_id)
-                await notificator_client.notify(
-                    model_id, user_id, {"unbooking": model_id}
-                )
+                unbooking_strategy = config.worker.unbooking
+                reservations: list[Reservation] = []
+
+                if unbooking_strategy == "ALL":
+                    reservations = await booking_client.get_reservations(
+                        model_name=model_name, user_id=user_id
+                    )
+                else:
+                    min_start_time = datetime.utcnow() - timedelta(
+                        hours=increase_interval
+                    )
+                    reservations = await booking_client.get_reservations(
+                        model_name=model_name,
+                        user_id=user_id,
+                        min_start_time=str(min_start_time),
+                    )
+
+                for reservation in reservations:
+                    reservation_id: str = reservation.id
+                    logger.info("Unbooking reservation_id='{}'", reservation_id)
+                    await booking_client.delete_reservation(reservation_id)
+                    await notificator_client.notify(
+                        model_id, user_id, {"unbooking": model_id}
+                    )
