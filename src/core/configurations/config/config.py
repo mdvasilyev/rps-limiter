@@ -3,20 +3,6 @@ from dishka import Provider, Scope, provide
 from pydantic import BaseModel, ValidationError
 
 
-class AppConfig(BaseModel):
-    host: str
-    port: int
-
-
-class DBConfig(BaseModel):
-    host: str
-    port: int
-    name: str
-    user: str
-    password: str
-    pool_size: int
-
-
 class WorkerSettings(BaseModel):
     interval: int
 
@@ -47,8 +33,6 @@ class NotificatorConfig(BaseModel):
 
 
 class GlobalConfig(BaseModel):
-    app: AppConfig
-    db: DBConfig
     worker: WorkerSettings
     rabbitmq: RabbitMQConfig
 
