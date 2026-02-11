@@ -8,9 +8,10 @@ from src.application.services.service_clients.base import BaseServiceClient
 from src.core.configurations.config import GlobalConfig
 from src.domain.dto import Metric
 from src.domain.exceptions import PrometheusError
+from src.domain.interfaces.service_clients import IPrometheusClient
 
 
-class PrometheusClient(BaseServiceClient):
+class PrometheusClient(BaseServiceClient, IPrometheusClient):
     def __init__(
         self, base_url: str, client: httpx.AsyncClient, timeout: float = 5.0
     ) -> None:

@@ -8,11 +8,12 @@ from starlette import status
 
 from src.core.configurations.config import GlobalConfig
 from src.domain.dto import ModelInfo
+from src.domain.interfaces.service_clients import IModelRegistryClient
 
 from .base import BaseServiceClient
 
 
-class ModelRegistryClient(BaseServiceClient):
+class ModelRegistryClient(BaseServiceClient, IModelRegistryClient):
     async def find_running_models(
         self,
         *,

@@ -2,11 +2,12 @@ from dishka import Provider, Scope, provide
 from httpx import AsyncClient
 
 from src.core.configurations.config import GlobalConfig
+from src.domain.interfaces.service_clients import IModelDispatcherClient
 
 from .base import BaseServiceClient
 
 
-class ModelDispatcherClient(BaseServiceClient):
+class ModelDispatcherClient(BaseServiceClient, IModelDispatcherClient):
     async def uninstall(self, *, model_id: str) -> dict:
         payload = {"model_id": model_id}
 

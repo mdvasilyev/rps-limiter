@@ -7,11 +7,12 @@ from starlette import status
 
 from src.core.configurations.config import GlobalConfig
 from src.domain.dto import Reservation, Slot, User
+from src.domain.interfaces.service_clients import IBookingClient
 
 from .base import BaseServiceClient
 
 
-class BookingClient(BaseServiceClient):
+class BookingClient(BaseServiceClient, IBookingClient):
     @staticmethod
     def _to_reservation(model_data: dict[str, Any]) -> Reservation:
         """Конвертирует сырые данные в объект Response"""
