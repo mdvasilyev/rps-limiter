@@ -1,12 +1,10 @@
 import json
 from typing import Any
 
-from dishka import Provider, Scope, provide
-from httpx import AsyncClient, Response
+from httpx import Response
 from loguru import logger
 from starlette import status
 
-from src.core.configurations.config import GlobalConfig
 from src.domain.dto import ModelInfo
 from src.domain.interfaces.service_clients import IModelRegistryClient
 
@@ -92,11 +90,3 @@ class ModelRegistryClient(BaseServiceClient, IModelRegistryClient):
             offset += len(items)
 
         return results
-
-
-class ModelRegistryClientProvider(Provider):
-    @provide(scope=Scope.APP)
-    def model_registry_client(
-        self, config: GlobalConfig, client: AsyncClient
-    ) -> ModelRegistryClient:
-        return ModelRegistryClient(config.model_registry.url, client)

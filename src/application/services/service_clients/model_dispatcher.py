@@ -1,7 +1,3 @@
-from dishka import Provider, Scope, provide
-from httpx import AsyncClient
-
-from src.core.configurations.config import GlobalConfig
 from src.domain.interfaces.service_clients import IModelDispatcherClient
 
 from .base import BaseServiceClient
@@ -34,11 +30,3 @@ class ModelDispatcherClient(BaseServiceClient, IModelDispatcherClient):
             method="GET",
             path=f"/v1/saga/{saga_id}",
         )
-
-
-class ModelDispatcherClientProvider(Provider):
-    @provide(scope=Scope.APP)
-    def model_dispatcher_client(
-        self, config: GlobalConfig, client: AsyncClient
-    ) -> ModelDispatcherClient:
-        return ModelDispatcherClient(config.model_dispatcher.url, client)

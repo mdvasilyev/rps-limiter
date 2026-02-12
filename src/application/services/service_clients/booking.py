@@ -1,11 +1,9 @@
 from typing import Any
 
-from dishka import Provider, Scope, provide
-from httpx import AsyncClient, Response
+from httpx import Response
 from loguru import logger
 from starlette import status
 
-from src.core.configurations.config import GlobalConfig
 from src.domain.dto import Reservation, Slot, User
 from src.domain.interfaces.service_clients import IBookingClient
 
@@ -109,11 +107,3 @@ class BookingClient(BaseServiceClient, IBookingClient):
             method="DELETE",
             path=f"/api/v1/reservations/{reservation_id}",
         )
-
-
-class BookingClientProvider(Provider):
-    @provide(scope=Scope.APP)
-    def booking_client(
-        self, config: GlobalConfig, client: AsyncClient
-    ) -> BookingClient:
-        return BookingClient(config.booking.url, client)

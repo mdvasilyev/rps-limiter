@@ -1,11 +1,9 @@
 import httpx
-from dishka import Provider, Scope, provide
-from httpx import AsyncClient, HTTPStatusError, RequestError
+from httpx import HTTPStatusError, RequestError
 from loguru import logger
 from pydantic import ValidationError
 
 from src.application.services.service_clients.base import BaseServiceClient
-from src.core.configurations.config import GlobalConfig
 from src.domain.dto import Metric
 from src.domain.exceptions import PrometheusError
 from src.domain.interfaces.service_clients import IPrometheusClient
@@ -46,11 +44,3 @@ class PrometheusClient(BaseServiceClient, IPrometheusClient):
         except ValueError as exc:
             logger.exception("Failed to parse Prometheus response")
             raise PrometheusError("Invalid JSON response") from exc
-
-
-class PrometheusClientProvider(Provider):
-    @provide(scope=Scope.APP)
-    def prometheus_client(
-        self, config: GlobalConfig, client: AsyncClient
-    ) -> PrometheusClient:
-        return PrometheusClient(config.prometheus.url, client)
