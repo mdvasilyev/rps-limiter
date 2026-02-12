@@ -1,4 +1,3 @@
-from dishka import Provider, Scope, provide
 from loguru import logger
 
 from src.application.services.service_clients.prometheus import PrometheusClient

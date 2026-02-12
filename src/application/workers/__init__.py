@@ -1,7 +1,7 @@
 """Workers module."""
 
-from .fetch_and_process import handle_logs_signal
+from .logs_processor import LogsProcessorWorker
 
 __all__ = [
-    "handle_logs_signal",
+    "LogsProcessorWorker",
 ]

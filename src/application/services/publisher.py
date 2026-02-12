@@ -1,11 +1,8 @@
 import asyncio
 from datetime import UTC, datetime
 
-from dishka import Provider, Scope, provide
 from faststream.rabbit import RabbitBroker
 from loguru import logger
-
-from src.core.configurations.config import GlobalConfig
 
 
 class SignalPublisher:

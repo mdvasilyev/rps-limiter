@@ -17,6 +17,7 @@ from src.application.services.service_clients import (
     NotificatorClient,
     PrometheusClient,
 )
+from src.application.workers import LogsProcessorWorker
 from src.core import get_rabbitmq_broker, get_rabbitmq_exchange
 from src.core.configurations.config import GlobalConfig
 from src.domain.interfaces.service_clients import (
@@ -100,6 +101,31 @@ class ServicesProvider(Provider):
         return SignalPublisher(broker, config.rabbitmq.logs_queue)
 
 
+class WorkersProvider(Provider):
+    scope = Scope.APP
+
+    @provide(scope=scope)
+    def logs_processor_worker(
+        self,
+        booking_client: BookingClient,
+        model_registry_client: ModelRegistryClient,
+        model_dispatcher_client: ModelDispatcherClient,
+        notificator_client: NotificatorClient,
+        model_load_monitor: ModelLoadMonitor,
+        config: GlobalConfig,
+        decision_maker: DecisionMaker,
+    ) -> LogsProcessorWorker:
+        return LogsProcessorWorker(
+            booking_client,
+            model_registry_client,
+            model_dispatcher_client,
+            notificator_client,
+            model_load_monitor,
+            config,
+            decision_maker,
+        )
+
+
 def create_container() -> AsyncContainer:
     config = GlobalConfig()
     httpx_client = AsyncClient()
@@ -107,6 +133,7 @@ def create_container() -> AsyncContainer:
         AdaptersProvider(),
         ServiceClientsProvider(),
         ServicesProvider(),
+        WorkersProvider(),
         context={
             GlobalConfig: config,
             AsyncClient: httpx_client,

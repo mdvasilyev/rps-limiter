@@ -14,7 +14,7 @@ async def main():
     container = create_container()
     broker = await container.get(RabbitBroker)
     exchange = await container.get(RabbitExchange)
-    app = await create_faststream(broker, exchange)
+    app = create_faststream(broker, exchange)
     publisher = await container.get(SignalPublisher)
     setup_dishka(container, app)
 
