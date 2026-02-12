@@ -1,8 +1,7 @@
 from typing import Literal
 
-import yaml
-from dishka import Provider, Scope, provide
-from pydantic import BaseModel, ValidationError
+from pydantic import BaseModel
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class WorkerSettings(BaseModel):
@@ -14,6 +13,7 @@ class WorkerSettings(BaseModel):
 
 class RabbitMQConfig(BaseModel):
     url: str
+    exchange: str
     logs_queue: str
 
 
@@ -37,26 +37,17 @@ class NotificatorConfig(BaseModel):
     url: str
 
 
-class GlobalConfig(BaseModel):
+class GlobalConfig(BaseSettings):
+    model_config = SettingsConfigDict(
+        env_file=".env",
+        env_nested_delimiter="__",
+        case_sensitive=False,
+    )
+
     worker: WorkerSettings
     rabbitmq: RabbitMQConfig
-
     model_registry: ModelRegistryConfig
     model_dispatcher: ModelDispatcherConfig
     booking: BookingServiceConfig
     prometheus: PrometheusConfig
     notificator: NotificatorConfig
-
-
-class ConfigProvider(Provider):
-    @provide(scope=Scope.APP)
-    def global_config(self) -> GlobalConfig:
-        file_path: str = "config.yaml"
-        try:
-            with open(file_path, "r") as f:
-                data = yaml.safe_load(f)
-            return GlobalConfig(**data)
-        except FileNotFoundError:
-            raise RuntimeError(f"Configuration file '{file_path}' not found.")
-        except ValidationError as e:
-            raise RuntimeError(f"Invalid configuration:\n{e}")

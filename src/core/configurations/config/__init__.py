@@ -1,8 +1,7 @@
 """Config module."""
 
-from .config import ConfigProvider, GlobalConfig
+from .config import GlobalConfig
 
 __all__ = [
-    "ConfigProvider",
     "GlobalConfig",
 ]
