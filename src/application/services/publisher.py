@@ -72,11 +72,3 @@ class SignalPublisher:
         await self._task
 
         self._task = None
-
-
-class SignalPublisherProvider(Provider):
-    @provide(scope=Scope.APP)
-    def sigal_publisher(
-        self, broker: RabbitBroker, config: GlobalConfig
-    ) -> SignalPublisher:
-        return SignalPublisher(broker, config.rabbitmq.logs_queue)

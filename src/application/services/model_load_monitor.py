@@ -86,9 +86,3 @@ class ModelLoadMonitor:
                 )
 
         return parsed_metrics
-
-
-class ModelLoadMonitorProvider(Provider):
-    @provide(scope=Scope.APP)
-    def model_load_monitor(self, client: PrometheusClient) -> ModelLoadMonitor:
-        return ModelLoadMonitor(client, "entrypoint")

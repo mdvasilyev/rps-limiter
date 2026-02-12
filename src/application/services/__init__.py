@@ -1,11 +1,11 @@
 """Services module."""
 
 from .decision_maker import DecisionMaker
-from .model_load_monitor import ModelLoadMonitorProvider
-from .publisher import SignalPublisherProvider
+from .model_load_monitor import ModelLoadMonitor
+from .publisher import SignalPublisher
 
 __all__ = [
     "DecisionMaker",
-    "ModelLoadMonitorProvider",
-    "SignalPublisherProvider",
+    "ModelLoadMonitor",
+    "SignalPublisher",
 ]
