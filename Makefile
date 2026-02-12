@@ -2,5 +2,5 @@ format:
 	isort .
 	black .
 
-run-app:
+run:
 	PYTHONPATH=. poetry run python src/main.py
