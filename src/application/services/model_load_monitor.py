@@ -1,12 +1,13 @@
 from loguru import logger
 
-from src.application.services.service_clients.prometheus import PrometheusClient
 from src.domain.dto import Metric, ModelIncreaseDTO, ModelRpsDTO
 from src.domain.exceptions import PrometheusError
+from src.domain.interfaces import IModelLoadMonitor
+from src.domain.interfaces.service_clients import IPrometheusClient
 
 
-class ModelLoadMonitor:
-    def __init__(self, prom_client: PrometheusClient, service_name: str) -> None:
+class ModelLoadMonitor(IModelLoadMonitor):
+    def __init__(self, prom_client: IPrometheusClient, service_name: str) -> None:
         self._client = prom_client
         self._service_name = service_name
 

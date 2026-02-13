@@ -20,6 +20,7 @@ from src.application.services.service_clients import (
 from src.application.workers import LogsProcessorWorker
 from src.core import get_rabbitmq_broker, get_rabbitmq_exchange
 from src.core.configurations.config import GlobalConfig
+from src.domain.interfaces import IDecisionMaker, IModelLoadMonitor, ISignalPublisher
 from src.domain.interfaces.service_clients import (
     IBookingClient,
     IModelDispatcherClient,
@@ -86,15 +87,15 @@ class ServiceClientsProvider(Provider):
 class ServicesProvider(Provider):
     scope = Scope.APP
 
-    @provide(scope=scope)
+    @provide(scope=scope, provides=IDecisionMaker)
     def decision_maker(self) -> DecisionMaker:
         return DecisionMaker()
 
-    @provide(scope=scope)
-    def model_load_monitor(self, client: PrometheusClient) -> ModelLoadMonitor:
+    @provide(scope=scope, provides=IModelLoadMonitor)
+    def model_load_monitor(self, client: IPrometheusClient) -> ModelLoadMonitor:
         return ModelLoadMonitor(client, "entrypoint")
 
-    @provide(scope=scope)
+    @provide(scope=scope, provides=ISignalPublisher)
     def sigal_publisher(
         self, broker: RabbitBroker, config: GlobalConfig
     ) -> SignalPublisher:
@@ -107,13 +108,13 @@ class WorkersProvider(Provider):
     @provide(scope=scope)
     def logs_processor_worker(
         self,
-        booking_client: BookingClient,
-        model_registry_client: ModelRegistryClient,
-        model_dispatcher_client: ModelDispatcherClient,
-        notificator_client: NotificatorClient,
-        model_load_monitor: ModelLoadMonitor,
+        booking_client: IBookingClient,
+        model_registry_client: IModelRegistryClient,
+        model_dispatcher_client: IModelDispatcherClient,
+        notificator_client: INotificatorClient,
+        model_load_monitor: IModelLoadMonitor,
+        decision_maker: IDecisionMaker,
         config: GlobalConfig,
-        decision_maker: DecisionMaker,
     ) -> LogsProcessorWorker:
         return LogsProcessorWorker(
             booking_client,

@@ -1,9 +1,10 @@
 from datetime import datetime, timedelta
 
 from src.domain.dto import ModelInfo, ModelState, Scale, Unbook, WarnUnbooking
+from src.domain.interfaces import IDecisionMaker
 
 
-class DecisionMaker:
+class DecisionMaker(IDecisionMaker):
     SCALE_UP_THRESHOLD = 20.0
     SCALE_DOWN_THRESHOLD = 5.0
 
@@ -15,7 +16,6 @@ class DecisionMaker:
 
     def process(
         self,
-        *,
         active_models: list[ModelInfo],
         rps_by_model: dict[str, float],
         increase_by_model: dict[str, float],

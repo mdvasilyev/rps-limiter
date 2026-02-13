@@ -4,8 +4,10 @@ from datetime import UTC, datetime
 from faststream.rabbit import RabbitBroker
 from loguru import logger
 
+from src.domain.interfaces import ISignalPublisher
 
-class SignalPublisher:
+
+class SignalPublisher(ISignalPublisher):
     def __init__(self, broker: RabbitBroker, queue: str) -> None:
         self._broker = broker
         self._queue = queue

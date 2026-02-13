@@ -3,14 +3,6 @@ from datetime import datetime, timedelta
 from httpx import ConnectError
 from loguru import logger
 
-from src.application.services import DecisionMaker
-from src.application.services.model_load_monitor import ModelLoadMonitor
-from src.application.services.service_clients import (
-    BookingClient,
-    ModelDispatcherClient,
-    ModelRegistryClient,
-    NotificatorClient,
-)
 from src.domain.dto import (
     ModelIncreaseDTO,
     ModelInfo,
@@ -20,17 +12,24 @@ from src.domain.dto import (
     Unbook,
     WarnUnbooking,
 )
+from src.domain.interfaces import IDecisionMaker, IModelLoadMonitor
+from src.domain.interfaces.service_clients import (
+    IBookingClient,
+    IModelDispatcherClient,
+    IModelRegistryClient,
+    INotificatorClient,
+)
 
 
 class LogsProcessorWorker:
     def __init__(
         self,
-        booking_client: BookingClient,
-        model_registry_client: ModelRegistryClient,
-        model_dispatcher_client: ModelDispatcherClient,
-        notificator_client: NotificatorClient,
-        model_load_monitor: ModelLoadMonitor,
-        decision_maker: DecisionMaker,
+        booking_client: IBookingClient,
+        model_registry_client: IModelRegistryClient,
+        model_dispatcher_client: IModelDispatcherClient,
+        notificator_client: INotificatorClient,
+        model_load_monitor: IModelLoadMonitor,
+        decision_maker: IDecisionMaker,
         rps_interval: int,
         increase_interval: int,
         unbooking_strategy: str,
