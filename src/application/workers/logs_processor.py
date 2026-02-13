@@ -11,7 +11,6 @@ from src.application.services.service_clients import (
     ModelRegistryClient,
     NotificatorClient,
 )
-from src.core.configurations.config import GlobalConfig
 from src.domain.dto import (
     ModelIncreaseDTO,
     ModelInfo,
@@ -31,16 +30,20 @@ class LogsProcessorWorker:
         model_dispatcher_client: ModelDispatcherClient,
         notificator_client: NotificatorClient,
         model_load_monitor: ModelLoadMonitor,
-        config: GlobalConfig,
         decision_maker: DecisionMaker,
+        rps_interval: int,
+        increase_interval: int,
+        unbooking_strategy: str,
     ):
         self._booking_client = booking_client
         self._model_registry_client = model_registry_client
         self._model_dispatcher_client = model_dispatcher_client
         self._notificator_client = notificator_client
         self._model_load_monitor = model_load_monitor
-        self._config = config
         self._decision_maker = decision_maker
+        self._rps_interval = rps_interval
+        self._increase_interval = increase_interval
+        self._unbooking_strategy = unbooking_strategy
 
     async def handle_logs_signal(self, request: dict):
         logger.info(
@@ -59,14 +62,16 @@ class LogsProcessorWorker:
             logger.error("Connection error while finding all running models: {}", exc)
             return
 
-        rps_interval = self._config.worker.rps_interval
-        increase_interval = self._config.worker.increase_interval
         try:
             rps_stats: list[ModelRpsDTO] = (
-                await self._model_load_monitor.get_current_rps_per_model(rps_interval)
+                await self._model_load_monitor.get_current_rps_per_model(
+                    self._rps_interval
+                )
             )
             increase_stats: list[ModelIncreaseDTO] = (
-                await self._model_load_monitor.get_increase_per_model(increase_interval)
+                await self._model_load_monitor.get_increase_per_model(
+                    self._increase_interval
+                )
             )
         except ConnectError as exc:
             logger.error("Connection error while getting rps data: {}", exc)
@@ -102,16 +107,15 @@ class LogsProcessorWorker:
                     )
 
                 case Unbook(model_id, model_name, user_id):
-                    unbooking_strategy = self._config.worker.unbooking
                     reservations: list[Reservation]
 
-                    if unbooking_strategy == "ALL":
+                    if self._unbooking_strategy == "ALL":
                         reservations = await self._booking_client.get_reservations(
                             model_name=model_name, user_id=user_id
                         )
                     else:
                         min_start_time = datetime.utcnow() - timedelta(
-                            hours=increase_interval
+                            hours=self._increase_interval
                         )
                         reservations = await self._booking_client.get_reservations(
                             model_name=model_name,

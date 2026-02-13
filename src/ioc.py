@@ -121,8 +121,10 @@ class WorkersProvider(Provider):
             model_dispatcher_client,
             notificator_client,
             model_load_monitor,
-            config,
             decision_maker,
+            config.worker.rps_interval,
+            config.worker.increase_interval,
+            config.worker.unbooking,
         )
 
 
