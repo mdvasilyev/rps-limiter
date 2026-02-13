@@ -1,15 +1,18 @@
 import asyncio
-from datetime import UTC, datetime
 
-from faststream.rabbit import RabbitBroker
+from faststream.rabbit import RabbitBroker, RabbitExchange
 from loguru import logger
 
+from src.domain.dto import FetchAndProcessLogsEvent
 from src.domain.interfaces import ISignalPublisher
 
 
 class SignalPublisher(ISignalPublisher):
-    def __init__(self, broker: RabbitBroker, queue: str) -> None:
+    def __init__(
+        self, broker: RabbitBroker, exchange: RabbitExchange, queue: str
+    ) -> None:
         self._broker = broker
+        self._exchange = exchange
         self._queue = queue
 
         self._stop_event = asyncio.Event()
@@ -17,13 +20,14 @@ class SignalPublisher(ISignalPublisher):
 
     async def _publish_logs_signal(self) -> None:
         """Publish signal for logs processing."""
-        payload = {
-            "event": "FETCH_AND_PROCESS_LOGS",
-            "triggered_at": datetime.now(UTC).isoformat(),
-        }
+        event = FetchAndProcessLogsEvent()
 
         try:
-            await self._broker.publish(payload, queue=self._queue)
+            await self._broker.publish(
+                event.model_dump(mode="json"),
+                queue=self._queue,
+                exchange=self._exchange,
+            )
             logger.debug(
                 "Published logs fetch signal to queue='{}'",
                 self._queue,
@@ -33,6 +37,7 @@ class SignalPublisher(ISignalPublisher):
             raise
 
     async def _periodic_publish_logs_signal(self, interval: int) -> None:
+        """Periodically publish signal for logs processing."""
         logger.info(
             "Periodic logs signal publisher started (interval={}s)",
             interval,

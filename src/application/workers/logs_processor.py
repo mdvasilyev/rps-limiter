@@ -4,6 +4,7 @@ from httpx import ConnectError
 from loguru import logger
 
 from src.domain.dto import (
+    FetchAndProcessLogsEvent,
     ModelIncreaseDTO,
     ModelInfo,
     ModelRpsDTO,
@@ -44,10 +45,10 @@ class LogsProcessorWorker:
         self._increase_interval = increase_interval
         self._unbooking_strategy = unbooking_strategy
 
-    async def handle_logs_signal(self, request: dict):
+    async def handle_logs_signal(self, event: FetchAndProcessLogsEvent):
         logger.info(
             "Received metrics evaluation signal at {}",
-            request.get("triggered_at"),
+            event.triggered_at,
         )
 
         try:

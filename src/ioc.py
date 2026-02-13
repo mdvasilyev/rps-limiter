@@ -97,15 +97,15 @@ class ServicesProvider(Provider):
 
     @provide(scope=scope, provides=ISignalPublisher)
     def sigal_publisher(
-        self, broker: RabbitBroker, config: GlobalConfig
+        self, broker: RabbitBroker, exchange: RabbitExchange, config: GlobalConfig
     ) -> SignalPublisher:
-        return SignalPublisher(broker, config.rabbitmq.logs_queue)
+        return SignalPublisher(broker, exchange, config.rabbitmq.logs_queue)
 
 
 class WorkersProvider(Provider):
     scope = Scope.APP
 
-    @provide(scope=scope)
+    @provide(scope=scope, provides=LogsProcessorWorker)
     def logs_processor_worker(
         self,
         booking_client: IBookingClient,
