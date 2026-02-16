@@ -20,7 +20,7 @@ from .base import BaseServiceClient
 
 class ModelRegistryClient(BaseServiceClient, IModelRegistryClient):
     @staticmethod
-    def _to_model(model_data: dict[str, Any]) -> PaginatedModelDTO:
+    def _to_dto(model_data: dict[str, Any]) -> PaginatedModelDTO:
         """Конвертирует сырые данные в объект ModelInfo"""
         try:
             return PaginatedModelDTO(
@@ -90,14 +90,14 @@ class ModelRegistryClient(BaseServiceClient, IModelRegistryClient):
     ) -> list[ModelDTO]:
         response = await self._request(
             method="GET",
-            path="/running/find-by",
+            path="models/running/find-by",
             params=query.to_params(),
         )
 
         data = await self._check_and_parse_response(response)
-        items = data.get("items", [])
+        items = self._to_dto(data)
 
-        return [self._to_model(item) for item in items]
+        return items.items
 
     async def find_all_running_models(self) -> list[ModelDTO]:
         results: list[ModelDTO] = []

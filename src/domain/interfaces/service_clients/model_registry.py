@@ -1,7 +1,5 @@
 from abc import ABC, abstractmethod
 
-from httpx import Response
-
 from src.domain.dto import ModelDTO, RunningModelsQuery
 
 
@@ -10,7 +8,7 @@ class IModelRegistryClient(ABC):
     async def find_running_models(
         self,
         query: RunningModelsQuery,
-    ) -> Response:
+    ) -> list[ModelDTO]:
         pass
 
     @abstractmethod

@@ -12,7 +12,7 @@ from .base import BaseServiceClient
 
 class ModelDispatcherClient(BaseServiceClient, IModelDispatcherClient):
     @staticmethod
-    def _to_model(model_data: dict[str, Any]) -> SagaDTO:
+    def _to_dto(model_data: dict[str, Any]) -> SagaDTO:
         """Конвертирует сырые данные в объект ModelInfo"""
         try:
             return SagaDTO(
@@ -53,31 +53,31 @@ class ModelDispatcherClient(BaseServiceClient, IModelDispatcherClient):
     async def uninstall(self, query: UninstallQuery) -> SagaDTO:
         response = await self._request(
             method="POST",
-            path="/v1/command/uninstall",
+            path="/command/uninstall",
             json=query.to_payload(),
         )
 
         data = await self._check_and_parse_response(response)
 
-        return self._to_model(data)
+        return self._to_dto(data)
 
     async def scale(self, query: ScaleQuery) -> SagaDTO:
         response = await self._request(
             method="POST",
-            path="/v1/command/scale",
+            path="/command/scale",
             json=query.to_payload(),
         )
 
         data = await self._check_and_parse_response(response)
 
-        return self._to_model(data)
+        return self._to_dto(data)
 
     async def saga_status(self, query: SagaQuery) -> SagaDTO:
         response = await self._request(
             method="GET",
-            path=f"/v1/saga/{query.saga_id}",
+            path=f"/saga/{query.saga_id}",
         )
 
         data = await self._check_and_parse_response(response)
 
-        return self._to_model(data)
+        return self._to_dto(data)

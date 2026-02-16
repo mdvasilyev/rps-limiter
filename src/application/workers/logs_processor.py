@@ -8,7 +8,7 @@ from src.domain.dto import (
     ModelDTO,
     ModelIncreaseDTO,
     ModelRpsDTO,
-    Reservation,
+    ReservationDTO,
     Scale,
     Unbook,
     WarnUnbooking,
@@ -108,7 +108,7 @@ class LogsProcessorWorker:
                     )
 
                 case Unbook(model_id, model_name, user_id):
-                    reservations: list[Reservation]
+                    reservations: list[ReservationDTO]
 
                     if self._unbooking_strategy == "ALL":
                         reservations = await self._booking_client.get_reservations(

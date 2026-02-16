@@ -5,8 +5,6 @@ from typing import Any, Literal
 
 from pydantic import BaseModel
 
-from src.domain.dto import PaginatedDTO
-
 
 @dataclass(frozen=True, kw_only=True)
 class ModelRpsDTO:
@@ -22,8 +20,8 @@ class ModelIncreaseDTO:
 
 @dataclass
 class ModelState:
-    last_rps: float | None
-    zero_since: datetime | None
+    last_rps: float | None = None
+    zero_since: datetime | None = None
 
 
 class EndpointDTO(BaseModel):
@@ -33,14 +31,14 @@ class EndpointDTO(BaseModel):
 
 
 class InstanceDTO(BaseModel):
-    address: str | None
+    address: str | None = None
     id: int
-    owner_id: str | None
+    owner_id: str | None = None
     replicas: int
 
 
 class StorageDTO(BaseModel):
-    artifact_id: int | None
+    artifact_id: int | None = None
     id: int
     revision: str
     type: Literal["s3", "nfs"]
@@ -56,7 +54,7 @@ class ModelDTO(BaseModel):
     configuration: dict[str, str]
     deleted: bool
     endpoints: list[EndpointDTO]
-    hf_repo_id: str | None
+    hf_repo_id: str | None = None
     id: str
     instance: InstanceDTO
     name: str
@@ -69,12 +67,16 @@ class ModelDTO(BaseModel):
         "STOPPING",
         "DELETED",
     ]
-    storage: StorageDTO | None
+    storage: StorageDTO | None = None
     tags: list[TagDTO]
     type: Literal["llm", "vlm"]
 
 
-PaginatedModelDTO = PaginatedDTO[ModelDTO]
+class PaginatedModelDTO(BaseModel):
+    limit: int
+    offset: int
+    total: int
+    items: list[ModelDTO]
 
 
 class RunningModelsQuery(BaseModel):

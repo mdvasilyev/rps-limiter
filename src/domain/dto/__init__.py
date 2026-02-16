@@ -1,7 +1,16 @@
 """DTO module."""
 
-from .base import PaginatedDTO
-from .booking import Reservation, Slot, Unbook, User, WarnUnbooking
+from .booking import (
+    DeleteReservationQuery,
+    GetReservationQuery,
+    GetReservationsQuery,
+    PaginatedReservationDTO,
+    ReservationDTO,
+    SlotDTO,
+    Unbook,
+    UserDTO,
+    WarnUnbooking,
+)
 from .events import FetchAndProcessLogsEvent
 from .metric import Metric, MetricValue
 from .model import (
@@ -20,7 +29,6 @@ from .saga import SagaDTO, SagaQuery, ScaleQuery, StepDTO, UninstallQuery
 from .scale import Scale
 
 __all__ = [
-    "PaginatedDTO",
     "Unbook",
     "WarnUnbooking",
     "Metric",
@@ -31,9 +39,13 @@ __all__ = [
     "ModelDTO",
     "InstanceDTO",
     "Scale",
-    "Reservation",
-    "User",
-    "Slot",
+    "ReservationDTO",
+    "PaginatedReservationDTO",
+    "UserDTO",
+    "SlotDTO",
+    "GetReservationsQuery",
+    "GetReservationQuery",
+    "DeleteReservationQuery",
     "FetchAndProcessLogsEvent",
     "EndpointDTO",
     "InstanceDTO",

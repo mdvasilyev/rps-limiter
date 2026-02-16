@@ -4,7 +4,13 @@ from httpx import Response
 from loguru import logger
 from starlette import status
 
-from src.domain.dto import Reservation, Slot, User
+from src.domain.dto import (
+    GetReservationsQuery,
+    PaginatedReservationDTO,
+    ReservationDTO,
+    SlotDTO,
+    UserDTO,
+)
 from src.domain.interfaces.service_clients import IBookingClient
 
 from .base import BaseServiceClient
@@ -12,12 +18,46 @@ from .base import BaseServiceClient
 
 class BookingClient(BaseServiceClient, IBookingClient):
     @staticmethod
-    def _to_reservation(model_data: dict[str, Any]) -> Reservation:
+    def _to_dto_paginated(model_data: dict[str, Any]) -> PaginatedReservationDTO:
         """Конвертирует сырые данные в объект Response"""
         try:
-            return Reservation(
+            return PaginatedReservationDTO(
+                items=[
+                    ReservationDTO(
+                        id=item.get("id"),
+                        user=UserDTO(
+                            id=item.get("user").get("id"),
+                            name=item.get("user").get("name"),
+                        ),
+                        model_name=item.get("model_name"),
+                        config_id=item.get("config_id"),
+                        model_id=item.get("model_id"),
+                        slots=[
+                            SlotDTO(
+                                start=slot.get("start"),
+                                end=slot.get("end"),
+                                id=slot.get("id"),
+                            )
+                            for slot in item.get("slots", [])
+                        ],
+                    )
+                    for item in model_data.get("items", [])
+                ],
+                total=model_data.get("total"),
+                page=model_data.get("page"),
+                page_size=model_data.get("page_size"),
+            )
+        except Exception as e:
+            logger.error("Failed to validate model data: {}. Error: {}", model_data, e)
+            raise
+
+    @staticmethod
+    def _to_dto(model_data: dict[str, Any]) -> ReservationDTO:
+        """Конвертирует сырые данные в объект Response"""
+        try:
+            return ReservationDTO(
                 id=model_data.get("id"),
-                user=User(
+                user=UserDTO(
                     id=model_data.get("user").get("id"),
                     name=model_data.get("user").get("name"),
                 ),
@@ -25,8 +65,12 @@ class BookingClient(BaseServiceClient, IBookingClient):
                 config_id=model_data.get("config_id"),
                 model_id=model_data.get("model_id"),
                 slots=[
-                    Slot(start=slot.start, end=slot.end, id=slot.id)
-                    for slot in model_data.get("slots")
+                    SlotDTO(
+                        start=slot.get("start"),
+                        end=slot.get("end"),
+                        id=slot.get("id"),
+                    )
+                    for slot in model_data.get("slots", [])
                 ],
             )
         except Exception as e:
@@ -45,65 +89,47 @@ class BookingClient(BaseServiceClient, IBookingClient):
             raise Exception("Booking service is unavailable")
         return response.json()
 
+    @staticmethod
+    async def _check_and_parse_text_response(response: Response) -> str:
+        """Проверяет успешность ответа и возвращает его TEXT-тело."""
+        if response.status_code != status.HTTP_200_OK:
+            logger.error(
+                "Booking request failed with status {}: {}",
+                response.status_code,
+                response.text,
+            )
+            raise Exception("Booking service is unavailable")
+        return response.text
+
     async def get_reservations(
         self,
-        *,
-        model_name: str | None = None,
-        user_id: str | None = None,
-        min_start_time: str | None = None,
-        max_start_time: str | None = None,
-        min_end_time: str | None = None,
-        max_end_time: str | None = None,
-        page: int = 1,
-        page_size: int = 20,
-        sort_by: str = "start_time",
-        sort_order: str = "asc",
-    ) -> list[Reservation]:
-        results: list[Reservation] = []
-
-        params: dict[str, Any] = {
-            "page": page,
-            "page_size": page_size,
-            "sort_by": sort_by,
-            "sort_order": sort_order,
-        }
-
-        if model_name is not None:
-            params["model_name"] = model_name
-        if user_id is not None:
-            params["user_id"] = user_id
-        if min_start_time is not None:
-            params["min_start_time"] = min_start_time
-        if max_start_time is not None:
-            params["max_start_time"] = max_start_time
-        if min_end_time is not None:
-            params["min_end_time"] = min_end_time
-        if max_end_time is not None:
-            params["max_end_time"] = max_end_time
-
+        query: GetReservationsQuery,
+    ) -> list[ReservationDTO]:
         response = await self._request(
             method="GET",
-            path="/api/v1/reservations",
-            params=params,
+            path="/reservations",
+            params=query.model_dump(exclude_none=True),
         )
 
-        result = await self._check_and_parse_response(response)
+        data = await self._check_and_parse_response(response)
+        items = self._to_dto(data)
 
-        items = result.get("items", [])
+        return items.items
 
-        for reservation in items:
-            results.append(self._to_reservation(reservation))
-
-        return results
-
-    async def get_reservation(self, reservation_id: str) -> dict:
-        return await self._request(
+    async def get_reservation(self, reservation_id: str) -> ReservationDTO:
+        response = await self._request(
             method="GET",
-            path=f"/api/v1/reservations/{reservation_id}",
+            path=f"/reservations/{reservation_id}",
         )
+
+        data = await self._check_and_parse_response(response)
+
+        return self._to_dto(data)
 
     async def delete_reservation(self, reservation_id: str) -> str:
-        return await self._request(
+        response = await self._request(
             method="DELETE",
-            path=f"/api/v1/reservations/{reservation_id}",
+            path=f"/reservations/{reservation_id}",
         )
+
+        return await self._check_and_parse_text_response(response)
