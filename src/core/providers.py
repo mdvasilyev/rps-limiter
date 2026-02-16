@@ -2,7 +2,7 @@ from dishka import Provider, Scope, from_context, provide
 from faststream.rabbit import RabbitBroker, RabbitExchange
 from httpx import AsyncClient
 
-from src.application.services import DecisionMaker, ModelLoadMonitor, SignalPublisher
+from src.application.services import SignalPublisher
 from src.application.services.service_clients import (
     BookingClient,
     ModelDispatcherClient,
@@ -11,7 +11,12 @@ from src.application.services.service_clients import (
     PrometheusClient,
 )
 from src.application.workers import LogsProcessorWorker
-from src.core import get_rabbitmq_broker, get_rabbitmq_exchange
+from src.core import (
+    DecisionMaker,
+    ModelLoadMonitor,
+    get_rabbitmq_broker,
+    get_rabbitmq_exchange,
+)
 from src.core.configurations.config import GlobalConfig
 from src.domain.interfaces import IDecisionMaker, IModelLoadMonitor, ISignalPublisher
 from src.domain.interfaces.service_clients import (
