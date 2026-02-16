@@ -1,32 +1,83 @@
+from typing import Any
+
+from httpx import Response
+from loguru import logger
+from starlette import status
+
+from src.domain.dto import SagaDTO, SagaQuery, ScaleQuery, StepDTO, UninstallQuery
 from src.domain.interfaces.service_clients import IModelDispatcherClient
 
 from .base import BaseServiceClient
 
 
 class ModelDispatcherClient(BaseServiceClient, IModelDispatcherClient):
-    async def uninstall(self, *, model_id: str) -> dict:
-        payload = {"model_id": model_id}
+    @staticmethod
+    def _to_model(model_data: dict[str, Any]) -> SagaDTO:
+        """Конвертирует сырые данные в объект ModelInfo"""
+        try:
+            return SagaDTO(
+                created_at=model_data.get("createdAt"),
+                current_step=model_data.get("current_step"),
+                id=model_data.get("id"),
+                model_id=model_data.get("modelId"),
+                status=model_data.get("status"),
+                steps=[
+                    StepDTO(
+                        created_at=step.get("createdAt"),
+                        id=step.get("id"),
+                        name=step.get("name"),
+                        status=step.get("status"),
+                        updated_at=step.get("updatedAt"),
+                    )
+                    for step in model_data.get("steps", [])
+                ],
+                type=model_data.get("type"),
+                updated_at=model_data.get("updatedAt"),
+            )
+        except Exception as e:
+            logger.error("Failed to validate model data: {}. Error: {}", model_data, e)
+            raise
 
-        return await self._request(
+    @staticmethod
+    async def _check_and_parse_response(response: Response) -> dict[str, Any]:
+        """Проверяет успешность ответа и возвращает его JSON-тело."""
+        if response.status_code != status.HTTP_200_OK:
+            logger.error(
+                "ModelDispatcher request failed with status {}: {}",
+                response.status_code,
+                response.text,
+            )
+            raise Exception("Model dispatcher service is unavailable")
+        return response.json()
+
+    async def uninstall(self, query: UninstallQuery) -> SagaDTO:
+        response = await self._request(
             method="POST",
             path="/v1/command/uninstall",
-            json=payload,
+            json=query.to_payload(),
         )
 
-    async def scale(self, model_id: str, replicas: int) -> dict:
-        payload = {
-            "model_id": model_id,
-            "replicas": replicas,
-        }
+        data = await self._check_and_parse_response(response)
 
-        return await self._request(
+        return self._to_model(data)
+
+    async def scale(self, query: ScaleQuery) -> SagaDTO:
+        response = await self._request(
             method="POST",
             path="/v1/command/scale",
-            json=payload,
+            json=query.to_payload(),
         )
 
-    async def saga_status(self, saga_id: str) -> dict:
-        return await self._request(
+        data = await self._check_and_parse_response(response)
+
+        return self._to_model(data)
+
+    async def saga_status(self, query: SagaQuery) -> SagaDTO:
+        response = await self._request(
             method="GET",
-            path=f"/v1/saga/{saga_id}",
+            path=f"/v1/saga/{query.saga_id}",
         )
+
+        data = await self._check_and_parse_response(response)
+
+        return self._to_model(data)

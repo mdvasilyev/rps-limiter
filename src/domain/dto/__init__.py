@@ -16,6 +16,7 @@ from .model import (
     StorageDTO,
     TagDTO,
 )
+from .saga import SagaDTO, SagaQuery, ScaleQuery, StepDTO, UninstallQuery
 from .scale import Scale
 
 __all__ = [
@@ -40,4 +41,9 @@ __all__ = [
     "TagDTO",
     "PaginatedModelDTO",
     "RunningModelsQuery",
+    "StepDTO",
+    "SagaDTO",
+    "ScaleQuery",
+    "UninstallQuery",
+    "SagaQuery",
 ]
