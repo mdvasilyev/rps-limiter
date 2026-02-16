@@ -1,7 +1,7 @@
 from faststream import FastStream
 from faststream.rabbit import RabbitBroker, RabbitExchange
 
-from .router import create_router
+from src.application import create_router
 
 
 def create_faststream(broker: RabbitBroker, exchange: RabbitExchange) -> FastStream:
