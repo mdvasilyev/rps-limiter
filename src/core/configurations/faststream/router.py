@@ -1,3 +1,4 @@
+from dishka import FromDishka
 from dishka.integrations.faststream import inject
 from faststream.rabbit import RabbitExchange, RabbitRouter
 
@@ -12,7 +13,7 @@ def create_router(exchange: RabbitExchange) -> RabbitRouter:
     @router.subscriber(Event.LOGS.process, exchange=exchange)
     @inject
     async def process_logs(
-        event: FetchAndProcessLogsEvent, worker: LogsProcessorWorker
+        event: FetchAndProcessLogsEvent, worker: FromDishka[LogsProcessorWorker]
     ) -> None:
         await worker.handle_logs_signal(event)
 
