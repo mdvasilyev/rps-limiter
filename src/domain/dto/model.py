@@ -1,7 +1,11 @@
-from dataclasses import Field, dataclass
+import json
+from dataclasses import dataclass
 from datetime import datetime
+from typing import Any, Literal
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel
+
+from src.domain.dto import PaginatedDTO
 
 
 @dataclass(frozen=True, kw_only=True)
@@ -22,20 +26,67 @@ class ModelState:
     zero_since: datetime | None
 
 
-class InstanceInfo(BaseModel):
+class EndpointDTO(BaseModel):
+    description: str
     id: int
-    replicas: int
-    ownerId: str | None
-    address: str
+    path: str
 
 
-class ModelInfo(BaseModel):
-    model_config = ConfigDict(extra="ignore", populate_by_name=True)
-
-    id: str
-    instance: InstanceInfo
-    name: str
-    address: str
-    endpoints: set[str]
-    replicas: int = 0
+class InstanceDTO(BaseModel):
+    address: str | None
+    id: int
     owner_id: str | None
+    replicas: int
+
+
+class StorageDTO(BaseModel):
+    artifact_id: int | None
+    id: int
+    revision: str
+    type: Literal["s3", "nfs"]
+    uri: str
+
+
+class TagDTO(BaseModel):
+    id: int
+    tag: str
+
+
+class ModelDTO(BaseModel):
+    configuration: dict[str, str]
+    deleted: bool
+    endpoints: list[EndpointDTO]
+    hf_repo_id: str | None
+    id: str
+    instance: InstanceDTO
+    name: str
+    status: Literal[
+        "CREATED",
+        "DOWNLOADING",
+        "DOWNLOADED",
+        "STARTING",
+        "RUNNING",
+        "STOPPING",
+        "DELETED",
+    ]
+    storage: StorageDTO | None
+    tags: list[TagDTO]
+    type: Literal["llm", "vlm"]
+
+
+PaginatedModelDTO = PaginatedDTO[ModelDTO]
+
+
+class RunningModelsQuery(BaseModel):
+    offset: int = 0
+    limit: int = 50
+    sort: str | None = None
+    filters: dict[str, Any] | None = None
+
+    def to_params(self) -> dict[str, Any]:
+        data = self.model_dump(exclude_none=True)
+
+        if "filters" in data:
+            data["filters"] = json.dumps(data["filters"])
+
+        return data

@@ -1,6 +1,6 @@
 from datetime import datetime, timedelta
 
-from src.domain.dto import ModelInfo, ModelState, Scale, Unbook, WarnUnbooking
+from src.domain.dto import ModelDTO, ModelState, Scale, Unbook, WarnUnbooking
 from src.domain.interfaces import IDecisionMaker
 
 
@@ -16,7 +16,7 @@ class DecisionMaker(IDecisionMaker):
 
     def process(
         self,
-        active_models: list[ModelInfo],
+        active_models: list[ModelDTO],
         rps_by_model: dict[str, float],
         increase_by_model: dict[str, float],
     ) -> list[Scale | WarnUnbooking | Unbook]:
@@ -47,7 +47,7 @@ class DecisionMaker(IDecisionMaker):
                 state.zero_since = state.zero_since or now
                 inactive_for = now - state.zero_since
 
-                user_id = model.instance.ownerId
+                user_id = model.instance.owner_id
                 if inactive_for >= self.UNBOOK_AFTER:
                     actions.append(Unbook(model_id, model_name, user_id))
                 elif inactive_for >= self.WARN_AFTER:

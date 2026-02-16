@@ -5,8 +5,8 @@ from loguru import logger
 
 from src.domain.dto import (
     FetchAndProcessLogsEvent,
+    ModelDTO,
     ModelIncreaseDTO,
-    ModelInfo,
     ModelRpsDTO,
     Reservation,
     Scale,
@@ -47,12 +47,13 @@ class LogsProcessorWorker:
 
     async def handle_logs_signal(self, event: FetchAndProcessLogsEvent):
         logger.info(
-            "Received metrics evaluation signal at {}",
+            "Received {} signal at {}",
+            event.type,
             event.triggered_at,
         )
 
         try:
-            active_models: list[ModelInfo] = (
+            active_models: list[ModelDTO] = (
                 await self._model_registry_client.find_all_running_models()
             )
             if not active_models:

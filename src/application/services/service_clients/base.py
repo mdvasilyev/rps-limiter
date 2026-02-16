@@ -1,13 +1,11 @@
-from typing import Any
-
-import httpx
+from httpx import AsyncClient, Response
 
 
 class BaseServiceClient:
     def __init__(
         self,
         base_url: str,
-        client: httpx.AsyncClient,
+        client: AsyncClient,
         timeout: float = 5.0,
     ) -> None:
         self._base_url = base_url.rstrip("/")
@@ -19,8 +17,8 @@ class BaseServiceClient:
         method: str,
         path: str,
         **kwargs,
-    ) -> Any:
-        url = f"{self._base_url}{path}"
+    ) -> Response:
+        url = f"{self._base_url}/{path.lstrip('/')}"
 
         response = await self._client.request(
             method=method,
@@ -31,8 +29,4 @@ class BaseServiceClient:
 
         response.raise_for_status()
 
-        content_type = response.headers.get("Content-Type", "")
-        if "application/json" in content_type:
-            return response.json()
-
-        return response.text
+        return response
