@@ -1,6 +1,6 @@
-from datetime import UTC, datetime, timedelta
+from datetime import timedelta
 
-from src.domain.dto import ModelDTO, ModelState, Scale, Unbook, WarnUnbooking
+from src.domain.dto import ModelDTO, ModelRpsIncreaseDTO, Scale, Unbook
 from src.domain.interfaces import IDecisionMaker
 
 
@@ -16,49 +16,36 @@ class DecisionMaker(IDecisionMaker):
         self._scale_down_threshold = scale_down_threshold
         self._warn_after_mins = timedelta(minutes=warn_after_mins)
         self._unbook_after_mins = timedelta(minutes=unbook_after_mins)
-        self._state: dict[str, ModelState] = {}
 
     def process(
         self,
         active_models: list[ModelDTO],
-        rps_by_model: dict[str, float],
-        increase_by_model: dict[str, float],
-    ) -> list[Scale | WarnUnbooking | Unbook]:
-        now = datetime.now(UTC)
-        actions: list[Scale | WarnUnbooking | Unbook] = []
+        metrics: list[ModelRpsIncreaseDTO],
+    ) -> list[Scale | Unbook]:
+        actions: list[Scale | Unbook] = []
+
+        metrics_map = {m.model_name: m for m in metrics}
 
         for model in active_models:
             model_name = model.name
             model_id = model.id
-            rps: float = rps_by_model.get(model_name, 0.0)
-            increase: float = increase_by_model.get(model_name, 0.0)
 
-            state: ModelState = self._state.setdefault(
-                model_name,
-                ModelState(last_rps=None, zero_since=None),
-            )
+            metric = metrics_map.get(model_name)
 
-            if state.last_rps is not None:
-                replicas = model.instance.replicas
+            rps = metric.rps if metric else 0.0
+            increase = metric.requests if metric else 0.0
 
-                if rps > state.last_rps and rps >= self._scale_up_threshold:
-                    actions.append(Scale(model_id, replicas + 1))
+            replicas = model.instance.replicas
 
-                elif rps < state.last_rps and rps <= self._scale_down_threshold:
-                    actions.append(Scale(model_id, replicas - 1))
+            if rps >= self._scale_up_threshold:
+                actions.append(Scale(model_id=model_id, replicas=replicas + 1))
+
+            elif rps <= self._scale_down_threshold:
+                actions.append(Scale(model_id=model_id, replicas=replicas - 1))
 
             if increase == 0:
-                state.zero_since = state.zero_since or now
-                inactive_for = now - state.zero_since
-
-                user_id = model.instance.owner_id
-                if inactive_for >= self._unbook_after_mins:
-                    actions.append(Unbook(model_id, model_name, user_id))
-                elif inactive_for >= self._warn_after_mins:
-                    actions.append(WarnUnbooking(model_id, user_id))
-            else:
-                state.zero_since = None
-
-            state.last_rps = rps
+                actions.append(
+                    Unbook(model_name=model_name, user_id=model.instance.owner_id)
+                )
 
         return actions

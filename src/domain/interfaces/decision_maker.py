@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 
-from src.domain.dto import ModelDTO, Scale, Unbook, WarnUnbooking
+from src.domain.dto import ModelDTO, ModelRpsIncreaseDTO, Scale, Unbook
 
 
 class IDecisionMaker(ABC):
@@ -8,7 +8,6 @@ class IDecisionMaker(ABC):
     def process(
         self,
         active_models: list[ModelDTO],
-        rps_by_model: dict[str, float],
-        increase_by_model: dict[str, float],
-    ) -> list[Scale | WarnUnbooking | Unbook]:
+        metrics: list[ModelRpsIncreaseDTO],
+    ) -> list[Scale | Unbook]:
         pass

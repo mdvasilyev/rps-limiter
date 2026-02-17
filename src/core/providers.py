@@ -9,7 +9,6 @@ from src.application.services.service_clients import (
     BookingClient,
     ModelDispatcherClient,
     ModelRegistryClient,
-    NotificatorClient,
     PrometheusClient,
 )
 from src.application.workers import LogsProcessorWorker
@@ -25,7 +24,6 @@ from src.domain.interfaces.service_clients import (
     IBookingClient,
     IModelDispatcherClient,
     IModelRegistryClient,
-    INotificatorClient,
     IPrometheusClient,
 )
 
@@ -73,12 +71,6 @@ class ServiceClientsProvider(Provider):
     ) -> ModelRegistryClient:
         return ModelRegistryClient(config.model_registry.url, client)
 
-    @provide(scope=scope, provides=INotificatorClient)
-    def notificator_client(
-        self, config: GlobalConfig, client: AsyncClient
-    ) -> NotificatorClient:
-        return NotificatorClient(config.notificator.url, client)
-
     @provide(scope=scope, provides=IPrometheusClient)
     def prometheus_client(
         self, config: GlobalConfig, client: AsyncClient
@@ -118,7 +110,6 @@ class WorkersProvider(Provider):
         booking_client: IBookingClient,
         model_registry_client: IModelRegistryClient,
         model_dispatcher_client: IModelDispatcherClient,
-        notificator_client: INotificatorClient,
         model_load_monitor: IModelLoadMonitor,
         decision_maker: IDecisionMaker,
         config: GlobalConfig,
@@ -127,7 +118,6 @@ class WorkersProvider(Provider):
             booking_client,
             model_registry_client,
             model_dispatcher_client,
-            notificator_client,
             model_load_monitor,
             decision_maker,
             config.worker.rps_interval,

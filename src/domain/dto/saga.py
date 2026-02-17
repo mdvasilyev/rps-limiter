@@ -1,4 +1,4 @@
-from typing import Literal
+from typing import Any, Literal
 
 from pydantic import BaseModel, Field
 
@@ -40,8 +40,8 @@ class ScaleQuery(BaseModel):
 
     model_config = {"populate_by_name": True}
 
-    def to_payload(self) -> dict:
-        return self.model_dump(by_alias=True)
+    def model_dump(self, *args: Any, **kwargs: Any) -> dict:
+        return super().model_dump(*args, **kwargs, by_alias=True)
 
 
 class UninstallQuery(BaseModel):
@@ -49,8 +49,8 @@ class UninstallQuery(BaseModel):
 
     model_config = {"populate_by_name": True}
 
-    def to_payload(self) -> dict:
-        return self.model_dump(by_alias=True)
+    def model_dump(self, *args: Any, **kwargs: Any) -> dict:
+        return super().model_dump(*args, **kwargs, by_alias=True)
 
 
 class SagaQuery(BaseModel):

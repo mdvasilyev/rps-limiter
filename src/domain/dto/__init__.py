@@ -9,7 +9,6 @@ from .booking import (
     SlotDTO,
     Unbook,
     UserDTO,
-    WarnUnbooking,
 )
 from .events import FetchAndProcessLogsEvent
 from .metric import MetricDTO, MetricValueDTO
@@ -20,7 +19,6 @@ from .model import (
     ModelIncreaseDTO,
     ModelRpsDTO,
     ModelRpsIncreaseDTO,
-    ModelState,
     PaginatedModelDTO,
     RunningModelsQuery,
     StorageDTO,
@@ -31,13 +29,11 @@ from .scale import Scale
 
 __all__ = [
     "Unbook",
-    "WarnUnbooking",
     "MetricDTO",
     "MetricValueDTO",
     "ModelRpsDTO",
     "ModelIncreaseDTO",
     "ModelRpsIncreaseDTO",
-    "ModelState",
     "ModelDTO",
     "InstanceDTO",
     "Scale",

@@ -1,5 +1,4 @@
 import json
-from datetime import datetime
 from typing import Any, Literal
 
 from pydantic import BaseModel
@@ -19,11 +18,6 @@ class ModelRpsIncreaseDTO(BaseModel):
     model_name: str
     rps: float
     requests: float
-
-
-class ModelState(BaseModel):
-    last_rps: float | None = None
-    zero_since: datetime | None = None
 
 
 class EndpointDTO(BaseModel):

@@ -3,13 +3,7 @@ from typing import Literal
 from pydantic import BaseModel
 
 
-class WarnUnbooking(BaseModel):
-    model: str
-    user_id: str
-
-
 class Unbook(BaseModel):
-    model_id: str
     model_name: str
     user_id: str
 

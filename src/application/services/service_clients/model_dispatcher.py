@@ -54,7 +54,7 @@ class ModelDispatcherClient(BaseServiceClient, IModelDispatcherClient):
         response = await self._request(
             method="POST",
             path="/command/uninstall",
-            json=query.to_payload(),
+            json=query.model_dump(),
         )
 
         data = await self._check_and_parse_response(response)
@@ -65,7 +65,7 @@ class ModelDispatcherClient(BaseServiceClient, IModelDispatcherClient):
         response = await self._request(
             method="POST",
             path="/command/scale",
-            json=query.to_payload(),
+            json=query.model_dump(),
         )
 
         data = await self._check_and_parse_response(response)
