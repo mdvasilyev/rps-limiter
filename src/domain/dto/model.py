@@ -15,6 +15,12 @@ class ModelIncreaseDTO(BaseModel):
     requests: float
 
 
+class ModelRpsIncreaseDTO(BaseModel):
+    model_name: str
+    rps: float = 0.0
+    requests: float = 0.0
+
+
 class ModelState(BaseModel):
     last_rps: float | None = None
     zero_since: datetime | None = None

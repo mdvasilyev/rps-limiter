@@ -1,6 +1,6 @@
 from loguru import logger
 
-from src.domain.dto import MetricDTO, ModelIncreaseDTO, ModelRpsDTO
+from src.domain.dto import MetricDTO, ModelIncreaseDTO, ModelRpsDTO, ModelRpsIncreaseDTO
 from src.domain.exceptions import PrometheusError
 from src.domain.interfaces import IModelLoadMonitor
 from src.domain.interfaces.service_clients import IPrometheusClient
@@ -86,3 +86,29 @@ class ModelLoadMonitor(IModelLoadMonitor):
                 )
 
         return parsed_metrics
+
+    async def get_rps_and_increase_per_model(
+        self,
+        rps_period_min: int,
+        increase_period_min: int,
+    ) -> list[ModelRpsIncreaseDTO]:
+        rps_list = await self.get_current_rps_per_model(rps_period_min)
+        increase_list = await self.get_increase_per_model(increase_period_min)
+
+        rps_map = {m.model_name: m.rps for m in rps_list}
+        increase_map = {m.model_name: m.requests for m in increase_list}
+
+        all_models = set(rps_map) | set(increase_map)
+
+        result: list[ModelRpsIncreaseDTO] = []
+
+        for model_name in all_models:
+            result.append(
+                ModelRpsIncreaseDTO(
+                    model_name=model_name,
+                    rps=rps_map.get(model_name, 0.0),
+                    requests=increase_map.get(model_name, 0.0),
+                )
+            )
+
+        return result

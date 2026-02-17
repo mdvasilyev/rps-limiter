@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 
-from src.domain.dto import ModelIncreaseDTO, ModelRpsDTO
+from src.domain.dto import ModelIncreaseDTO, ModelRpsDTO, ModelRpsIncreaseDTO
 
 
 class IModelLoadMonitor(ABC):
@@ -13,4 +13,12 @@ class IModelLoadMonitor(ABC):
         self,
         period_min: int,
     ) -> list[ModelIncreaseDTO]:
+        pass
+
+    @abstractmethod
+    async def get_rps_and_increase_per_model(
+        self,
+        rps_period_min: int,
+        increase_period_min: int,
+    ) -> list[ModelRpsIncreaseDTO]:
         pass
