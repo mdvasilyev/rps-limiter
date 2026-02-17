@@ -17,8 +17,8 @@ class ModelIncreaseDTO(BaseModel):
 
 class ModelRpsIncreaseDTO(BaseModel):
     model_name: str
-    rps: float = 0.0
-    requests: float = 0.0
+    rps: float
+    requests: float
 
 
 class ModelState(BaseModel):
