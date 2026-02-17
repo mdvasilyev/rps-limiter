@@ -1,4 +1,5 @@
 from datetime import timedelta
+from math import ceil
 
 from src.domain.dto import ModelDTO, ModelRpsIncreaseDTO, Scale, Unbook
 from src.domain.interfaces import IDecisionMaker
@@ -36,16 +37,13 @@ class DecisionMaker(IDecisionMaker):
             increase = metric.requests if metric else 0.0
 
             replicas = model.instance.replicas
-
-            if rps >= self._scale_up_threshold:
-                actions.append(Scale(model_id=model_id, replicas=replicas + 1))
-
-            elif rps <= self._scale_down_threshold:
-                actions.append(Scale(model_id=model_id, replicas=replicas - 1))
+            target_replicas = ceil(rps / self._scale_up_threshold)
 
             if increase == 0:
                 actions.append(
                     Unbook(model_name=model_name, user_id=model.instance.owner_id)
                 )
+            elif replicas != target_replicas:
+                actions.append(Scale(model_id=model_id, replicas=target_replicas))
 
         return actions
