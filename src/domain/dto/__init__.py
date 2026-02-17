@@ -12,7 +12,7 @@ from .booking import (
     WarnUnbooking,
 )
 from .events import FetchAndProcessLogsEvent
-from .metric import Metric, MetricValue
+from .metric import MetricDTO, MetricValueDTO
 from .model import (
     EndpointDTO,
     InstanceDTO,
@@ -31,8 +31,8 @@ from .scale import Scale
 __all__ = [
     "Unbook",
     "WarnUnbooking",
-    "Metric",
-    "MetricValue",
+    "MetricDTO",
+    "MetricValueDTO",
     "ModelRpsDTO",
     "ModelIncreaseDTO",
     "ModelState",

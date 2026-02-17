@@ -1,6 +1,6 @@
 from loguru import logger
 
-from src.domain.dto import Metric, ModelIncreaseDTO, ModelRpsDTO
+from src.domain.dto import MetricDTO, ModelIncreaseDTO, ModelRpsDTO
 from src.domain.exceptions import PrometheusError
 from src.domain.interfaces import IModelLoadMonitor
 from src.domain.interfaces.service_clients import IPrometheusClient
@@ -22,7 +22,7 @@ class ModelLoadMonitor(IModelLoadMonitor):
         )
 
         try:
-            results: list[Metric] = await self._client.query_vector(query)
+            results: list[MetricDTO] = await self._client.query_vector(query)
         except PrometheusError:
             return []
 
@@ -59,7 +59,7 @@ class ModelLoadMonitor(IModelLoadMonitor):
         )
 
         try:
-            results: list[Metric] = await self._client.query_vector(query)
+            results: list[MetricDTO] = await self._client.query_vector(query)
         except PrometheusError:
             return []
 

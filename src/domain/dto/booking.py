@@ -1,17 +1,14 @@
-from dataclasses import dataclass
 from typing import Literal
 
 from pydantic import BaseModel
 
 
-@dataclass(frozen=True)
-class WarnUnbooking:
+class WarnUnbooking(BaseModel):
     model: str
     user_id: str
 
 
-@dataclass(frozen=True)
-class Unbook:
+class Unbook(BaseModel):
     model_id: str
     model_name: str
     user_id: str

@@ -4,7 +4,7 @@ from loguru import logger
 from pydantic import ValidationError
 
 from src.application.services.service_clients.base import BaseServiceClient
-from src.domain.dto import Metric
+from src.domain.dto import MetricDTO
 from src.domain.exceptions import PrometheusError
 from src.domain.interfaces.service_clients import IPrometheusClient
 
@@ -16,7 +16,7 @@ class PrometheusClient(BaseServiceClient, IPrometheusClient):
         super().__init__(base_url, client, timeout)
         self._url_path = f"{base_url}/api/v1/query"
 
-    async def query_vector(self, promql_query: str) -> list[Metric]:
+    async def query_vector(self, promql_query: str) -> list[MetricDTO]:
         try:
             params = {"query": promql_query}
             response: httpx.Response = await self._client.get(
@@ -33,7 +33,7 @@ class PrometheusClient(BaseServiceClient, IPrometheusClient):
                 )
 
             results = payload.get("data", {}).get("result", [])
-            return [Metric.model_validate(r) for r in results]
+            return [MetricDTO.model_validate(r) for r in results]
 
         except (RequestError, HTTPStatusError) as exc:
             logger.exception(f"HTTP error while querying Prometheus: {exc}")

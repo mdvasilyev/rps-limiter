@@ -1,25 +1,21 @@
 import json
-from dataclasses import dataclass
 from datetime import datetime
 from typing import Any, Literal
 
 from pydantic import BaseModel
 
 
-@dataclass(frozen=True, kw_only=True)
-class ModelRpsDTO:
+class ModelRpsDTO(BaseModel):
     model_name: str
     rps: float
 
 
-@dataclass(slots=True)
-class ModelIncreaseDTO:
+class ModelIncreaseDTO(BaseModel):
     model_name: str
     requests: float
 
 
-@dataclass
-class ModelState:
+class ModelState(BaseModel):
     last_rps: float | None = None
     zero_since: datetime | None = None
 
