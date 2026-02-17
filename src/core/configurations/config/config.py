@@ -9,6 +9,10 @@ class WorkerSettings(BaseModel):
     rps_interval: int
     increase_interval: int
     unbooking: Literal["ALL", "IN_ROW"]
+    scale_up_threshold: float
+    scale_down_threshold: float
+    warn_after_mins: int
+    unbook_after_mins: int
 
 
 class RabbitMQConfig(BaseModel):

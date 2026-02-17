@@ -1,17 +1,21 @@
-from datetime import datetime, timedelta
+from datetime import UTC, datetime, timedelta
 
 from src.domain.dto import ModelDTO, ModelState, Scale, Unbook, WarnUnbooking
 from src.domain.interfaces import IDecisionMaker
 
 
 class DecisionMaker(IDecisionMaker):
-    SCALE_UP_THRESHOLD = 20.0
-    SCALE_DOWN_THRESHOLD = 5.0
-
-    WARN_AFTER = timedelta(minutes=10)
-    UNBOOK_AFTER = timedelta(minutes=20)
-
-    def __init__(self) -> None:
+    def __init__(
+        self,
+        scale_up_threshold: float,
+        scale_down_threshold: float,
+        warn_after_mins: int,
+        unbook_after_mins: int,
+    ) -> None:
+        self._scale_up_threshold = scale_up_threshold
+        self._scale_down_threshold = scale_down_threshold
+        self._warn_after_mins = timedelta(minutes=warn_after_mins)
+        self._unbook_after_mins = timedelta(minutes=unbook_after_mins)
         self._state: dict[str, ModelState] = {}
 
     def process(
@@ -20,7 +24,7 @@ class DecisionMaker(IDecisionMaker):
         rps_by_model: dict[str, float],
         increase_by_model: dict[str, float],
     ) -> list[Scale | WarnUnbooking | Unbook]:
-        now = datetime.utcnow()
+        now = datetime.now(UTC)
         actions: list[Scale | WarnUnbooking | Unbook] = []
 
         for model in active_models:
@@ -36,11 +40,11 @@ class DecisionMaker(IDecisionMaker):
 
             if state.last_rps is not None:
                 replicas = model.instance.replicas
-                # TODO проверить соотношение количества реплик к RPS
-                if rps > state.last_rps and rps >= self.SCALE_UP_THRESHOLD:
+
+                if rps > state.last_rps and rps >= self._scale_up_threshold:
                     actions.append(Scale(model_id, replicas + 1))
 
-                elif rps < state.last_rps and rps <= self.SCALE_DOWN_THRESHOLD:
+                elif rps < state.last_rps and rps <= self._scale_down_threshold:
                     actions.append(Scale(model_id, replicas - 1))
 
             if increase == 0:
@@ -48,9 +52,9 @@ class DecisionMaker(IDecisionMaker):
                 inactive_for = now - state.zero_since
 
                 user_id = model.instance.owner_id
-                if inactive_for >= self.UNBOOK_AFTER:
+                if inactive_for >= self._unbook_after_mins:
                     actions.append(Unbook(model_id, model_name, user_id))
-                elif inactive_for >= self.WARN_AFTER:
+                elif inactive_for >= self._warn_after_mins:
                     actions.append(WarnUnbooking(model_id, user_id))
             else:
                 state.zero_since = None
