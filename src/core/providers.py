@@ -1,3 +1,5 @@
+from typing import AsyncIterable
+
 from dishka import Provider, Scope, from_context, provide
 from faststream.rabbit import RabbitBroker, RabbitExchange
 from httpx import AsyncClient
@@ -36,8 +38,10 @@ class AdaptersProvider(Provider):
         return from_context(provides=GlobalConfig, scope=Scope.APP)
 
     @provide(scope=scope)
-    def httpx_client(self) -> AsyncClient:
-        return from_context(provides=AsyncClient, scope=Scope.APP)
+    async def httpx_client(self) -> AsyncIterable[AsyncClient]:
+        client = AsyncClient()
+        yield client
+        await client.aclose()
 
     @provide(scope=scope)
     def rabbitmq_broker(self, config: GlobalConfig) -> RabbitBroker:
