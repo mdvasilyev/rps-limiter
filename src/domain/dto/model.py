@@ -81,8 +81,8 @@ class RunningModelsQuery(BaseModel):
     sort: str | None = None
     filters: dict[str, Any] | None = None
 
-    def to_params(self) -> dict[str, Any]:
-        data = self.model_dump(exclude_none=True)
+    def model_dump(self, *args: Any, **kwargs: Any) -> dict[str, Any]:
+        data = super().model_dump(*args, **kwargs, exclude_none=True)
 
         if "filters" in data:
             data["filters"] = json.dumps(data["filters"])

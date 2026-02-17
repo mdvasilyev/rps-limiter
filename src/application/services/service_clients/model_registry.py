@@ -91,7 +91,7 @@ class ModelRegistryClient(BaseServiceClient, IModelRegistryClient):
         response = await self._request(
             method="GET",
             path="models/running/find-by",
-            params=query.to_params(),
+            params=query.model_dump(),
         )
 
         data = await self._check_and_parse_response(response)
