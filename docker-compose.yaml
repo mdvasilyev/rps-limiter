@@ -1,0 +1,41 @@
+services:
+  rabbitmq:
+    image: rabbitmq:4.0.5-management-alpine
+    container_name: rabbitmq-cont
+    hostname: rabbitmq
+    restart: always
+    environment:
+      RABBITMQ_SERVER_ADDITIONAL_ERL_ARGS: -rabbit log_levels [{connection,error},{default,error}] disk_free_limit 536870912
+    volumes:
+      - ./_rabbitmq:/var/lib/rabbitmq
+    ports:
+      - "8015:15672"
+      - "8014:15692"
+      - "8013:5672"
+    deploy:
+      replicas: 1
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 256M
+        reservations:
+          cpus: '0.25'
+          memory: 128M
+    healthcheck:
+      test: rabbitmq-diagnostics -q ping
+      interval: 30s
+      timeout: 30s
+      retries: 3
+    env_file:
+      - .env
+
+  rps-limiter-worker:
+    build:
+      dockerfile: Dockerfile
+      context: .
+    container_name: rps-limiter-worker-cont
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    env_file:
+      - .env

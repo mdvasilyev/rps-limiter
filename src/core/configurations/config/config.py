@@ -37,10 +37,6 @@ class PrometheusConfig(BaseModel):
     url: str
 
 
-class NotificatorConfig(BaseModel):
-    url: str
-
-
 class GlobalConfig(BaseSettings):
     model_config = SettingsConfigDict(
         env_file=".env",
@@ -54,4 +50,3 @@ class GlobalConfig(BaseSettings):
     model_dispatcher: ModelDispatcherConfig
     booking: BookingServiceConfig
     prometheus: PrometheusConfig
-    notificator: NotificatorConfig

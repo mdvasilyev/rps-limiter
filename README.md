@@ -1,7 +1,7 @@
 # rps-limiter
 ### Запуск пока что через
 ```
-make run
+make up-build
 ```
 
 
