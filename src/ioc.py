@@ -16,6 +16,6 @@ def create_container() -> AsyncContainer:
         ServicesProvider(),
         WorkersProvider(),
         context={
-            GlobalConfig: GlobalConfig(),
+            GlobalConfig: GlobalConfig(),  # type: ignore[call-arg]
         },
     )
