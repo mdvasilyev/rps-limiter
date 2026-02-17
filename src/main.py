@@ -1,6 +1,6 @@
 import asyncio
 
-from dishka.integrations.faststream import setup_dishka
+from dishka_faststream import setup_dishka
 from faststream.rabbit import RabbitBroker, RabbitExchange
 from loguru import logger
 

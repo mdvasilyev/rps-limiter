@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import UTC, datetime, timedelta
 
 from httpx import ConnectError
 from loguru import logger
@@ -115,7 +115,7 @@ class LogsProcessorWorker:
                             model_name=model_name, user_id=user_id
                         )
                     else:
-                        min_start_time = datetime.utcnow() - timedelta(
+                        min_start_time = datetime.now(UTC) - timedelta(
                             hours=self._increase_interval
                         )
                         reservations = await self._booking_client.get_reservations(
