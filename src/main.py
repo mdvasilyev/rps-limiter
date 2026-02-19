@@ -6,7 +6,7 @@ from loguru import logger
 
 from src.core.configurations.config import GlobalConfig
 from src.core.configurations.faststream import create_faststream
-from src.domain.interfaces import ISignalPublisher
+from src.domain.interfaces.services import IPublisher
 from src.ioc import create_container
 
 
@@ -15,7 +15,7 @@ async def main():
     broker = await container.get(RabbitBroker)
     exchange = await container.get(RabbitExchange)
     app = create_faststream(broker, exchange)
-    publisher = await container.get(ISignalPublisher)
+    publisher = await container.get(IPublisher)
     setup_dishka(container, app)
 
     @app.after_startup

@@ -2,7 +2,7 @@ from datetime import timedelta
 from math import ceil
 
 from src.domain.dto import ModelDTO, ModelRpsIncreaseDTO, Scale, Unbook
-from src.domain.interfaces import IDecisionMaker
+from src.domain.interfaces.services import IDecisionMaker
 
 
 class DecisionMaker(IDecisionMaker):

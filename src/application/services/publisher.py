@@ -4,10 +4,10 @@ from faststream.rabbit import RabbitBroker, RabbitExchange
 from loguru import logger
 
 from src.domain.dto import FetchAndProcessLogsEvent
-from src.domain.interfaces import ISignalPublisher
+from src.domain.interfaces.services import IPublisher
 
 
-class SignalPublisher(ISignalPublisher):
+class Publisher(IPublisher):
     def __init__(
         self, broker: RabbitBroker, exchange: RabbitExchange, queue: str
     ) -> None:

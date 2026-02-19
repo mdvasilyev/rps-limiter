@@ -4,27 +4,25 @@ from dishka import Provider, Scope, from_context, provide
 from faststream.rabbit import RabbitBroker, RabbitExchange
 from httpx import AsyncClient
 
-from src.application.services import SignalPublisher
-from src.application.services.service_clients import (
+from src.application.services import DecisionMaker, Publisher
+from src.application.workers import LogsProcessorWorker
+from src.core.broker import get_rabbitmq_broker, get_rabbitmq_exchange
+from src.core.configurations.config import GlobalConfig
+from src.core.services import (
     BookingClient,
     ModelDispatcherClient,
+    ModelLoadMonitor,
     ModelRegistryClient,
     PrometheusClient,
 )
-from src.application.workers import LogsProcessorWorker
-from src.core import (
-    DecisionMaker,
-    ModelLoadMonitor,
-    get_rabbitmq_broker,
-    get_rabbitmq_exchange,
-)
-from src.core.configurations.config import GlobalConfig
-from src.domain.interfaces import IDecisionMaker, IModelLoadMonitor, ISignalPublisher
-from src.domain.interfaces.service_clients import (
-    IBookingClient,
-    IModelDispatcherClient,
-    IModelRegistryClient,
-    IPrometheusClient,
+from src.domain.interfaces.services import (
+    IBooking,
+    IDecisionMaker,
+    IModelDispatcher,
+    IModelLoadMonitor,
+    IModelRegistry,
+    IPrometheus,
+    IPublisher,
 )
 
 
@@ -53,25 +51,25 @@ class AdaptersProvider(Provider):
 class ServiceClientsProvider(Provider):
     scope = Scope.APP
 
-    @provide(scope=scope, provides=IBookingClient)
+    @provide(scope=scope, provides=IBooking)
     def booking_client(
         self, config: GlobalConfig, client: AsyncClient
     ) -> BookingClient:
         return BookingClient(config.booking.url, client)
 
-    @provide(scope=scope, provides=IModelDispatcherClient)
+    @provide(scope=scope, provides=IModelDispatcher)
     def model_dispatcher_client(
         self, config: GlobalConfig, client: AsyncClient
     ) -> ModelDispatcherClient:
         return ModelDispatcherClient(config.model_dispatcher.url, client)
 
-    @provide(scope=scope, provides=IModelRegistryClient)
+    @provide(scope=scope, provides=IModelRegistry)
     def model_registry_client(
         self, config: GlobalConfig, client: AsyncClient
     ) -> ModelRegistryClient:
         return ModelRegistryClient(config.model_registry.url, client)
 
-    @provide(scope=scope, provides=IPrometheusClient)
+    @provide(scope=scope, provides=IPrometheus)
     def prometheus_client(
         self, config: GlobalConfig, client: AsyncClient
     ) -> PrometheusClient:
@@ -91,14 +89,14 @@ class ServicesProvider(Provider):
         )
 
     @provide(scope=scope, provides=IModelLoadMonitor)
-    def model_load_monitor(self, client: IPrometheusClient) -> ModelLoadMonitor:
+    def model_load_monitor(self, client: IPrometheus) -> ModelLoadMonitor:
         return ModelLoadMonitor(client, "entrypoint")
 
-    @provide(scope=scope, provides=ISignalPublisher)
+    @provide(scope=scope, provides=IPublisher)
     def sigal_publisher(
         self, broker: RabbitBroker, exchange: RabbitExchange, config: GlobalConfig
-    ) -> SignalPublisher:
-        return SignalPublisher(broker, exchange, config.rabbitmq.logs_queue)
+    ) -> Publisher:
+        return Publisher(broker, exchange, config.rabbitmq.logs_queue)
 
 
 class WorkersProvider(Provider):
@@ -107,9 +105,9 @@ class WorkersProvider(Provider):
     @provide(scope=scope, provides=LogsProcessorWorker)
     def logs_processor_worker(
         self,
-        booking_client: IBookingClient,
-        model_registry_client: IModelRegistryClient,
-        model_dispatcher_client: IModelDispatcherClient,
+        booking_client: IBooking,
+        model_registry_client: IModelRegistry,
+        model_dispatcher_client: IModelDispatcher,
         model_load_monitor: IModelLoadMonitor,
         decision_maker: IDecisionMaker,
         config: GlobalConfig,

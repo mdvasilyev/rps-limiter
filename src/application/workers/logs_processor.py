@@ -14,24 +14,22 @@ from src.domain.dto import (
     ScaleQuery,
     Unbook,
 )
-from src.domain.interfaces import (
+from src.domain.interfaces.services import (
+    IBooking,
     IDecisionMaker,
-    ILogsProcessorWorker,
+    ILogsProcessor,
+    IModelDispatcher,
     IModelLoadMonitor,
-)
-from src.domain.interfaces.service_clients import (
-    IBookingClient,
-    IModelDispatcherClient,
-    IModelRegistryClient,
+    IModelRegistry,
 )
 
 
-class LogsProcessorWorker(ILogsProcessorWorker):
+class LogsProcessorWorker(ILogsProcessor):
     def __init__(
         self,
-        booking_client: IBookingClient,
-        model_registry_client: IModelRegistryClient,
-        model_dispatcher_client: IModelDispatcherClient,
+        booking_client: IBooking,
+        model_registry_client: IModelRegistry,
+        model_dispatcher_client: IModelDispatcher,
         model_load_monitor: IModelLoadMonitor,
         decision_maker: IDecisionMaker,
         rps_interval: int,

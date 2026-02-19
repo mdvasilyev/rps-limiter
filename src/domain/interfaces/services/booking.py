@@ -8,7 +8,7 @@ from src.domain.dto import (
 )
 
 
-class IBookingClient(ABC):
+class IBooking(ABC):
     @abstractmethod
     async def get_reservations(
         self, query: GetReservationsQuery

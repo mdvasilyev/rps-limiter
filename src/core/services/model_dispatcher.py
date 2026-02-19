@@ -5,12 +5,12 @@ from loguru import logger
 from starlette import status
 
 from src.domain.dto import SagaDTO, SagaQuery, ScaleQuery, StepDTO, UninstallQuery
-from src.domain.interfaces.service_clients import IModelDispatcherClient
+from src.domain.interfaces.services import IModelDispatcher
 
 from .base import BaseServiceClient
 
 
-class ModelDispatcherClient(BaseServiceClient, IModelDispatcherClient):
+class ModelDispatcherClient(BaseServiceClient, IModelDispatcher):
     @staticmethod
     def _to_dto(model_data: dict[str, Any]) -> SagaDTO:
         """Конвертирует сырые данные в объект ModelInfo"""

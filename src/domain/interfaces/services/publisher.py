@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 
 
-class ISignalPublisher(ABC):
+class IPublisher(ABC):
     @abstractmethod
     def start(self, interval: int) -> None:
         pass

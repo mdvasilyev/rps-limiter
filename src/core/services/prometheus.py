@@ -3,13 +3,13 @@ from httpx import HTTPStatusError, RequestError
 from loguru import logger
 from pydantic import ValidationError
 
-from src.application.services.service_clients.base import BaseServiceClient
+from src.core.services.base import BaseServiceClient
 from src.domain.dto import MetricDTO
 from src.domain.exceptions import PrometheusError
-from src.domain.interfaces.service_clients import IPrometheusClient
+from src.domain.interfaces.services import IPrometheus
 
 
-class PrometheusClient(BaseServiceClient, IPrometheusClient):
+class PrometheusClient(BaseServiceClient, IPrometheus):
     def __init__(
         self, base_url: str, client: httpx.AsyncClient, timeout: float = 5.0
     ) -> None:

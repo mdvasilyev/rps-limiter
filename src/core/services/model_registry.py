@@ -13,12 +13,12 @@ from src.domain.dto import (
     StorageDTO,
     TagDTO,
 )
-from src.domain.interfaces.service_clients import IModelRegistryClient
+from src.domain.interfaces.services import IModelRegistry
 
 from .base import BaseServiceClient
 
 
-class ModelRegistryClient(BaseServiceClient, IModelRegistryClient):
+class ModelRegistryClient(BaseServiceClient, IModelRegistry):
     @staticmethod
     def _to_dto(model_data: dict[str, Any]) -> PaginatedModelDTO:
         """Конвертирует сырые данные в объект ModelInfo"""

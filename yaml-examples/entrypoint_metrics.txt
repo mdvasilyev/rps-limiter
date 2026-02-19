@@ -1,3 +1,0 @@
-model_calls_total{model_name="Sber/GigaChat-Max-V2",service_name="entrypoint"} 1.81039e+06
-model_calls_total{model_name="Openai/Gpt-oss-120b",service_name="entrypoint"} 92230.0
-model_calls_total{model_name="Google/Medgemma-27b-it",service_name="entrypoint"} 31.0

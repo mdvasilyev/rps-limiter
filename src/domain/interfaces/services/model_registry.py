@@ -3,7 +3,7 @@ from abc import ABC, abstractmethod
 from src.domain.dto import ModelDTO, RunningModelsQuery
 
 
-class IModelRegistryClient(ABC):
+class IModelRegistry(ABC):
     @abstractmethod
     async def find_running_models(
         self,

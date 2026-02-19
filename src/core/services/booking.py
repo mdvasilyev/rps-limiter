@@ -11,12 +11,12 @@ from src.domain.dto import (
     SlotDTO,
     UserDTO,
 )
-from src.domain.interfaces.service_clients import IBookingClient
+from src.domain.interfaces.services import IBooking
 
 from .base import BaseServiceClient
 
 
-class BookingClient(BaseServiceClient, IBookingClient):
+class BookingClient(BaseServiceClient, IBooking):
     @staticmethod
     def _to_dto_paginated(model_data: dict[str, Any]) -> PaginatedReservationDTO:
         """Конвертирует сырые данные в объект Response"""

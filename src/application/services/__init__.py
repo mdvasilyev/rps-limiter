@@ -1,7 +1,9 @@
 """Services module."""
 
-from .publisher import SignalPublisher
+from .decision_maker import DecisionMaker
+from .publisher import Publisher
 
 __all__ = [
-    "SignalPublisher",
+    "DecisionMaker",
+    "Publisher",
 ]

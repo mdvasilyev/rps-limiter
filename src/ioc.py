@@ -1,12 +1,12 @@
 from dishka import AsyncContainer, make_async_container
 
-from src.core import (
+from src.core.configurations.config import GlobalConfig
+from src.core.providers import (
     AdaptersProvider,
     ServiceClientsProvider,
     ServicesProvider,
     WorkersProvider,
 )
-from src.core.configurations.config import GlobalConfig
 
 
 def create_container() -> AsyncContainer:

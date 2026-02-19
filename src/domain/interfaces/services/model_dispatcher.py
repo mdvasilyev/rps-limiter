@@ -3,7 +3,7 @@ from abc import ABC, abstractmethod
 from src.domain.dto import SagaDTO, SagaQuery, ScaleQuery, UninstallQuery
 
 
-class IModelDispatcherClient(ABC):
+class IModelDispatcher(ABC):
     @abstractmethod
     async def uninstall(self, query: UninstallQuery) -> SagaDTO:
         pass
