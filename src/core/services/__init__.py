@@ -4,6 +4,7 @@ from .booking import BookingClient
 from .model_dispatcher import ModelDispatcherClient
 from .model_load_monitor import ModelLoadMonitor
 from .model_registry import ModelRegistryClient
+from .notificator import NotificatorClient
 from .prometheus import PrometheusClient
 
 __all__ = [
@@ -11,5 +12,6 @@ __all__ = [
     "ModelDispatcherClient",
     "ModelLoadMonitor",
     "ModelRegistryClient",
+    "NotificatorClient",
     "PrometheusClient",
 ]

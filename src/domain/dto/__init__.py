@@ -24,6 +24,7 @@ from .model import (
     StorageDTO,
     TagDTO,
 )
+from .notificator import NotifyQuery
 from .saga import SagaDTO, SagaQuery, ScaleQuery, StepDTO, UninstallQuery
 from .scale import Scale
 
@@ -49,6 +50,7 @@ __all__ = [
     "InstanceDTO",
     "StorageDTO",
     "TagDTO",
+    "NotifyQuery",
     "PaginatedModelDTO",
     "RunningModelsQuery",
     "StepDTO",
