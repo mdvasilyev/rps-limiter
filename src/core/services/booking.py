@@ -5,6 +5,9 @@ from loguru import logger
 from starlette import status
 
 from src.domain.dto import (
+    DeleteReservationQuery,
+    DeleteReservationSlotQuery,
+    GetReservationQuery,
     GetReservationsQuery,
     PaginatedReservationDTO,
     ReservationDTO,
@@ -95,20 +98,28 @@ class BookingClient(BaseServiceClient, IBooking):
 
         return items.items
 
-    async def get_reservation(self, reservation_id: str) -> ReservationDTO:
+    async def get_reservation(self, query: GetReservationQuery) -> ReservationDTO:
         response = await self._request(
             method="GET",
-            path=f"/reservations/{reservation_id}",
+            path=f"/reservations/{query.reservation_id}",
         )
 
         data = await self._check_and_parse_response(response)
 
         return self._to_dto(data)
 
-    async def delete_reservation(self, reservation_id: str) -> str:
+    async def delete_reservation(self, query: DeleteReservationQuery) -> str:
         response = await self._request(
             method="DELETE",
-            path=f"/reservations/{reservation_id}",
+            path=f"/reservations/{query.reservation_id}",
+        )
+
+        return await self._check_and_parse_text_response(response)
+
+    async def delete_reservation_slot(self, query: DeleteReservationSlotQuery) -> str:
+        response = await self._request(
+            method="DELETE",
+            path=f"/reservations/{query.reservation_id}/slot-usage/{query.slot_usage_id}",
         )
 
         return await self._check_and_parse_text_response(response)

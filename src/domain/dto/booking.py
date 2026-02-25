@@ -54,3 +54,8 @@ class GetReservationQuery(BaseModel):
 
 class DeleteReservationQuery(BaseModel):
     reservation_id: str
+
+
+class DeleteReservationSlotQuery(BaseModel):
+    reservation_id: str
+    slot_usage_id: str

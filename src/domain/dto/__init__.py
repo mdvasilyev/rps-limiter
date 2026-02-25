@@ -2,6 +2,7 @@
 
 from .booking import (
     DeleteReservationQuery,
+    DeleteReservationSlotQuery,
     GetReservationQuery,
     GetReservationsQuery,
     PaginatedReservationDTO,
@@ -45,6 +46,7 @@ __all__ = [
     "GetReservationsQuery",
     "GetReservationQuery",
     "DeleteReservationQuery",
+    "DeleteReservationSlotQuery",
     "FetchAndProcessLogsEvent",
     "EndpointDTO",
     "InstanceDTO",

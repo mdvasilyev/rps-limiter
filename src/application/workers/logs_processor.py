@@ -5,7 +5,7 @@ from httpx import ConnectError
 from loguru import logger
 
 from src.domain.dto import (
-    DeleteReservationQuery,
+    DeleteReservationSlotQuery,
     FetchAndProcessLogsEvent,
     GetReservationsQuery,
     ModelDTO,
@@ -137,13 +137,18 @@ class LogsProcessorWorker(ILogsProcessor):
         reservations = await self._get_reservations(model_name, user_id)
 
         for reservation in reservations:
-            logger.info("Unbooking reservation_id='{}'", reservation.id)
-
-            await self._booking_client.delete_reservation(
-                query=DeleteReservationQuery(
-                    reservation_id=reservation.id,
+            for slot in reservation.slots:
+                logger.info(
+                    "Unbooking slot_id='{}' for reservation_id='{}'",
+                    slot.id,
+                    reservation.id,
                 )
-            )
+
+                await self._booking_client.delete_reservation_slot(
+                    query=DeleteReservationSlotQuery(
+                        reservation_id=reservation.id, slot_usage_id=slot.id
+                    )
+                )
 
     async def _execute_actions(
         self,

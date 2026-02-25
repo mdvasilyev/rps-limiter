@@ -2,6 +2,7 @@ from abc import ABC, abstractmethod
 
 from src.domain.dto import (
     DeleteReservationQuery,
+    DeleteReservationSlotQuery,
     GetReservationQuery,
     GetReservationsQuery,
     ReservationDTO,
@@ -21,4 +22,8 @@ class IBooking(ABC):
 
     @abstractmethod
     async def delete_reservation(self, query: DeleteReservationQuery) -> str:
+        pass
+
+    @abstractmethod
+    async def delete_reservation_slot(self, query: DeleteReservationSlotQuery) -> str:
         pass
