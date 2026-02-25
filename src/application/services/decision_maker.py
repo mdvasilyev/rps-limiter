@@ -8,13 +8,11 @@ from src.domain.interfaces.services import IDecisionMaker
 class DecisionMaker(IDecisionMaker):
     def __init__(
         self,
-        scale_up_threshold: float,
-        scale_down_threshold: float,
+        rps_threshold: float,
         warn_after_mins: int,
         unbook_after_mins: int,
     ) -> None:
-        self._scale_up_threshold = scale_up_threshold
-        self._scale_down_threshold = scale_down_threshold
+        self._rps_threshold = rps_threshold
         self._warn_after_mins = timedelta(minutes=warn_after_mins)
         self._unbook_after_mins = timedelta(minutes=unbook_after_mins)
 
@@ -37,9 +35,9 @@ class DecisionMaker(IDecisionMaker):
             increase = metric.requests if metric else 0.0
 
             replicas = model.instance.replicas
-            target_replicas = ceil(rps / self._scale_up_threshold)
+            target_replicas = ceil(rps / self._rps_threshold)
 
-            if increase == 0:
+            if increase == 0 or target_replicas == 0:
                 actions.append(
                     Unbook(model_name=model_name, user_id=model.instance.owner_id)
                 )
