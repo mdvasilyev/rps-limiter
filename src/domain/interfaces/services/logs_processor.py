@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 
-from src.domain.dto import FetchAndProcessLogsEvent
+from src.domain.dto.events import FetchAndProcessLogsEvent
 
 
 class ILogsProcessor(ABC):

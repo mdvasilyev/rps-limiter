@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 
-from src.domain.dto import ModelIncreaseDTO, ModelRpsDTO, ModelRpsIncreaseDTO
+from src.domain.dto.model import ModelIncreaseDTO, ModelRpsDTO, ModelRpsIncreaseDTO
 
 
 class IModelLoadMonitor(ABC):

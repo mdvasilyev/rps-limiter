@@ -82,8 +82,7 @@ class ServicesProvider(Provider):
     @provide(scope=scope, provides=IDecisionMaker)
     def decision_maker(self, config: GlobalConfig) -> DecisionMaker:
         return DecisionMaker(
-            config.worker.scale_up_threshold,
-            config.worker.scale_down_threshold,
+            config.worker.rps_threshold,
             config.worker.warn_after_mins,
             config.worker.unbook_after_mins,
         )

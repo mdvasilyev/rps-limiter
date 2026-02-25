@@ -1,6 +1,6 @@
-from typing import Any, Literal
+from typing import Literal
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
 
 
 class StepDTO(BaseModel):
@@ -32,26 +32,3 @@ class SagaDTO(BaseModel):
     steps: list[StepDTO]
     type: Literal["install", "uninstall", "upscale", "downscale", "load"]
     updated_at: str
-
-
-class ScaleQuery(BaseModel):
-    model_id: str = Field(alias="modelId")
-    replicas: int
-
-    model_config = {"populate_by_name": True}
-
-    def model_dump(self, *args: Any, **kwargs: Any) -> dict:
-        return super().model_dump(*args, **kwargs, by_alias=True)
-
-
-class UninstallQuery(BaseModel):
-    model_id: str = Field(alias="modelId")
-
-    model_config = {"populate_by_name": True}
-
-    def model_dump(self, *args: Any, **kwargs: Any) -> dict:
-        return super().model_dump(*args, **kwargs, by_alias=True)
-
-
-class SagaQuery(BaseModel):
-    saga_id: str

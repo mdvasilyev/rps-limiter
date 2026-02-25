@@ -4,7 +4,7 @@ from httpx import Response
 from loguru import logger
 from starlette import status
 
-from src.domain.dto import (
+from src.domain.dto.booking import (
     DeleteReservationQuery,
     DeleteReservationSlotQuery,
     GetReservationQuery,

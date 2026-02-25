@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 
-from src.domain.dto import (
+from src.domain.dto.booking import (
     DeleteReservationQuery,
     DeleteReservationSlotQuery,
     GetReservationQuery,

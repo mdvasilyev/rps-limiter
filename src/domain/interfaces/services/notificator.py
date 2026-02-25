@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 
-from src.domain.dto import NotifyQuery
+from src.domain.dto.notificator import NotifyQuery
 
 
 class INotificator(ABC):

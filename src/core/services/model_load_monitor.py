@@ -1,6 +1,7 @@
 from loguru import logger
 
-from src.domain.dto import MetricDTO, ModelIncreaseDTO, ModelRpsDTO, ModelRpsIncreaseDTO
+from src.domain.dto.metric import MetricDTO
+from src.domain.dto.model import ModelIncreaseDTO, ModelRpsDTO, ModelRpsIncreaseDTO
 from src.domain.exceptions import PrometheusError
 from src.domain.interfaces.services import IModelLoadMonitor, IPrometheus
 

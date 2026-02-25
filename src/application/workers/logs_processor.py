@@ -4,17 +4,14 @@ from typing import Literal
 from httpx import ConnectError
 from loguru import logger
 
-from src.domain.dto import (
+from src.domain.dto.booking import (
     DeleteReservationSlotQuery,
-    FetchAndProcessLogsEvent,
     GetReservationsQuery,
-    ModelDTO,
-    ModelRpsIncreaseDTO,
     ReservationDTO,
-    Scale,
-    ScaleQuery,
-    Unbook,
+    UnbookAction,
 )
+from src.domain.dto.events import FetchAndProcessLogsEvent
+from src.domain.dto.model import ModelDTO, ModelRpsIncreaseDTO, ScaleAction, ScaleQuery
 from src.domain.interfaces.services import (
     IBooking,
     IDecisionMaker,
@@ -152,14 +149,14 @@ class LogsProcessorWorker(ILogsProcessor):
 
     async def _execute_actions(
         self,
-        actions: list[Scale | Unbook],
+        actions: list[ScaleAction | UnbookAction],
     ) -> None:
         for action in actions:
             match action:
-                case Scale(model_id, replicas):
+                case ScaleAction(model_id, replicas):
                     await self._handle_scale(model_id, replicas)
 
-                case Unbook(model_name, user_id):
+                case UnbookAction(model_name, user_id):
                     await self._handle_unbook(model_name, user_id)
 
     async def handle_logs_signal(self, event: FetchAndProcessLogsEvent) -> None:

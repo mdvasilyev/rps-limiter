@@ -1,7 +1,8 @@
 from datetime import timedelta
 from math import ceil
 
-from src.domain.dto import ModelDTO, ModelRpsIncreaseDTO, Scale, Unbook
+from src.domain.dto.booking import UnbookAction
+from src.domain.dto.model import ModelDTO, ModelRpsIncreaseDTO, ScaleAction
 from src.domain.interfaces.services import IDecisionMaker
 
 
@@ -20,8 +21,8 @@ class DecisionMaker(IDecisionMaker):
         self,
         active_models: list[ModelDTO],
         metrics: list[ModelRpsIncreaseDTO],
-    ) -> list[Scale | Unbook]:
-        actions: list[Scale | Unbook] = []
+    ) -> list[ScaleAction | UnbookAction]:
+        actions: list[ScaleAction | UnbookAction] = []
 
         metrics_map = {m.model_name: m for m in metrics}
 
@@ -39,9 +40,9 @@ class DecisionMaker(IDecisionMaker):
 
             if increase == 0 or target_replicas == 0:
                 actions.append(
-                    Unbook(model_name=model_name, user_id=model.instance.owner_id)
+                    UnbookAction(model_name=model_name, user_id=model.instance.owner_id)
                 )
             elif replicas != target_replicas:
-                actions.append(Scale(model_id=model_id, replicas=target_replicas))
+                actions.append(ScaleAction(model_id=model_id, replicas=target_replicas))
 
         return actions

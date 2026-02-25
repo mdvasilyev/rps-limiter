@@ -1,5 +1,4 @@
-import json
-from typing import Any, Literal
+from typing import Literal
 
 from pydantic import BaseModel
 
@@ -73,18 +72,3 @@ class PaginatedModelDTO(BaseModel):
     offset: int
     total: int
     items: list[ModelDTO]
-
-
-class RunningModelsQuery(BaseModel):
-    offset: int = 0
-    limit: int = 50
-    sort: str | None = None
-    filters: dict[str, Any] | None = None
-
-    def model_dump(self, *args: Any, **kwargs: Any) -> dict[str, Any]:
-        data = super().model_dump(*args, **kwargs, exclude_none=True)
-
-        if "filters" in data:
-            data["filters"] = json.dumps(data["filters"])
-
-        return data

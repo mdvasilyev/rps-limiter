@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
 
-from src.domain.dto import SagaDTO, SagaQuery, ScaleQuery, UninstallQuery
+from src.domain.dto.model import ScaleQuery, UninstallQuery
+from src.domain.dto.saga import SagaDTO, SagaQuery
 
 
 class IModelDispatcher(ABC):

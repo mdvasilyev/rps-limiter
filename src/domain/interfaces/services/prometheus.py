@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 
-from src.domain.dto import MetricDTO
+from src.domain.dto.metric import MetricDTO
 
 
 class IPrometheus(ABC):

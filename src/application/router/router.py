@@ -3,7 +3,7 @@ from dishka.integrations.faststream import inject
 from faststream.rabbit import RabbitExchange, RabbitRouter
 
 from src.application.workers import LogsProcessorWorker
-from src.domain.dto import FetchAndProcessLogsEvent
+from src.domain.dto.events import FetchAndProcessLogsEvent
 from src.domain.events import Event
 
 

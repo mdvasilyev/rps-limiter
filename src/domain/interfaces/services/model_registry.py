@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 
-from src.domain.dto import ModelDTO, RunningModelsQuery
+from src.domain.dto.model import ModelDTO, RunningModelsQuery
 
 
 class IModelRegistry(ABC):

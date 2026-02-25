@@ -4,7 +4,7 @@ from loguru import logger
 from pydantic import ValidationError
 
 from src.core.services.base import BaseServiceClient
-from src.domain.dto import MetricDTO
+from src.domain.dto.metric import MetricDTO
 from src.domain.exceptions import PrometheusError
 from src.domain.interfaces.services import IPrometheus
 

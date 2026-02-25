@@ -1,6 +1,6 @@
 from pydantic import BaseModel
 
 
-class Scale(BaseModel):
+class ScaleAction(BaseModel):
     model_id: str
     replicas: int

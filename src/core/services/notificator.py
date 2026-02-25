@@ -1,5 +1,5 @@
 from src.core.services.base import BaseServiceClient
-from src.domain.dto import NotifyQuery
+from src.domain.dto.notificator import NotifyQuery
 from src.domain.interfaces.services import INotificator
 
 

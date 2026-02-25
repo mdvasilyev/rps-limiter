@@ -4,7 +4,8 @@ from httpx import Response
 from loguru import logger
 from starlette import status
 
-from src.domain.dto import SagaDTO, SagaQuery, ScaleQuery, StepDTO, UninstallQuery
+from src.domain.dto.model import ScaleQuery, UninstallQuery
+from src.domain.dto.saga import SagaDTO, SagaQuery, StepDTO
 from src.domain.interfaces.services import IModelDispatcher
 
 from .base import BaseServiceClient
