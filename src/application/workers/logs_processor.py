@@ -90,13 +90,17 @@ class LogsProcessorWorker(ILogsProcessor):
         )
 
     async def _handle_scale(self, model_id: str, replicas: int) -> None:
-        logger.info("Scaling model_id='{}' to replicas='{}'", model_id, replicas)
-        await self._model_dispatcher_client.scale(
-            query=ScaleQuery(
-                modelId=model_id,
-                replicas=replicas,
-            ),
-        )
+        try:
+            logger.info("Scaling model_id='{}' to replicas='{}'", model_id, replicas)
+            await self._model_dispatcher_client.scale(
+                query=ScaleQuery(
+                    modelId=model_id,
+                    replicas=replicas,
+                ),
+            )
+        except ConnectError as exc:
+            logger.error("Connection error while scaling model: {}", exc)
+            return None
 
     async def _handle_unbook(
         self,
