@@ -18,42 +18,8 @@ from .base import BaseServiceClient
 
 class BookingClient(BaseServiceClient, IBooking):
     @staticmethod
-    def _to_dto_paginated(model_data: dict[str, Any]) -> PaginatedReservationDTO:
-        """Конвертирует сырые данные в объект Response"""
-        try:
-            return PaginatedReservationDTO(
-                items=[
-                    ReservationDTO(
-                        id=item.get("id"),
-                        user=UserDTO(
-                            id=item.get("user").get("id"),
-                            name=item.get("user").get("name"),
-                        ),
-                        model_name=item.get("model_name"),
-                        config_id=item.get("config_id"),
-                        model_id=item.get("model_id"),
-                        slots=[
-                            SlotDTO(
-                                start=slot.get("start"),
-                                end=slot.get("end"),
-                                id=slot.get("id"),
-                            )
-                            for slot in item.get("slots", [])
-                        ],
-                    )
-                    for item in model_data.get("items", [])
-                ],
-                total=model_data.get("total"),
-                page=model_data.get("page"),
-                page_size=model_data.get("page_size"),
-            )
-        except Exception as e:
-            logger.error("Failed to validate model data: {}. Error: {}", model_data, e)
-            raise
-
-    @staticmethod
     def _to_dto(model_data: dict[str, Any]) -> ReservationDTO:
-        """Конвертирует сырые данные в объект Response"""
+        """Конвертирует сырые данные в объект ReservationDTO"""
         try:
             return ReservationDTO(
                 id=model_data.get("id"),
@@ -72,6 +38,19 @@ class BookingClient(BaseServiceClient, IBooking):
                     )
                     for slot in model_data.get("slots", [])
                 ],
+            )
+        except Exception as e:
+            logger.error("Failed to validate model data: {}. Error: {}", model_data, e)
+            raise
+
+    def _to_dto_paginated(self, model_data: dict[str, Any]) -> PaginatedReservationDTO:
+        """Конвертирует сырые данные в объект PaginatedReservationDTO"""
+        try:
+            return PaginatedReservationDTO(
+                items=[self._to_dto(item) for item in model_data.get("items", [])],
+                total=model_data.get("total"),
+                page=model_data.get("page"),
+                page_size=model_data.get("page_size"),
             )
         except Exception as e:
             logger.error("Failed to validate model data: {}. Error: {}", model_data, e)
@@ -112,7 +91,7 @@ class BookingClient(BaseServiceClient, IBooking):
         )
 
         data = await self._check_and_parse_response(response)
-        items = self._to_dto(data)
+        items = self._to_dto_paginated(data)
 
         return items.items
 

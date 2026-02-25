@@ -1,4 +1,5 @@
 from datetime import UTC, datetime, timedelta
+from typing import Literal
 
 from httpx import ConnectError
 from loguru import logger
@@ -34,7 +35,7 @@ class LogsProcessorWorker(ILogsProcessor):
         decision_maker: IDecisionMaker,
         rps_interval: int,
         increase_interval: int,
-        unbooking_strategy: str,
+        unbooking_strategy: Literal["ALL", "IN_ROW"],
     ):
         self._booking_client = booking_client
         self._model_registry_client = model_registry_client
@@ -66,28 +67,54 @@ class LogsProcessorWorker(ILogsProcessor):
             logger.error("Connection error while getting metrics: {}", exc)
             return None
 
+    def _filter_reservations(
+        self, reservations: list[ReservationDTO]
+    ) -> list[ReservationDTO]:
+        if self._unbooking_strategy == "ALL":
+            return reservations
+
+        for reservation in reservations:
+            if not reservation.slots:
+                continue
+
+            sorted_slots = sorted(reservation.slots, key=lambda s: s.start)
+
+            in_row = [sorted_slots[0]]
+
+            for slot in sorted_slots[1:]:
+                prev = in_row[-1]
+
+                if prev.end == slot.start:
+                    in_row.append(slot)
+                else:
+                    break
+
+            reservation.slots = in_row
+
+        return reservations
+
     async def _get_reservations(
         self,
         model_name: str,
         user_id: str,
     ) -> list[ReservationDTO]:
-        if self._unbooking_strategy == "ALL":
-            return await self._booking_client.get_reservations(
-                query=GetReservationsQuery(
-                    model_name=model_name,
-                    user_id=user_id,
-                ),
-            )
+        results: list[ReservationDTO] = []
 
         min_start_time = datetime.now(UTC) - timedelta(hours=self._increase_interval)
-
-        return await self._booking_client.get_reservations(
-            query=GetReservationsQuery(
-                model_name=model_name,
-                user_id=user_id,
-                min_start_time=str(min_start_time),
-            )
+        query = GetReservationsQuery(
+            model_name=model_name, user_id=user_id, min_start_time=str(min_start_time)
         )
+
+        while True:
+            items = await self._booking_client.get_reservations(query=query)
+
+            if not items:
+                break
+
+            results.extend(items)
+            query.page += 1
+
+        return self._filter_reservations(results)
 
     async def _handle_scale(self, model_id: str, replicas: int) -> None:
         try:
