@@ -94,7 +94,7 @@ class LogsProcessorWorker(ILogsProcessor):
         self,
         model_name: str,
         user_id: str,
-    ) -> list[ReservationDTO]:
+    ) -> list[ReservationDTO] | None:
         results: list[ReservationDTO] = []
 
         min_start_time = datetime.now(UTC) - timedelta(hours=self._increase_interval)
@@ -103,7 +103,11 @@ class LogsProcessorWorker(ILogsProcessor):
         )
 
         while True:
-            items = await self._booking_client.get_reservations(query=query)
+            try:
+                items = await self._booking_client.get_reservations(query=query)
+            except ConnectError as exc:
+                logger.error("Connection error while getting reservations: {}", exc)
+                return None
 
             if not items:
                 break
@@ -132,6 +136,8 @@ class LogsProcessorWorker(ILogsProcessor):
         user_id: str,
     ) -> None:
         reservations = await self._get_reservations(model_name, user_id)
+        if not reservations:
+            return
 
         for reservation in reservations:
             for slot in reservation.slots:
