@@ -208,3 +208,6 @@ __marimo__/
 
 # RabbitMQ
 _rabbitmq/
+
+# PostgreSQL
+_postgres/
