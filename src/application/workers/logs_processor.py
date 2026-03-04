@@ -12,6 +12,9 @@ from src.domain.dto.booking import (
 )
 from src.domain.dto.events import FetchAndProcessLogsEvent
 from src.domain.dto.model import ModelDTO, ModelRpsIncreaseDTO, ScaleAction, ScaleQuery
+from src.domain.dto.notificator import NotifyQuery, SlotPeriodDTO, WarnUnbookingAction
+from src.domain.dto.rps_data import DeleteIdleModelQuery
+from src.domain.interfaces.repositories import IRpsDataRepository
 from src.domain.interfaces.services import (
     IBooking,
     IDecisionMaker,
@@ -19,6 +22,7 @@ from src.domain.interfaces.services import (
     IModelDispatcher,
     IModelLoadMonitor,
     IModelRegistry,
+    INotificator,
 )
 
 
@@ -28,8 +32,10 @@ class LogsProcessorWorker(ILogsProcessor):
         booking_client: IBooking,
         model_registry_client: IModelRegistry,
         model_dispatcher_client: IModelDispatcher,
+        notificator_client: INotificator,
         model_load_monitor: IModelLoadMonitor,
         decision_maker: IDecisionMaker,
+        rps_data_repository: IRpsDataRepository,
         rps_interval: int,
         increase_interval: int,
         unbooking_strategy: Literal["ALL", "IN_ROW"],
@@ -37,8 +43,10 @@ class LogsProcessorWorker(ILogsProcessor):
         self._booking_client = booking_client
         self._model_registry_client = model_registry_client
         self._model_dispatcher_client = model_dispatcher_client
+        self._notificator_client = notificator_client
         self._model_load_monitor = model_load_monitor
         self._decision_maker = decision_maker
+        self._rps_data_repository = rps_data_repository
         self._rps_interval = rps_interval
         self._increase_interval = increase_interval
         self._unbooking_strategy = unbooking_strategy
@@ -132,8 +140,8 @@ class LogsProcessorWorker(ILogsProcessor):
 
     async def _handle_unbook(
         self,
-        model_name: str,
         user_id: str,
+        model_name: str,
     ) -> None:
         reservations = await self._get_reservations(model_name, user_id)
         if not reservations:
@@ -153,17 +161,46 @@ class LogsProcessorWorker(ILogsProcessor):
                     )
                 )
 
+        await self._rps_data_repository.delete_idle_model(
+            query=DeleteIdleModelQuery(user_id=user_id, model_name=model_name)
+        )
+
+    async def _handle_warn_unbooking(
+        self,
+        user_id: str,
+        model_name: str,
+    ) -> None:
+        reservations = await self._get_reservations(model_name, user_id)
+        if not reservations:
+            return
+
+        periods: list[SlotPeriodDTO] = []
+        for reservation in reservations:
+            for slot in reservation.slots:
+                periods.append(SlotPeriodDTO(start=slot.start, end=slot.end))
+
+        await self._notificator_client.notify(
+            NotifyQuery(
+                user_id=user_id,
+                model_name=model_name,
+                periods=periods,
+            )
+        )
+
     async def _execute_actions(
         self,
-        actions: list[ScaleAction | UnbookAction],
+        actions: list[ScaleAction | UnbookAction | WarnUnbookingAction],
     ) -> None:
         for action in actions:
             match action:
                 case ScaleAction(model_id, replicas):
                     await self._handle_scale(model_id, replicas)
 
-                case UnbookAction(model_name, user_id):
-                    await self._handle_unbook(model_name, user_id)
+                case UnbookAction(user_id, model_name):
+                    await self._handle_unbook(user_id, model_name)
+
+                case WarnUnbookingAction(user_id, model_name):
+                    await self._handle_warn_unbooking(user_id, model_name)
 
     async def handle_logs_signal(self, event: FetchAndProcessLogsEvent) -> None:
         logger.info(
@@ -180,7 +217,8 @@ class LogsProcessorWorker(ILogsProcessor):
         if metrics is None:
             return
 
-        actions = self._decision_maker.process(
+        actions = await self._decision_maker.process(
+            increase_interval=self._increase_interval,
             active_models=active_models,
             metrics=metrics,
         )
