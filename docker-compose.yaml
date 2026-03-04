@@ -71,5 +71,13 @@ services:
         condition: service_healthy
       migrator:
         condition: service_completed_successfully
+    ports:
+      - "8000:8000"
+    healthcheck:
+      test: [ "CMD", "curl", "-fsS", "http://localhost:8000/internal/ready" ]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
     env_file:
       - .env

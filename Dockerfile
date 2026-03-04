@@ -6,6 +6,8 @@ RUN adduser -D -u 1000 appuser
 
 COPY --chown=appuser:appuser requirements.txt .
 
+RUN apk add --no-cache curl
+
 RUN pip install --upgrade pip \
     && pip install --root-user-action=ignore --no-cache-dir -r requirements.txt
 
