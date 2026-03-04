@@ -4,6 +4,11 @@ from pydantic import BaseModel
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
+class AppConfig(BaseSettings):
+    host: str
+    port: int
+
+
 class PostgresConfig(BaseModel):
     host: str
     port: int
@@ -55,6 +60,7 @@ class GlobalConfig(BaseSettings):
         case_sensitive=False,
     )
 
+    app: AppConfig
     postgres: PostgresConfig
     worker: WorkerSettings
     rabbitmq: RabbitMQConfig

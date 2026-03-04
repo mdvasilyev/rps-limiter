@@ -20,12 +20,12 @@ async def main():
     connection_manager = await container.get(PostgresConnectionManager)
     app = create_faststream(broker, exchange)
     publisher = await container.get(IPublisher)
+    config = await container.get(GlobalConfig)
     setup_dishka(container, app)
 
     @app.after_startup
     async def startup():
         logger.info("Starting up")
-        config = await container.get(GlobalConfig)
         publisher.start(config.worker.process_interval)
 
     @app.after_shutdown
@@ -41,7 +41,9 @@ async def main():
         ]
     )
 
-    server = uvicorn.Server(uvicorn.Config(asgi_app, host="0.0.0.0", port=8000))
+    server = uvicorn.Server(
+        uvicorn.Config(asgi_app, host=config.app.host, port=config.app.port)
+    )
     await server.serve()
 
 
