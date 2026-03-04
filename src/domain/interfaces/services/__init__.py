@@ -1,4 +1,4 @@
-"""Service clients interfaces module."""
+"""Domain services interfaces module."""
 
 from .booking import IBooking
 from .decision_maker import IDecisionMaker

@@ -1,3 +1,5 @@
+"""Domain model DTO module."""
+
 from .actions import ScaleAction
 from .models import (
     EndpointDTO,

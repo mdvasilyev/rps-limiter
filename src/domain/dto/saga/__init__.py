@@ -1,3 +1,5 @@
+"""Domain saga DTO module."""
+
 from .models import SagaDTO, StepDTO
 from .queries import SagaQuery
 

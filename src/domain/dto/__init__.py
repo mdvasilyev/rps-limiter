@@ -1,1 +1,1 @@
-"""DTO module."""
+"""Domain DTO module."""

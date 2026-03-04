@@ -1,3 +1,5 @@
+"""Domain metric DTO module."""
+
 from .models import MetricDTO, MetricValueDTO
 
 __all__ = [

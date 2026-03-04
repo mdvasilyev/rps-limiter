@@ -1,5 +1,9 @@
 from pydantic import BaseModel
 
+from .models import SlotPeriodDTO
+
 
 class NotifyQuery(BaseModel):
-    pass
+    user_id: str
+    model_name: str
+    periods: list[SlotPeriodDTO]

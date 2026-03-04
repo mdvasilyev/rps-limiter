@@ -1,3 +1,5 @@
+"""Domain booking DTO module."""
+
 from .actions import UnbookAction
 from .models import PaginatedReservationDTO, ReservationDTO, SlotDTO, UserDTO
 from .queries import (

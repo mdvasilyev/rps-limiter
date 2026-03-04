@@ -1,4 +1,4 @@
-"""Exceptions module."""
+"""Domain exceptions module."""
 
 from .prometheus import PrometheusError
 from .worker import WorkerError

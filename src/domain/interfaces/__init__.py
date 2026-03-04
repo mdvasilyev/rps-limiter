@@ -1,1 +1,1 @@
-"""Interfaces module."""
+"""Domain interfaces module."""
