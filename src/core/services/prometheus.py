@@ -29,7 +29,10 @@ class PrometheusClient(BaseServiceClient, IPrometheus):
             if payload.get("status") != "success":
                 logger.error("Prometheus API error: {}", payload.get("error"))
                 raise PrometheusError(
-                    f"Prometheus returned status: {payload.get('status')}"
+                    "Prometheus returned non-success status",
+                    query=promql_query,
+                    status_code=response.status_code,
+                    details=str(payload.get("error") or payload.get("status")),
                 )
 
             results = payload.get("data", {}).get("result", [])
@@ -37,10 +40,28 @@ class PrometheusClient(BaseServiceClient, IPrometheus):
 
         except (RequestError, HTTPStatusError) as exc:
             logger.exception(f"HTTP error while querying Prometheus: {exc}")
-            raise PrometheusError(f"Network or HTTP error: {exc}") from exc
+            status_code = (
+                exc.response.status_code
+                if isinstance(exc, HTTPStatusError) and exc.response is not None
+                else None
+            )
+            raise PrometheusError(
+                "Network or HTTP error while querying Prometheus",
+                query=promql_query,
+                status_code=status_code,
+                details=str(exc),
+            ) from exc
         except ValidationError as exc:
             logger.exception(f"Prometheus response schema mismatch: {exc}")
-            raise PrometheusError("Response validation failed") from exc
+            raise PrometheusError(
+                "Prometheus response validation failed",
+                query=promql_query,
+                details=str(exc),
+            ) from exc
         except ValueError as exc:
             logger.exception("Failed to parse Prometheus response")
-            raise PrometheusError("Invalid JSON response") from exc
+            raise PrometheusError(
+                "Invalid JSON in Prometheus response",
+                query=promql_query,
+                details=str(exc),
+            ) from exc

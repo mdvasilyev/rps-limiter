@@ -1,2 +1,0 @@
-class WorkerError(Exception):
-    pass
