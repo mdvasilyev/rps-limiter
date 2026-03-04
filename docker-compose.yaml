@@ -29,6 +29,38 @@ services:
     env_file:
       - .env
 
+  postgres:
+    image: postgres:16
+    container_name: postgres-cont
+    restart: on-failure
+    volumes:
+      - ./_postgres:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: ${POSTGRES__USER}
+      POSTGRES_PASSWORD: ${POSTGRES__PASSWORD}
+      POSTGRES_DB: ${POSTGRES__DB}
+    healthcheck:
+      test: pg_isready -U ${POSTGRES__USER} -d ${POSTGRES__DB}
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
+    env_file:
+      - .env
+
+  migrator:
+    container_name: migrator-cont
+    build:
+      dockerfile: migrator.Dockerfile
+      context: .
+    depends_on:
+      postgres:
+        condition: service_healthy
+    env_file:
+      - .env
+
   rps-limiter-worker:
     build:
       dockerfile: Dockerfile
@@ -37,5 +69,7 @@ services:
     depends_on:
       rabbitmq:
         condition: service_healthy
+      migrator:
+        condition: service_completed_successfully
     env_file:
       - .env
