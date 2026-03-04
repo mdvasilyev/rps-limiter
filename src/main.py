@@ -8,6 +8,7 @@ from loguru import logger
 from src.core.configurations.config import GlobalConfig
 from src.core.configurations.faststream import create_faststream
 from src.core.database.manager import PostgresConnectionManager
+from src.core.logging import setup_logging
 from src.domain.interfaces.services import IPublisher
 from src.healthcheck import liveness, readiness
 from src.ioc import create_container
@@ -15,12 +16,17 @@ from src.ioc import create_container
 
 async def main():
     container = create_container()
+
+    config = await container.get(GlobalConfig)
+
+    setup_logging(config.logging)
+
     broker = await container.get(RabbitBroker)
     exchange = await container.get(RabbitExchange)
     connection_manager = await container.get(PostgresConnectionManager)
     app = create_faststream(broker, exchange)
     publisher = await container.get(IPublisher)
-    config = await container.get(GlobalConfig)
+
     setup_dishka(container, app)
 
     @app.after_startup

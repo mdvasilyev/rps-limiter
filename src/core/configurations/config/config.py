@@ -9,6 +9,12 @@ class AppConfig(BaseSettings):
     port: int
 
 
+class LoggingConfig(BaseModel):
+    level: str
+    json: bool
+    service_name: str
+
+
 class PostgresConfig(BaseModel):
     host: str
     port: int
@@ -61,6 +67,7 @@ class GlobalConfig(BaseSettings):
     )
 
     app: AppConfig
+    logging: LoggingConfig
     postgres: PostgresConfig
     worker: WorkerSettings
     rabbitmq: RabbitMQConfig
