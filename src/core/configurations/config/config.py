@@ -4,6 +4,14 @@ from pydantic import BaseModel
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
+class PostgresConfig(BaseModel):
+    host: str
+    port: int
+    user: str
+    password: str
+    db: str
+
+
 class WorkerSettings(BaseModel):
     process_interval: int
     rps_interval: int
@@ -36,6 +44,10 @@ class PrometheusConfig(BaseModel):
     url: str
 
 
+class NotificatorConfig(BaseModel):
+    url: str
+
+
 class GlobalConfig(BaseSettings):
     model_config = SettingsConfigDict(
         env_file=".env",
@@ -43,9 +55,11 @@ class GlobalConfig(BaseSettings):
         case_sensitive=False,
     )
 
+    postgres: PostgresConfig
     worker: WorkerSettings
     rabbitmq: RabbitMQConfig
     model_registry: ModelRegistryConfig
     model_dispatcher: ModelDispatcherConfig
     booking: BookingServiceConfig
     prometheus: PrometheusConfig
+    notificator: NotificatorConfig
