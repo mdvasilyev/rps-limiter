@@ -8,19 +8,24 @@ from src.application.services import DecisionMaker, Publisher
 from src.application.workers import LogsProcessorWorker
 from src.core.broker import get_rabbitmq_broker, get_rabbitmq_exchange
 from src.core.configurations.config import GlobalConfig
+from src.core.database.manager import PostgresConnectionManager
+from src.core.database.repositories import RpsDataRepository
 from src.core.services import (
     BookingClient,
     ModelDispatcherClient,
     ModelLoadMonitor,
     ModelRegistryClient,
+    NotificatorClient,
     PrometheusClient,
 )
+from src.domain.interfaces.repositories import IRpsDataRepository
 from src.domain.interfaces.services import (
     IBooking,
     IDecisionMaker,
     IModelDispatcher,
     IModelLoadMonitor,
     IModelRegistry,
+    INotificator,
     IPrometheus,
     IPublisher,
 )
@@ -47,6 +52,10 @@ class AdaptersProvider(Provider):
     def rabbitmq_exchange(self, config: GlobalConfig) -> RabbitExchange:
         return get_rabbitmq_exchange(config.rabbitmq.exchange)
 
+    @provide(scope=scope)
+    def postgres_manager(self, config: GlobalConfig) -> PostgresConnectionManager:
+        return PostgresConnectionManager(config.postgres)
+
 
 class ServiceClientsProvider(Provider):
     scope = Scope.APP
@@ -69,6 +78,12 @@ class ServiceClientsProvider(Provider):
     ) -> ModelRegistryClient:
         return ModelRegistryClient(config.model_registry.url, client)
 
+    @provide(scope=scope, provides=INotificator)
+    def notificator_client(
+        self, config: GlobalConfig, client: AsyncClient
+    ) -> NotificatorClient:
+        return NotificatorClient(config.notificator.url, client)
+
     @provide(scope=scope, provides=IPrometheus)
     def prometheus_client(
         self, config: GlobalConfig, client: AsyncClient
@@ -76,12 +91,25 @@ class ServiceClientsProvider(Provider):
         return PrometheusClient(config.prometheus.url, client)
 
 
+class RepositoriesProvider(Provider):
+    scope = Scope.APP
+
+    @provide(scope=scope, provides=IRpsDataRepository)
+    def rps_data_repository(
+        self, connection_manager: PostgresConnectionManager
+    ) -> RpsDataRepository:
+        return RpsDataRepository(connection_manager)
+
+
 class ServicesProvider(Provider):
     scope = Scope.APP
 
     @provide(scope=scope, provides=IDecisionMaker)
-    def decision_maker(self, config: GlobalConfig) -> DecisionMaker:
+    def decision_maker(
+        self, config: GlobalConfig, rps_data_repository: IRpsDataRepository
+    ) -> DecisionMaker:
         return DecisionMaker(
+            rps_data_repository,
             config.worker.rps_threshold,
             config.worker.warn_after_mins,
             config.worker.unbook_after_mins,
@@ -92,7 +120,7 @@ class ServicesProvider(Provider):
         return ModelLoadMonitor(client, "entrypoint")
 
     @provide(scope=scope, provides=IPublisher)
-    def sigal_publisher(
+    def publisher(
         self, broker: RabbitBroker, exchange: RabbitExchange, config: GlobalConfig
     ) -> Publisher:
         return Publisher(broker, exchange, config.rabbitmq.logs_queue)
@@ -107,16 +135,20 @@ class WorkersProvider(Provider):
         booking_client: IBooking,
         model_registry_client: IModelRegistry,
         model_dispatcher_client: IModelDispatcher,
+        notificator_client: INotificator,
         model_load_monitor: IModelLoadMonitor,
         decision_maker: IDecisionMaker,
+        rps_data_repository: IRpsDataRepository,
         config: GlobalConfig,
     ) -> LogsProcessorWorker:
         return LogsProcessorWorker(
             booking_client,
             model_registry_client,
             model_dispatcher_client,
+            notificator_client,
             model_load_monitor,
             decision_maker,
+            rps_data_repository,
             config.worker.rps_interval,
             config.worker.increase_interval,
             config.worker.unbooking,

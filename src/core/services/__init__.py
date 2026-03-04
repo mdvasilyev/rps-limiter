@@ -1,4 +1,4 @@
-"""External service clients module."""
+"""Services module."""
 
 from .booking import BookingClient
 from .model_dispatcher import ModelDispatcherClient

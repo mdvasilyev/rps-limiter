@@ -2,6 +2,7 @@
 
 from .providers import (
     AdaptersProvider,
+    RepositoriesProvider,
     ServiceClientsProvider,
     ServicesProvider,
     WorkersProvider,
@@ -10,6 +11,7 @@ from .providers import (
 __all__ = [
     "AdaptersProvider",
     "ServiceClientsProvider",
+    "RepositoriesProvider",
     "ServicesProvider",
     "WorkersProvider",
 ]
